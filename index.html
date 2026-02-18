@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Operations System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .search-container {
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 18px 20px 18px 55px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+
+        .search-box:focus {
+            border-color: #27ae60;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 20px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 1200px) {
+            .services-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        .service-card {
+            background: #ffffff;
+            border: 2px solid #e8f5e9;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(39, 174, 96, 0.2);
+            border-color: #27ae60;
+        }
+
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .service-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover .service-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 16px rgba(39, 174, 96, 0.3);
+        }
+
+        .service-title {
+            color: #2c3e50;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .service-description {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+            font-size: 1.2em;
+            display: none;
+        }
+
+        .no-results.show {
+            display: block;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+            text-align: center;
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+        }
+
+        .modal-title {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .modal-description {
+            color: #7f8c8d;
+            font-size: 1em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .modal-close {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .modal-close:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e8f5e9;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Shop Operations System</h1>
+            <p>Comprehensive telecommunication services management</p>
+        </div>
+
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" 
+                   class="search-box" 
+                   id="searchInput" 
+                   placeholder="Search for services...">
+        </div>
+
+        <div class="services-grid" id="servicesGrid">
+            <!-- Service cards will be dynamically generated -->
+        </div>
+
+        <div class="no-results" id="noResults">
+            No services found matching your search.
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 Shop Operations System. All rights reserved.</p>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="serviceModal">
+        <div class="modal-content">
+            <div class="modal-icon" id="modalIcon"></div>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <p class="modal-description" id="modalDescription"></p>
+            <button class="modal-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Service data
+        const services = [
+            {
+                title: 'Buy Number',
+                icon: '📱',
+                description: 'Purchase new phone numbers for your business or personal use'
+            },
+            {
+                title: 'Check ID Limitation',
+                icon: '🆔',
+                description: 'Verify ID card limitations and registration restrictions'
+            },
+            {
+                title: 'Redeem SIM',
+                icon: '📲',
+                description: 'SIM card redemption and activation service'
+            },
+            {
+                title: 'Redeem CUG',
+                icon: '👥',
+                description: 'Closed User Group redemption for corporate accounts'
+            },
+            {
+                title: 'Redeem Digital Gross Add',
+                icon: '📊',
+                description: 'Digital gross add redemption with percentage calculations'
+            },
+            {
+                title: 'Change SIM',
+                icon: '🔄',
+                description: 'Replace or change your existing SIM card'
+            },
+            {
+                title: 'eTop up',
+                icon: '💳',
+                description: 'Electronic top-up for mobile prepaid accounts'
+            },
+            {
+                title: 'eTop Up Multiple Numbers',
+                icon: '💰',
+                description: 'Bulk electronic top-up for multiple phone numbers'
+            },
+            {
+                title: 'Home Internet',
+                icon: '🏠',
+                description: 'Setup and manage home internet services'
+            },
+            {
+                title: 'Upgrade to 5G CPE',
+                icon: '📡',
+                description: '5G CPE upgrade service for enhanced connectivity'
+            },
+            {
+                title: 'Update Profile',
+                icon: '👤',
+                description: 'Update customer profile information and preferences'
+            },
+            {
+                title: 'Transfer Ownership',
+                icon: '🔐',
+                description: 'Transfer account ownership to another person'
+            },
+            {
+                title: 'Bill Payment',
+                icon: '💵',
+                description: 'Pay your monthly bills and manage payment history'
+            },
+            {
+                title: 'Data Plans',
+                icon: '📈',
+                description: 'Subscribe to data plans and manage data packages'
+            },
+            {
+                title: 'Roaming Service',
+                icon: '🌍',
+                description: 'Activate and manage international roaming services'
+            },
+            {
+                title: 'Device Upgrade',
+                icon: '📱',
+                description: 'Upgrade your device with the latest models'
+            }
+        ];
+
+        // Initialize the application
+        function init() {
+            renderServices(services);
+            setupSearch();
+        }
+
+        // Render service cards
+        function renderServices(servicesArray) {
+            const grid = document.getElementById('servicesGrid');
+            const noResults = document.getElementById('noResults');
+            
+            grid.innerHTML = '';
+            
+            if (servicesArray.length === 0) {
+                noResults.classList.add('show');
+                return;
+            }
+            
+            noResults.classList.remove('show');
+            
+            servicesArray.forEach(service => {
+                const card = document.createElement('div');
+                card.className = 'service-card';
+                card.innerHTML = `
+                    <div class="service-icon">${service.icon}</div>
+                    <div class="service-title">${service.title}</div>
+                    <div class="service-description">${service.description}</div>
+                `;
+                card.addEventListener('click', () => openModal(service));
+                grid.appendChild(card);
+            });
+        }
+
+        // Setup search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filtered = services.filter(service => 
+                    service.title.toLowerCase().includes(searchTerm) ||
+                    service.description.toLowerCase().includes(searchTerm)
+                );
+                renderServices(filtered);
+            });
+        }
+
+        // Open modal with service details
+        function openModal(service) {
+            const modal = document.getElementById('serviceModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+            
+            modalIcon.textContent = service.icon;
+            modalTitle.textContent = service.title;
+            modalDescription.textContent = `You have selected the ${service.title} service. ${service.description}. This feature will be implemented to handle the complete workflow for this operation.`;
+            
+            modal.classList.add('show');
+        }
+
+        // Close modal
+        function closeModal() {
+            const modal = document.getElementById('serviceModal');
+            modal.classList.remove('show');
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('serviceModal');
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
