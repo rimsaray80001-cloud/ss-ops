@@ -1,1 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart CRM – Customer</title>
+    style.css
+</head>
+<body>
 
+<!-- Sidebar -->
+<div class="sidebar">
+    <h2 class="logo">Smart CRM</h2>
+    <ul>
+        <li class="active">Customers</li>
+        <li>Settings</li>
+    </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+    <div class="header">
+        <h2>Customers</h2>
+
+        <!-- Add Customer Button -->
+        <button id="btnAddCustomer" class="btn-primary">
+            ➕ Add Customer
+        </button>
+    </div>
+
+    <p class="note">Customer list will display here (table coming later)</p>
+</div>
+
+<!-- Popup Modal -->
+<div id="customerModal" class="modal">
+    <div class="modal-content">
+        <span id="closeModal" class="close">&times;</span>
+        <h2>Add New Customer</h2>
+
+        <form id="customerForm">
+            <label>Full Name</label>
+            <input type="text" name="name" required>
+
+            <label>Phone</label>
+            <input type="text" name="phone">
+
+            <label>Email</label>
+            <input type="email" name="email">
+
+            <label>Address</label>
+            <input type="text" name="address">
+
+            <label>Type</label>
+            <select name="type">
+                <option value="Retail">Retail</option>
+                <option value="Corporate">Corporate</option>
+                <option value="Merchant">Merchant</option>
+            </select>
+
+            <button type="submit" class="btn-primary full-width">Save</button>
+        </form>
+    </div>
+</div>
+
+app.js</script>
+</body>
+</html>
