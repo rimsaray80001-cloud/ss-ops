@@ -1,66 +1,505 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <title>Smart CRM – Customer</title>
-    style.css
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Shop — KPI Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">SS</div>
+      <div>
+        <div class="brand-title">Smart Shop</div>
+        <div class="brand-sub">Assistant Supervisor</div>
+      </div>
+    </div>
 
-<!-- Sidebar -->
-<div class="sidebar">
-    <h2 class="logo">Smart CRM</h2>
-    <ul>
-        <li class="active">Customers</li>
-        <li>Settings</li>
-    </ul>
-</div>
+    <nav class="menu" id="sideMenu">
+      <!-- Dashboard (single) -->
+      <a class="item" data-route="dashboard">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 13h8V3H3v10zm10 8h8V3h-8v18zM3 21h8v-6H3v6z" stroke="currentColor" stroke-width="1.5"/></svg>
+        <span>Dashboard</span>
+      </a>
 
-<!-- Main Content -->
-<div class="main">
-    <div class="header">
-        <h2>Customers</h2>
-
-        <!-- Add Customer Button -->
-        <button id="btnAddCustomer" class="btn-primary">
-            ➕ Add Customer
+      <!-- Report Management -->
+      <div class="menu-group" data-group="report" aria-expanded="false">
+        <button class="item item-parent" data-route="report-management" data-roles="Admin,Supervisor">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v4H4zM4 10h10v4H4zM4 16h16v4H4z" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Report Management</span>
+          <svg class="caret" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
         </button>
-    </div>
+        <div class="submenu">
+          <a class="item sub" data-route="report-daily">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 19h16M6 15l3-3 3 3 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Daily Report</span>
+          </a>
+          <a class="item sub" data-route="report-add-sale" data-roles="Admin,Supervisor,Agent">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span>Add Sale</span>
+          </a>
+          <a class="item sub" data-route="report">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 4h12v4H6zM6 10h12v10H6z" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>Report</span>
+          </a>
+        </div>
+      </div>
 
-    <p class="note">Customer list will display here (table coming later)</p>
-</div>
+      <!-- Deposit Management -->
+      <div class="menu-group" data-group="deposit" aria-expanded="false">
+        <button class="item item-parent" data-route="deposit-management" data-roles="Admin,Supervisor">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3 7h18M6 3h12M4 7v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Deposit Management</span>
+          <svg class="caret" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <div class="submenu">
+          <a class="item sub" data-route="deposit-daily">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 12h16M8 16h8M6 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Daily Deposit</span>
+          </a>
+        </div>
+      </div>
 
-<!-- Popup Modal -->
-<div id="customerModal" class="modal">
-    <div class="modal-content">
-        <span id="closeModal" class="close">&times;</span>
-        <h2>Add New Customer</h2>
+      <!-- Customer -->
+      <div class="menu-group" data-group="customer" aria-expanded="false">
+        <button class="item item-parent" data-route="customer" data-roles="Admin,Supervisor,Agent">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm8 9a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Customer</span>
+          <svg class="caret" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <div class="submenu">
+          <a class="item sub" data-route="customer-management">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 20v-1a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7v1" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>Customer Management</span>
+          </a>
+          <a class="item sub" data-route="customer-topup">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Top‑Up Management</span>
+          </a>
+          <a class="item sub" data-route="customer-alerts">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M3 12a9 9 0 1 1 18 0 9 9 0 0 1-18 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Expiry Alerts</span>
+          </a>
+        </div>
+      </div>
 
-        <form id="customerForm">
-            <label>Full Name</label>
-            <input type="text" name="name" required>
+      <!-- Promotion (single) -->
+      <a class="item" data-route="promotion">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 12h8l2-3 6 9M4 4h8M4 8h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        <span>Promotion</span>
+      </a>
 
-            <label>Phone</label>
-            <input type="text" name="phone">
+      <!-- Setting -->
+      <div class="menu-group" data-group="setting" aria-expanded="false">
+        <button class="item item-parent" data-route="setting" data-roles="Admin,Supervisor">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM3 12h3M18 12h3M12 3v3M12 18v3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Setting</span>
+          <svg class="caret" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <div class="submenu">
+          <a class="item sub" data-route="permission" data-roles="Admin">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M16 11V7a4 4 0 0 0-8 0v4M4 11h16v10H4V11z" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>Permission</span>
+          </a>
+          <a class="item sub" data-route="kpi-setting" data-roles="Admin,Supervisor">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 19h16M6 15l3-3 3 3 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>KPI Setting</span>
+          </a>
+        </div>
+      </div>
+    </nav>
 
-            <label>Email</label>
-            <input type="email" name="email">
+    <div class="sidebar-footer">RBAC • Brand <strong style="color:var(--brand)">#27AB49</strong></div>
+  </aside>
 
-            <label>Address</label>
-            <input type="text" name="address">
+  <!-- ===== CONTENT ===== -->
+  <div class="content">
+    <header class="topbar">
+      <div class="left-tools">
+        <button class="btn burger" id="burgerBtn" aria-label="Open sidebar">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <div class="title">KPI Dashboard</div>
+      </div>
+      <div class="right-tools">
+        <!-- Theme -->
+        <div class="toggle" id="themeToggle" role="button" tabindex="0" aria-pressed="true" aria-label="Toggle dark mode">
+          <svg id="iconSun" viewBox="0 0 24 24" fill="none" style="display:none;"><path d="M12 4V2M12 22v-2M4.93 4.93L3.52 3.52M20.48 20.48l-1.41-1.41M4 12H2m20 0h-2M4.93 19.07l-1.41 1.41M20.48 3.52l-1.41 1.41M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg id="iconMoon" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span class="state" id="themeState">Dark</span>
+        </div>
+        <!-- Role + Active User -->
+        <select id="roleSelect" title="Current role">
+          <option value="Admin">Admin (អ្នកគ្រប់គ្រង)</option>
+          <option value="Supervisor">Supervisor (អ្នកត្រួតពិនិត្យ)</option>
+          <option value="Agent">Agent (ភ្នាក់ងារ)</option>
+        </select>
+        <select id="activeUserSelect" title="Active user"></select>
+      </div>
+    </header>
 
-            <label>Type</label>
-            <select name="type">
-                <option value="Retail">Retail</option>
-                <option value="Corporate">Corporate</option>
-                <option value="Merchant">Merchant</option>
-            </select>
+    <main>
+      <!-- ===== DASHBOARD (minimal placeholder—focus is other full features) ===== -->
+      <section id="page-dashboard" class="page">
+        <div class="panel"><h2>Dashboard</h2>
+          <p class="hint">Dashboard widgets can be added here. Main full features are implemented under Report, Deposit, and Customer.</p>
+        </div>
+      </section>
 
-            <button type="submit" class="btn-primary full-width">Save</button>
-        </form>
-    </div>
-</div>
+      <!-- ===== REPORT MANAGEMENT ===== -->
+      <section id="page-report-daily" class="page" hidden>
+        <div class="panel">
+          <h2>Daily Report</h2>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="chip">Period:
+              <select id="perfPeriod">
+                <option value="3">Last 3 months</option>
+                <option value="6">Last 6 months</option>
+                <option value="12" selected>Last 12 months</option>
+              </select>
+            </span>
+            <span class="chip">Growth MoM: <strong id="growthMoM">—</strong></span>
+            <button class="btn primary" id="btnAddSales">+ Add Sales</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Sales Performance</h2>
+          <canvas id="salesPerfChart" aria-label="Sales Performance" role="img"></canvas>
+        </div>
+        <div class="panel">
+          <h2>Sales Table</h2>
+          <div style="overflow:auto;">
+            <table id="salesTable">
+              <thead>
+                <tr>
+                  <th>Date</th><th>Staff</th><th>Branch</th>
+                  <th>Gross Ads</th><th>Change SIM</th><th>S@Home</th><th>Fiber+</th>
+                  <th>Recharge ($)</th><th>SC-Shop ($)</th><th>SC-Dealer ($)</th><th>Total ($)</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-app.js</script>
+      <section id="page-report-add-sale" class="page" hidden>
+        <div class="panel">
+          <h2>Add Sale</h2>
+          <form id="salesInlineForm">
+            <div class="modal-body" style="padding:0; margin-top:10px;">
+              <div class="field"><label>Date</label><input id="sDate2" type="date" required/></div>
+              <div class="field"><label>Staff Name</label><input id="sStaff2" type="text" required/></div>
+              <div class="field"><label>Branch</label><input id="sBranch2" type="text" required/></div>
+              <div class="field"><label>Gross Ads</label><input id="sGross2" type="number" min="0" step="1"/></div>
+              <div class="field"><label>Change SIM</label><input id="sChangeSim2" type="number" min="0" step="1"/></div>
+              <div class="field"><label>S@Home</label><input id="sSHome2" type="number" min="0" step="1"/></div>
+              <div class="field"><label>Fiber+</label><input id="sFiber2" type="number" min="0" step="1"/></div>
+              <div class="field"><label>Recharge ($)</label><input id="sRecharge2" type="number" min="0" step="0.01"/></div>
+              <div class="field"><label>SC-Shop ($)</label><input id="sSCShop2" type="number" min="0" step="0.01"/></div>
+              <div class="field"><label>SC-Dealer ($)</label><input id="sSCDealer2" type="number" min="0" step="0.01"/></div>
+              <div class="field"><label>Total Revenue ($)</label><input id="sTotal2" type="number" min="0" step="0.01" required/></div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px;">
+              <button class="btn ghost" type="reset">Reset</button>
+              <button class="btn primary" type="submit">Save</button>
+            </div>
+            <p class="hint">Permissions: Admin (all), Supervisor (same branch), Agent (self only).</p>
+          </form>
+        </div>
+      </section>
+
+      <section id="page-report" class="page" hidden>
+        <div class="panel">
+          <h2>Filters</h2>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="chip"><label for="repStart">Start</label> <input id="repStart" type="date"/></span>
+            <span class="chip"><label for="repEnd">End</label> <input id="repEnd" type="date"/></span>
+            <span class="chip"><input id="repStaff" type="text" placeholder="Search staff..."/></span>
+            <span class="chip"><select id="repBranch" title="Branch (Admin only)"></select></span>
+            <button class="btn" id="btnApplyFilters">Apply</button>
+            <button class="btn ghost" id="btnResetFilters">Reset</button>
+            <button class="btn primary" id="btnExportExcel">Export Excel</button>
+          </div>
+        </div>
+
+        <div class="grid cards">
+          <div class="card"><div class="title">Total Items</div><div class="kpi"><div class="value" id="statTotalItems">—</div><div class="trend"></div></div></div>
+          <div class="card"><div class="title">Total Revenue</div><div class="kpi"><div class="value" id="statTotalRevenue">—</div><div class="trend"></div></div></div>
+          <div class="card"><div class="title">Total Records</div><div class="kpi"><div class="value" id="statTotalRecords">—</div><div class="trend"></div></div></div>
+          <div class="card"><div class="title">Average per Day</div><div class="kpi"><div class="value" id="statAveragePerDay">—</div><div class="trend"></div></div></div>
+        </div>
+
+        <div class="panel">
+          <h2>Detailed Report</h2>
+          <div style="overflow:auto;">
+            <table id="reportTable">
+              <thead>
+                <tr>
+                  <th>Date</th><th>Staff</th><th>Branch</th>
+                  <th>Gross Ads</th><th>Change SIM</th><th>S@Home</th><th>Fiber+</th>
+                  <th>Recharge ($)</th><th>SC-Shop ($)</th><th>SC-Dealer ($)</th><th>Total ($)</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="3" style="text-align:right">Totals:</th>
+                  <th id="ftGross">0</th><th id="ftChangeSim">0</th><th id="ftSHome">0</th><th id="ftFiber">0</th>
+                  <th id="ftRecharge">0</th><th id="ftSCShop">0</th><th id="ftSCDealer">0</th><th id="ftTotal">0</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== DEPOSIT MANAGEMENT ===== -->
+      <section id="page-deposit-daily" class="page" hidden>
+        <div class="panel">
+          <h2>Daily Deposit</h2>
+          <div class="toolbar"><button class="btn primary" id="btnAddDeposit">+ Add Deposit</button></div>
+        </div>
+        <div class="panel">
+          <h2>Deposits</h2>
+          <div style="overflow:auto;">
+            <table id="depositTable">
+              <thead><tr><th>Date</th><th>Staff</th><th>Branch</th><th>Cash ($)</th><th>Credit ($)</th><th>Note</th><th>Actions</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== CUSTOMER ===== -->
+      <section id="page-customer-management" class="page" hidden>
+        <div class="panel">
+          <h2>Customer Management</h2>
+          <div class="toolbar"><button class="btn primary" id="btnAddCustomer">+ Add Customer</button></div>
+        </div>
+        <div class="panel">
+          <h2>Customers</h2>
+          <div style="overflow:auto;">
+            <table id="customersTable">
+              <thead>
+                <tr>
+                  <th>Date</th><th>Staff</th><th>Branch</th>
+                  <th>Name</th><th>Phone</th><th>Product</th><th>Status</th><th>Remark</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-customer-topup" class="page" hidden>
+        <div class="panel">
+          <h2>Top‑Up Management</h2>
+          <div class="toolbar">
+            <button class="btn primary" id="btnAddTopUp">+ Add Top‑Up</button>
+            <span class="chip">Expiring soon: <strong id="countExpSoon">0</strong></span>
+            <span class="chip">Expired: <strong id="countExpired">0</strong></span>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Top‑Ups</h2>
+          <div style="overflow:auto;">
+            <table id="topupTable">
+              <thead>
+                <tr>
+                  <th>Date</th><th>Staff</th><th>Branch</th>
+                  <th>Customer</th><th>Phone</th><th>Contact Phone</th>
+                  <th>Product</th><th>Expiry Date</th><th>Remark</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-customer-alerts" class="page" hidden>
+        <div class="grid" style="grid-template-columns:1fr 1fr;">
+          <div class="panel alert-red">
+            <h3 style="margin-top:0">Expired Customers (<span id="expiredCount">0</span>)</h3>
+            <ul id="expiredList"></ul>
+          </div>
+          <div class="panel alert-yellow">
+            <h3 style="margin-top:0">Expiring Soon (≤ 7 days) (<span id="expSoonCount">0</span>)</h3>
+            <ul id="expSoonList"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PROMOTION ===== -->
+      <section id="page-promotion" class="page" hidden>
+        <div class="panel"><h2>Promotion</h2><p class="hint">Coming soon — campaigns, performance, and A/B tests.</p></div>
+      </section>
+
+      <!-- ===== SETTINGS ===== -->
+      <section id="page-setting" class="page" hidden>
+        <div class="panel"><h2>Setting</h2><p class="hint">Use the submenu to manage <strong>Permission</strong> and <strong>KPI Setting</strong>.</p></div>
+      </section>
+
+      <section id="page-permission" class="page" hidden>
+        <div class="panel">
+          <h2>Permission <span class="badge">Admin Only</span></h2>
+          <div style="display:flex; gap:8px; margin:10px 0;">
+            <button class="btn primary" id="btnAddUser">+ Add User</button>
+          </div>
+          <div style="overflow:auto;">
+            <table id="userTable">
+              <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Branch</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-kpi-setting" class="page" hidden>
+        <div class="panel">
+          <h2>KPI Setting</h2>
+          <div style="overflow:auto;">
+            <table id="kpiTable"><thead><tr><th>KPI</th><th>Monthly Target</th></tr></thead><tbody></tbody></table>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button class="btn primary" id="btnSaveTargets">Save Targets</button>
+            <button class="btn ghost" id="btnResetTargets">Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 403 ===== -->
+      <section id="page-403" class="page" hidden>
+        <div class="panel denied"><h3>Access denied</h3><p>You don’t have permission to view this page.</p></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===== MODALS ===== -->
+  <!-- Sales Modal -->
+  <dialog id="salesDialog">
+    <form method="dialog" id="salesForm">
+      <div class="modal-head"><div id="salesDlgTitle" style="font-weight:700">Add Sales</div><button class="btn ghost" type="button" onclick="window.closeSalesModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Date</label><input id="sDate" type="date" required/></div>
+        <div class="field"><label>Staff Name</label><input id="sStaff" type="text" required/></div>
+        <div class="field"><label>Branch</label><input id="sBranch" type="text" required/></div>
+        <div class="field"><label>Gross Ads</label><input id="sGross" type="number" min="0" step="1"/></div>
+        <div class="field"><label>Change SIM</label><input id="sChangeSim" type="number" min="0" step="1"/></div>
+        <div class="field"><label>S@Home</label><input id="sSHome" type="number" min="0" step="1"/></div>
+        <div class="field"><label>Fiber+</label><input id="sFiber" type="number" min="0" step="1"/></div>
+        <div class="field"><label>Recharge ($)</label><input id="sRecharge" type="number" min="0" step="0.01"/></div>
+        <div class="field"><label>SC-Shop ($)</label><input id="sSCShop" type="number" min="0" step="0.01"/></div>
+        <div class="field"><label>SC-Dealer ($)</label><input id="sSCDealer" type="number" min="0" step="0.01"/></div>
+        <div class="field"><label>Total Revenue ($)</label><input id="sTotal" type="number" min="0" step="0.01" required/></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" type="button" onclick="window.closeSalesModal()">Cancel</button>
+        <button class="btn primary" type="submit">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Deposit Modal -->
+  <dialog id="depositDialog">
+    <form method="dialog" id="depositForm">
+      <div class="modal-head"><div id="depositDlgTitle" style="font-weight:700">Add Deposit</div><button class="btn ghost" type="button" onclick="window.closeDepositModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Date</label><input id="dDate" type="date" required/></div>
+        <div class="field"><label>Staff</label><input id="dStaff" type="text" required/></div>
+        <div class="field"><label>Branch</label><input id="dBranch" type="text" required/></div>
+        <div class="field"><label>Cash ($)</label><input id="dCash" type="number" min="0" step="0.01"/></div>
+        <div class="field"><label>Credit ($)</label><input id="dCredit" type="number" min="0" step="0.01"/></div>
+        <div class="field" style="grid-column:1/-1;"><label>Note</label><input id="dNote" type="text"/></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" type="button" onclick="window.closeDepositModal()">Cancel</button>
+        <button class="btn primary" type="submit">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Customer Modal -->
+  <dialog id="customerDialog">
+    <form method="dialog" id="customerForm">
+      <div class="modal-head"><div id="customerDlgTitle" style="font-weight:700">Add Customer</div><button class="btn ghost" type="button" onclick="window.closeCustomerModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Date</label><input id="cDate" type="date" required/></div>
+        <div class="field"><label>Staff</label><input id="cStaff" type="text" required/></div>
+        <div class="field"><label>Branch</label><input id="cBranch" type="text" required/></div>
+        <div class="field"><label>Name</label><input id="cName" type="text" required/></div>
+        <div class="field"><label>Phone</label><input id="cPhone" type="text" required/></div>
+        <div class="field"><label>Product</label>
+          <select id="cProduct"><option>Smart@Home</option><option>Smart Fiber+</option><option>M2M</option></select>
+        </div>
+        <div class="field"><label>Status</label>
+          <select id="cStatus"><option>New Lead</option><option>Prospect</option><option>Hot Prospect</option><option>Closed</option></select>
+        </div>
+        <div class="field" style="grid-column:1/-1;"><label>Remark</label><input id="cRemark" type="text"/></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" type="button" onclick="window.closeCustomerModal()">Cancel</button>
+        <button class="btn primary" type="submit">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- TopUp Modal -->
+  <dialog id="topupDialog">
+    <form method="dialog" id="topupForm">
+      <div class="modal-head"><div id="topupDlgTitle" style="font-weight:700">Add Top‑Up</div><button class="btn ghost" type="button" onclick="window.closeTopUpModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Date</label><input id="tDate" type="date" required/></div>
+        <div class="field"><label>Staff</label><input id="tStaff" type="text" required/></div>
+        <div class="field"><label>Branch</label><input id="tBranch" type="text" required/></div>
+        <div class="field"><label>Customer</label><input id="tCustomer" type="text" required/></div>
+        <div class="field"><label>Phone</label><input id="tPhone" type="text" required/></div>
+        <div class="field"><label>Contact Phone (Emergency)</label><input id="tContactPhone" type="text"/></div>
+        <div class="field"><label>Product</label>
+          <select id="tProduct"><option>Smart@Home</option><option>Smart Fiber+</option><option>M2M</option></select>
+        </div>
+        <div class="field"><label>Expiry Date</label><input id="tExpiry" type="date" required/></div>
+        <div class="field" style="grid-column:1/-1;"><label>Remark</label><input id="tRemark" type="text"/></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" type="button" onclick="window.closeTopUpModal()">Cancel</button>
+        <button class="btn primary" type="submit">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- User Dialog -->
+  <dialog id="userDialog">
+    <form method="dialog" id="userForm">
+      <div class="modal-head"><div id="userDlgTitle" style="font-weight:700">Add User</div><button class="btn ghost" type="button" onclick="window.closeUserDialog()">✕</button></div>
+      <div class="modal-body full">
+        <div class="field"><label>Name</label><input id="fName" type="text" required/></div>
+        <div class="field"><label>Email</label><input id="fEmail" type="email" placeholder="name@company.com"/></div>
+        <div class="field"><label>Role — Admin (អ្នកគ្រប់គ្រង), Supervisor (អ្នកត្រួតពិនិត្យ), Agent (ភ្នាក់ងារ)</label>
+          <select id="fRole"><option>Admin</option><option>Supervisor</option><option>Agent</option></select>
+        </div>
+        <div class="field"><label>Branch</label><input id="fBranch" type="text" value="5478"/></div>
+        <div class="field"><label>Status — Active (សកម្ម) / Inactive (អសកម្ម)</label>
+          <select id="fStatus"><option>Active</option><option>Inactive</option></select>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" type="button" onclick="window.closeUserDialog()">Cancel</button>
+        <button class="btn primary" type="submit" id="userSubmitBtn">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ===== LIBS: Chart.js + SheetJS ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- ===== APP SCRIPT ===== -->
+  <script src="app.js" defer></script>
 </body>
 </html>
