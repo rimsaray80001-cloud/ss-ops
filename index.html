@@ -13,7 +13,7 @@
     <style>
         :root {
             --primary: #23AD4A; --primary-hover: #1e913e; --primary-light: #e8f5e9;
-            --danger: #ef5350; --info: #2196f3; --bg: #f8f9fa;
+            --danger: #ef5350; --danger-light: #ffebee; --info: #2196f3; --bg: #f8f9fa;
             --text-main: #202124; --text-muted: #5f6368; --border: #dadce0;
             --sidebar-width: 260px;
         }
@@ -32,12 +32,16 @@
         .main-content { margin-left: var(--sidebar-width); flex: 1; height: 100vh; overflow-y: auto; }
         .top-navbar { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 90; }
         
+        /* Alert Banner */
+        .alert-banner { background: var(--danger-light); border: 1px solid var(--danger); color: #b71c1c; margin: 20px 40px 0 40px; padding: 15px 20px; border-radius: 8px; display: none; }
+        .alert-item { font-size: 0.85rem; margin-top: 5px; font-weight: 600; }
+
         /* Dashboard Layout */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 30px 40px 10px 40px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 20px 40px; }
         .stat-card { background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border); }
         .stat-card .value { font-size: 2.1rem; font-weight: 600; }
 
-        .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 20px 40px; }
+        .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 0 40px 20px 40px; }
         .chart-box { background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border); height: 350px; }
 
         #sync-status { display: none; position: fixed; top: 20px; right: 20px; background: white; border: 1px solid var(--primary); color: var(--primary); padding: 10px 20px; border-radius: 50px; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-weight: 600; }
@@ -74,13 +78,21 @@
         </div>
 
         <section id="view-dashboard">
+            <div id="exp-alert-banner" class="alert-banner">
+                <div style="display:flex; align-items:center; gap:8px">
+                    <span style="font-size:1.2rem">⚠️</span>
+                    <strong>Action Required: Expiry Alerts</strong>
+                </div>
+                <div id="alert-list"></div>
+            </div>
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600">REVENUE THIS MONTH</div>
                     <div class="value" id="dash-rev">$0.00</div>
                 </div>
                 <div class="stat-card">
-                    <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600">EXPIRING (7 DAYS)</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600">EXPIRING WITHIN 7 DAYS</div>
                     <div class="value" id="dash-alert" style="color:var(--danger)">0</div>
                 </div>
             </div>
@@ -155,43 +167,63 @@
                 transactions = await response.json();
                 render();
                 updateCharts();
-            } catch (e) { console.error("Sync Error", e); }
+            } catch (e) { console.error(e); }
             document.getElementById('sync-status').style.display = 'none';
         }
 
         function render() {
             const body = document.getElementById('table-body');
+            const alertBanner = document.getElementById('exp-alert-banner');
+            const alertList = document.getElementById('alert-list');
+            
             body.innerHTML = '';
-            let rev = 0, alerts = 0;
+            alertList.innerHTML = '';
+            
+            let rev = 0, alertsCount = 0;
             const now = new Date();
+            now.setHours(0, 0, 0, 0);
 
             transactions.forEach((t, i) => {
+                const expDate = new Date(t.expire);
+                expDate.setHours(0, 0, 0, 0);
+                
+                const diffTime = expDate - now;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                // 1. Alert Message Logic (7 days or less)
+                if (diffDays <= 7) {
+                    alertsCount++;
+                    alertList.innerHTML += `
+                        <div class="alert-item">
+                            • ${t.customer} (${t.number}) expires in ${diffDays < 0 ? 'ALREADY EXPIRED' : diffDays + ' days'} (${t.expire})
+                        </div>`;
+                }
+
+                // 2. Render Table
                 body.innerHTML += `<tr>
                     <td>${t.agent}</td>
                     <td><b>${t.customer}</b><br><small>${t.contact}</small></td>
                     <td>${t.number}</td>
                     <td>${t.plan}</td>
                     <td style="font-weight:600">$${parseFloat(t.amount).toFixed(2)}</td>
-                    <td>${t.expire}</td>
+                    <td style="color:${diffDays <= 7 ? 'var(--danger)' : 'inherit'}; font-weight:${diffDays <= 7 ? 'bold' : 'normal'}">${t.expire}</td>
                     <td><button style="border:none; background:none; color:var(--info); cursor:pointer" onclick="openModal(${i})">Edit</button></td>
                 </tr>`;
                 
+                // 3. Monthly Revenue Logic
                 const tDate = new Date(t.renew);
                 if(tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear()) rev += parseFloat(t.amount);
-                
-                const expDate = new Date(t.expire);
-                const diff = (expDate - now) / (1000*60*60*24);
-                if(diff <= 7 && diff >= 0) alerts++;
             });
 
+            // Toggle Alert Banner visibility
+            alertBanner.style.display = alertsCount > 0 ? 'block' : 'none';
             document.getElementById('dash-rev').innerText = `$${rev.toFixed(2)}`;
-            document.getElementById('dash-alert').innerText = alerts;
+            document.getElementById('dash-alert').innerText = alertsCount;
         }
 
         function updateCharts() {
             const agentData = {};
             const planData = {};
-
             transactions.forEach(t => {
                 agentData[t.agent] = (agentData[t.agent] || 0) + parseFloat(t.amount);
                 planData[t.plan] = (planData[t.plan] || 0) + 1;
@@ -205,12 +237,7 @@
                 type: 'bar',
                 data: {
                     labels: Object.keys(agentData),
-                    datasets: [{
-                        label: 'Revenue ($)',
-                        data: Object.values(agentData),
-                        backgroundColor: '#23AD4A',
-                        borderRadius: 6
-                    }]
+                    datasets: [{ label: 'Revenue ($)', data: Object.values(agentData), backgroundColor: '#23AD4A', borderRadius: 6 }]
                 },
                 options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
@@ -220,10 +247,7 @@
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(planData),
-                    datasets: [{
-                        data: Object.values(planData),
-                        backgroundColor: ['#23AD4A', '#2196f3', '#ef5350', '#ffb300', '#9c27b0', '#00bcd4']
-                    }]
+                    datasets: [{ data: Object.values(planData), backgroundColor: ['#23AD4A', '#2196f3', '#ef5350', '#ffb300', '#9c27b0'] }]
                 },
                 options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
@@ -232,13 +256,9 @@
         function switchTab(t) {
             document.getElementById('view-dashboard').style.display = (t==='dashboard' ? 'block' : 'none');
             document.getElementById('view-history').style.display = (t==='history' ? 'block' : 'none');
-            
             document.getElementById('m-dash').classList.toggle('active', t==='dashboard');
             document.getElementById('m-hist').classList.toggle('active', t==='history');
-            
             document.getElementById('page-title').innerText = t==='dashboard' ? 'Dashboard Overview' : 'Transaction History';
-            
-            // If switching back to dashboard, ensure charts resize correctly
             if(t==='dashboard') updateCharts();
         }
 
@@ -272,7 +292,6 @@
         function openModal(i = -1) {
             document.getElementById('form').reset();
             document.getElementById('edit-idx').value = i;
-            document.getElementById('modal-title').innerText = i > -1 ? "Update Record" : "New Transaction Record";
             if(i > -1) {
                 const t = transactions[i];
                 document.getElementById('f-agent').value = t.agent;
