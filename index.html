@@ -6,225 +6,65 @@
     <title>Smart Axiata | Shop Ops</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --primary: #23AD4A;
-            --primary-dark: #1e943f;
-            --primary-light: #e9f7ed;
-            --danger: #FF4D4F;
-            --bg: #F0F2F5;
-            --text-dark: #1A1A1A;
-            --text-gray: #646464;
-            --white: #FFFFFF;
-            --shadow: 0 4px 12px rgba(0,0,0,0.05);
-            --sidebar-width: 280px;
+            --primary: #23AD4A; --primary-dark: #1e943f; --primary-light: #e9f7ed;
+            --danger: #FF4D4F; --bg: #F0F2F5; --text-dark: #1A1A1A; --text-gray: #646464;
+            --white: #FFFFFF; --shadow: 0 4px 12px rgba(0,0,0,0.05); --sidebar-width: 280px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Kantumruy Pro', sans-serif; background: var(--bg); color: var(--text-dark); display: flex; min-height: 100vh; }
+
+        /* Sidebar Navigation */
+        .sidebar { width: var(--sidebar-width); background: var(--white); height: 100vh; position: fixed; border-right: 1px solid #E5E5E5; display: flex; flex-direction: column; z-index: 1000; }
+        .sidebar-brand { padding: 40px 30px; font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+        .menu-list { list-style: none; padding: 0 15px; flex-grow: 1; }
+        .menu-item { padding: 14px 20px; margin-bottom: 8px; border-radius: 12px; cursor: pointer; color: var(--text-gray); font-weight: 500; transition: all 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .menu-item.active { background: var(--primary-light); color: var(--primary); }
+
+        /* Content Layout */
+        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px; }
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
         
-        body { 
-            font-family: 'Kantumruy Pro', sans-serif; 
-            background: var(--bg); 
-            color: var(--text-dark); 
-            display: flex;
-            min-height: 100vh;
-        }
+        /* Stats & Charts */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 35px; }
+        .stat-card { background: var(--white); padding: 25px; border-radius: 16px; box-shadow: var(--shadow); }
+        .stat-label { font-size: 0.85rem; color: var(--text-gray); font-weight: 600; text-transform: uppercase; }
+        .stat-value { font-size: 2rem; font-weight: 700; margin-top: 5px; }
 
-        /* Professional Sidebar */
-        .sidebar { 
-            width: var(--sidebar-width); 
-            background: var(--white); 
-            height: 100vh; 
-            position: fixed; 
-            border-right: 1px solid #E5E5E5;
-            display: flex;
-            flex-direction: column;
-            z-index: 1000;
-        }
+        .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 35px; }
+        .chart-box { background: var(--white); padding: 25px; border-radius: 16px; box-shadow: var(--shadow); height: 350px; }
 
-        .sidebar-brand {
-            padding: 40px 30px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            letter-spacing: -0.5px;
-        }
-
-        .menu-list { list-style: none; padding: 0 15px; }
-
-        .menu-item {
-            padding: 14px 20px;
-            margin-bottom: 8px;
-            border-radius: 12px;
-            cursor: pointer;
-            color: var(--text-gray);
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .menu-item.active {
-            background: var(--primary-light);
-            color: var(--primary);
-        }
-
-        .menu-item:hover:not(.active) {
-            background: #F5F5F5;
-            color: var(--text-dark);
-        }
-
-        /* Main Body Area */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            flex: 1;
-            padding: 40px;
-        }
-
-        .header-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 35px;
-        }
-
-        .page-title { font-size: 1.75rem; font-weight: 700; }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 25px;
-            margin-bottom: 35px;
-        }
-
-        .stat-card {
-            background: var(--white);
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(0,0,0,0.02);
-        }
-
-        .stat-label { font-size: 0.85rem; color: var(--text-gray); font-weight: 600; text-transform: uppercase; margin-bottom: 10px; }
-        .stat-value { font-size: 2rem; font-weight: 700; }
-
-        /* Table Design */
-        .data-card {
-            background: var(--white);
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-
-        .search-bar {
-            padding: 20px 30px;
-            border-bottom: 1px solid #F0F0F0;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 20px;
-            border-radius: 10px;
-            border: 1px solid #DDD;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .search-input:focus { border-color: var(--primary); }
+        /* History Table */
+        .data-card { background: var(--white); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+        .search-bar { padding: 20px 30px; border-bottom: 1px solid #F0F0F0; }
+        .search-input { width: 100%; padding: 12px 20px; border-radius: 10px; border: 1px solid #DDD; font-family: inherit; }
 
         table { width: 100%; border-collapse: collapse; }
-        th { background: #FAFAFA; padding: 18px 25px; text-align: left; font-size: 0.75rem; font-weight: 700; color: var(--text-gray); text-transform: uppercase; }
-        td { padding: 18px 25px; border-bottom: 1px solid #F0F0F0; font-size: 0.95rem; }
+        th { background: #FAFAFA; padding: 18px 25px; text-align: left; font-size: 0.75rem; color: var(--text-gray); text-transform: uppercase; font-weight: 700; }
+        td { padding: 18px 25px; border-bottom: 1px solid #F0F0F0; }
 
-        .badge-plan {
-            background: var(--primary-light);
-            color: var(--primary);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.8rem;
-        }
+        /* Action Buttons */
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        .btn-ghost { background: none; border: 1px solid #DDD; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
+        .btn-danger { color: var(--danger); border-color: var(--danger); }
 
-        /* Buttons */
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .btn-primary:hover { background: var(--primary-dark); }
-
-        .btn-ghost {
-            background: none;
-            border: 1px solid #DDD;
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-right: 5px;
-            font-size: 0.85rem;
-        }
-
-        .btn-ghost:hover { background: #F9F9F9; }
-
-        /* Sync Status */
-        #sync-status {
-            display: none;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            z-index: 2000;
-            box-shadow: 0 4px 15px rgba(35,173,74,0.3);
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
-            z-index: 2000;
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-content {
-            background: white;
-            width: 650px;
-            margin: 50px auto;
-            border-radius: 20px;
-            padding: 40px;
-            position: relative;
-        }
-
+        /* Modals */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; backdrop-filter: blur(4px); }
+        .modal-content { background: white; width: 650px; margin: 50px auto; border-radius: 20px; padding: 40px; position: relative; }
         label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-gray); }
-        input, select { 
-            width: 100%; padding: 12px; border-radius: 10px; 
-            border: 1px solid #DDD; margin-bottom: 20px; font-family: inherit;
-        }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #DDD; margin-bottom: 20px; font-family: inherit; }
+
+        #sync-status { display: none; position: fixed; top: 20px; right: 20px; background: var(--primary); color: white; padding: 8px 20px; border-radius: 50px; font-weight: 600; z-index: 3000; }
     </style>
 </head>
 <body>
 
-    <div id="sync-status">Refreshing Data...</div>
+    <div id="sync-status">Processing Sync...</div>
 
     <aside class="sidebar">
         <div class="sidebar-brand">Smart Axiata</div>
@@ -236,14 +76,14 @@
 
     <main class="main-content">
         <div class="header-section">
-            <h1 class="page-title" id="page-title">Dashboard Overview</h1>
-            <button class="btn-primary" onclick="openModal()">+ Add New Transaction</button>
+            <h1 id="page-title">Dashboard Overview</h1>
+            <button class="btn-primary" onclick="openModal()">+ New Transaction</button>
         </div>
 
         <section id="view-dashboard">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Monthly Revenue</div>
+                    <div class="stat-label">Total Revenue (Month)</div>
                     <div class="stat-value" id="dash-rev">$0.00</div>
                 </div>
                 <div class="stat-card" style="border-left: 4px solid var(--danger);">
@@ -251,17 +91,16 @@
                     <div class="stat-value" id="dash-alert">0</div>
                 </div>
             </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
-                <div class="stat-card"><canvas id="agentChart"></canvas></div>
-                <div class="stat-card"><canvas id="planChart"></canvas></div>
+            <div class="charts-container">
+                <div class="chart-box"><canvas id="agentChart"></canvas></div>
+                <div class="chart-box"><canvas id="planChart"></canvas></div>
             </div>
         </section>
 
         <section id="view-history" style="display:none">
             <div class="data-card">
                 <div class="search-bar">
-                    <input type="text" id="search-box" class="search-input" placeholder="Search by customer name or phone number..." onkeyup="render()">
+                    <input type="text" id="search-box" class="search-input" placeholder="Search by phone number or customer name..." onkeyup="render()">
                 </div>
                 <table>
                     <thead>
@@ -285,48 +124,23 @@
             <form id="form">
                 <input type="hidden" id="edit-idx" value="-1">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <label>Responsible Agent</label>
-                        <select id="f-agent"><option>RIM Saray</option><option>KUN Chamnan</option></select>
-                    </div>
-                    <div>
-                        <label>Customer Name</label>
-                        <input type="text" id="f-cust" required>
-                    </div>
-                    <div>
-                        <label>Service Number</label>
-                        <input type="text" id="f-num" required>
-                    </div>
-                    <div>
-                        <label>Contact Phone</label>
-                        <input type="text" id="f-con" required>
-                    </div>
-                    <div>
-                        <label>Tariff Plan</label>
-                        <select id="f-plan">
-                            <option>Smart@Home</option><option>Fiber</option><option>M2M</option>
-                            <option>Postpaid</option><option>Smart Loar</option><option>Smart Data Tamchet</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Amount ($)</label>
-                        <input type="number" id="f-amt" step="0.01" required>
-                    </div>
-                    <div>
-                        <label>Top Up Date</label>
-                        <input type="date" id="f-date" onchange="calcExp()" required>
-                    </div>
-                    <div>
-                        <label>Validity (Months)</label>
-                        <input type="number" id="f-period" value="1" min="1" oninput="calcExp()">
-                    </div>
+                    <div><label>Agent</label><select id="f-agent"><option>RIM Saray</option><option>KUN Chamnan</option></select></div>
+                    <div><label>Customer Name</label><input type="text" id="f-cust" required></div>
+                    <div><label>Service Number</label><input type="text" id="f-num" required></div>
+                    <div><label>Contact Phone</label><input type="text" id="f-con" required></div>
+                    <div><label>Tariff Plan</label><select id="f-plan">
+                        <option>Smart@Home</option><option>Fiber</option><option>M2M</option>
+                        <option>Postpaid</option><option>Smart Loar</option><option>Smart Data Tamchet</option>
+                    </select></div>
+                    <div><label>Amount ($)</label><input type="number" id="f-amt" step="0.01" required></div>
+                    <div><label>Date</label><input type="date" id="f-date" onchange="calcExp()" required></div>
+                    <div><label>Validity (Months)</label><input type="number" id="f-period" value="1" oninput="calcExp()"></div>
                 </div>
                 <label>Calculated Expiry</label>
                 <input type="date" id="f-exp" readonly style="background:#F9F9F9; color:var(--primary); font-weight:700;">
-                
                 <div style="text-align: right; margin-top: 10px;">
                     <button type="button" class="btn-ghost" onclick="closeModal()">Cancel</button>
-                    <button type="button" class="btn-primary" onclick="save()">Save Transaction</button>
+                    <button type="button" class="btn-primary" onclick="save()">Save Record</button>
                 </div>
             </form>
         </div>
@@ -359,13 +173,12 @@
             let alertCount = 0; let rev = 0;
             const now = new Date();
 
-            // Sort by Expiry (Most urgent first)
+            // Feature restored: Sort by Most Expired First
             let displayList = transactions.map((t, i) => ({...t, originalIndex: i}))
                                          .sort((a, b) => new Date(a.expire) - new Date(b.expire));
 
             displayList.forEach(t => {
-                const expDate = new Date(t.expire);
-                const diff = Math.ceil((expDate - now) / (1000*60*60*24));
+                const diff = Math.ceil((new Date(t.expire) - now) / (1000*60*60*24));
                 const matches = t.customer.toLowerCase().includes(search) || t.number.includes(search) || t.contact.includes(search);
 
                 if (matches) {
@@ -373,11 +186,11 @@
                         <tr>
                             <td><strong>${t.customer}</strong><br><small style="color:#888">${t.contact}</small></td>
                             <td>${t.number}</td>
-                            <td><span class="badge-plan">${t.plan}</span></td>
+                            <td><span style="background:var(--primary-light); color:var(--primary); padding:4px 10px; border-radius:6px; font-weight:600; font-size:0.8rem;">${t.plan}</span></td>
                             <td style="color:${diff <= 7 ? 'var(--danger)' : 'inherit'}; font-weight:${diff <= 7 ? '700' : '400'}">${t.expire}</td>
                             <td>
                                 <button class="btn-ghost" onclick="openModal(${t.originalIndex})">Edit</button>
-                                <button class="btn-ghost" style="color:var(--danger)" onclick="del(${t.originalIndex})">Delete</button>
+                                <button class="btn-ghost btn-danger" onclick="del(${t.originalIndex})">Del</button>
                             </td>
                         </tr>`;
                 }
@@ -393,21 +206,17 @@
         function save() {
             const idx = document.getElementById('edit-idx').value;
             const data = {
-                agent: document.getElementById('f-agent').value,
-                customer: document.getElementById('f-cust').value,
-                number: document.getElementById('f-num').value,
-                contact: document.getElementById('f-con').value,
-                plan: document.getElementById('f-plan').value,
-                amount: document.getElementById('f-amt').value,
-                renew: document.getElementById('f-date').value,
-                period: document.getElementById('f-period').value,
+                agent: document.getElementById('f-agent').value, customer: document.getElementById('f-cust').value,
+                number: document.getElementById('f-num').value, contact: document.getElementById('f-con').value,
+                plan: document.getElementById('f-plan').value, amount: document.getElementById('f-amt').value,
+                renew: document.getElementById('f-date').value, period: document.getElementById('f-period').value,
                 expire: document.getElementById('f-exp').value
             };
             sync('save', data, idx);
             closeModal();
         }
 
-        function del(idx) { if(confirm("Are you sure you want to delete this record?")) sync('delete', null, idx); }
+        function del(idx) { if(confirm("Confirm Delete?")) sync('delete', null, idx); }
 
         function calcExp() {
             const d = new Date(document.getElementById('f-date').value);
@@ -442,7 +251,7 @@
             document.getElementById('view-history').style.display = t==='history'?'block':'none';
             document.getElementById('m-dash').classList.toggle('active', t==='dashboard');
             document.getElementById('m-hist').classList.toggle('active', t==='history');
-            document.getElementById('page-title').innerText = t==='dashboard'?'Dashboard Overview':'Transaction History';
+            document.getElementById('page-title').innerText = t==='dashboard'?'Overview':'History';
         }
 
         function updateCharts() {
@@ -457,13 +266,13 @@
             agentChart = new Chart(document.getElementById('agentChart'), {
                 type: 'bar',
                 data: { labels: Object.keys(agentData), datasets: [{ label: 'Sales ($)', data: Object.values(agentData), backgroundColor: '#23AD4A', borderRadius: 8 }] },
-                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Sales by Agent ($)' } } }
             });
 
             planChart = new Chart(document.getElementById('planChart'), {
                 type: 'doughnut',
-                data: { labels: Object.keys(planData), datasets: [{ data: Object.values(planData), backgroundColor: ['#23AD4A', '#2196f3', '#ef5350', '#ffb300', '#9c27b0'] }] },
-                options: { maintainAspectRatio: false }
+                data: { labels: Object.keys(planData), datasets: [{ data: Object.values(planData), backgroundColor: ['#23AD4A', '#2196F3', '#FF4D4F', '#FFB300', '#9C27B0'] }] },
+                options: { maintainAspectRatio: false, plugins: { title: { display: true, text: 'Tariff Distribution' } } }
             });
         }
     </script>
