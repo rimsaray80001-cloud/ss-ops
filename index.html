@@ -31,6 +31,10 @@
         .main-content { margin-left: var(--sidebar-width); flex: 1; height: 100vh; overflow-y: auto; }
         .top-navbar { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 90; }
         
+        .search-container { padding: 20px 40px 0 40px; display: flex; gap: 10px; }
+        .search-input { flex: 1; padding: 12px 20px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.9rem; outline: none; transition: border 0.2s; }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 30px 40px; }
         .stat-card { background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border); position: relative; }
         .stat-card .value { font-size: 2.1rem; font-weight: 600; margin-top: 10px; }
@@ -40,7 +44,7 @@
 
         #sync-status { display: none; position: fixed; top: 20px; right: 20px; background: white; border: 1px solid var(--primary); color: var(--primary); padding: 10px 20px; border-radius: 50px; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-weight: 600; }
 
-        .card { background: #fff; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin: 0 40px 40px 40px; }
+        .card { background: #fff; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin: 20px 40px 40px 40px; }
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 18px 24px; background: #f8f9fa; border-bottom: 1px solid var(--border); font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); }
         td { padding: 18px 24px; border-bottom: 1px solid #f1f3f4; font-size: 0.9rem; }
@@ -60,7 +64,7 @@
 </head>
 <body>
 
-    <div id="sync-status">Processing Sync...</div>
+    <div id="sync-status">Processing...</div>
 
     <aside class="sidebar">
         <div class="sidebar-header">Shop Axiata</div>
@@ -73,7 +77,7 @@
     <main class="main-content">
         <div class="top-navbar">
             <h2 id="page-title">Dashboard Overview</h2>
-            <button class="btn-action" onclick="openModal()">+ New Top Up</button>
+            <button class="btn-action" onclick="openModal()">+ New Entry</button>
         </div>
 
         <section id="view-dashboard">
@@ -102,9 +106,12 @@
         </section>
 
         <section id="view-history" style="display:none">
+            <div class="search-container">
+                <input type="text" id="search-box" class="search-input" placeholder="Search by Service Number or Phone..." onkeyup="render()">
+            </div>
             <div class="card">
                 <table>
-                    <thead><tr><th>Agent</th><th>Customer</th><th>Service No.</th><th>Plan</th><th>Amount</th><th>Expiry</th><th>Actions</th></tr></thead>
+                    <thead><tr><th>Agent</th><th>Customer</th><th>Service No.</th><th>Plan</th><th>Amount</th><th>Expiry ↕</th><th>Actions</th></tr></thead>
                     <tbody id="table-body"></tbody>
                 </table>
             </div>
@@ -114,7 +121,7 @@
     <div id="modal" class="modal">
         <div class="modal-content">
             <div style="padding:20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center">
-                <b id="modal-title">Transaction Details</b>
+                <b id="modal-title">Record Transaction</b>
                 <span onclick="closeModal()" style="cursor:pointer; font-size:1.5rem">&times;</span>
             </div>
             <form id="form" style="padding:32px">
@@ -124,25 +131,19 @@
                     <div><label>Customer Name</label><input type="text" id="f-cust" required></div>
                     <div><label>Service Number</label><input type="text" id="f-num" required></div>
                     <div><label>Contact Phone</label><input type="text" id="f-con" required></div>
-                    
                     <div><label>Tariff Plan</label>
                         <select id="f-plan">
-                            <option>Smart@Home</option>
-                            <option>Fiber</option>
-                            <option>M2M</option>
-                            <option>Postpaid</option>
-                            <option>Smart Loar</option>
-                            <option>Smart Data Tamchet</option>
+                            <option>Smart@Home</option><option>Fiber</option><option>M2M</option>
+                            <option>Postpaid</option><option>Smart Loar</option><option>Smart Data Tamchet</option>
                         </select>
                     </div>
-                    
                     <div><label>Amount ($)</label><input type="number" id="f-amt" step="0.01" required></div>
                     <div><label>Top Up Date</label><input type="date" id="f-date" onchange="calcExp()" required></div>
                     <div><label>Period (Month)</label><input type="number" id="f-period" value="1" min="1" oninput="calcExp()"></div>
                 </div>
-                <label>Calculated Expiry</label>
+                <label>New Expiry Date</label>
                 <input type="date" id="f-exp" readonly style="background:#f9f9f9; color:var(--primary); font-weight:600">
-                <button type="button" class="btn-action" style="width:100%; justify-content:center; margin-top:10px" onclick="save()">Confirm & Save</button>
+                <button type="button" class="btn-action" style="width:100%; justify-content:center; margin-top:10px" onclick="save()">Update & Save</button>
             </form>
         </div>
     </div>
@@ -150,7 +151,7 @@
     <div id="expModal" class="modal">
         <div class="modal-content" style="width: 850px;">
             <div style="padding:20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center">
-                <b style="color:var(--danger)">7-Day Expiry Notification</b>
+                <b style="color:var(--danger)">Expiring Customers List</b>
                 <span onclick="closeExpModal()" style="cursor:pointer; font-size:1.5rem">&times;</span>
             </div>
             <div style="padding:20px">
@@ -178,44 +179,54 @@
                 const res = await fetch(url);
                 transactions = await res.json();
                 render();
-            } catch (e) { console.error("Sync error", e); }
+            } catch (e) { console.error("Error", e); }
             document.getElementById('sync-status').style.display = 'none';
         }
 
         function render() {
             const body = document.getElementById('table-body');
             const expBody = document.getElementById('exp-list-body');
+            const searchTerm = document.getElementById('search-box').value.toLowerCase();
+            
             body.innerHTML = ''; expBody.innerHTML = '';
             let rev = 0, alertCount = 0;
             const now = new Date();
 
-            transactions.forEach((t, i) => {
+            // 1. Create a copy with indexes for sorting
+            let displayList = transactions.map((t, i) => ({...t, originalIndex: i}));
+
+            // 2. Sort by Expiry Date (Closest dates first)
+            displayList.sort((a, b) => new Date(a.expire) - new Date(b.expire));
+
+            displayList.forEach((t) => {
                 const expDate = new Date(t.expire);
                 const diffDays = Math.ceil((expDate - now) / (1000*60*60*24));
+                const matchesSearch = t.number.toLowerCase().includes(searchTerm) || t.contact.toLowerCase().includes(searchTerm);
 
-                body.innerHTML += `<tr>
-                    <td>${t.agent}</td>
-                    <td><b>${t.customer}</b><br><small>${t.contact}</small></td>
-                    <td>${t.number}</td>
-                    <td><span style="background:var(--primary-light); color:var(--primary); padding:3px 8px; border-radius:5px; font-size:0.75rem">${t.plan}</span></td>
-                    <td style="font-weight:600">$${parseFloat(t.amount).toFixed(2)}</td>
-                    <td style="color:${diffDays <= 7 ? 'var(--danger)' : 'inherit'}">${t.expire}</td>
-                    <td>
-                        <button class="btn-outline" onclick="openModal(${i})">Edit</button>
-                        <button class="btn-danger" onclick="del(${i})">Delete</button>
-                    </td>
-                </tr>`;
+                if (matchesSearch) {
+                    body.innerHTML += `<tr>
+                        <td>${t.agent}</td>
+                        <td><b>${t.customer}</b><br><small>${t.contact}</small></td>
+                        <td>${t.number}</td>
+                        <td><span style="font-size:0.75rem">${t.plan}</span></td>
+                        <td style="font-weight:600">$${parseFloat(t.amount).toFixed(2)}</td>
+                        <td style="color:${diffDays <= 7 ? 'var(--danger)' : 'inherit'}; font-weight:${diffDays <= 7 ? 'bold' : 'normal'}">${t.expire}</td>
+                        <td>
+                            <button class="btn-outline" onclick="openModal(${t.originalIndex})">Edit</button>
+                            <button class="btn-danger" onclick="del(${t.originalIndex})">Del</button>
+                        </td>
+                    </tr>`;
+                }
 
                 if (diffDays <= 7) {
                     alertCount++;
                     expBody.innerHTML += `<tr>
                         <td><b>${t.customer}</b></td>
                         <td>${t.number}</td>
-                        <td style="color:var(--danger)">${t.expire} (${diffDays < 0 ? 'Expired' : diffDays + ' days'})</td>
-                        <td><button class="btn-action" style="padding:5px 15px; font-size:0.7rem" onclick="renewEntry(${i})">Renew</button></td>
+                        <td style="color:var(--danger)">${t.expire}</td>
+                        <td><button class="btn-action" style="padding:5px 15px; font-size:0.7rem" onclick="renewEntry(${t.originalIndex})">Renew</button></td>
                     </tr>`;
                 }
-
                 if(new Date(t.renew).getMonth() === now.getMonth() && new Date(t.renew).getFullYear() === now.getFullYear()) rev += parseFloat(t.amount);
             });
 
@@ -224,12 +235,10 @@
             updateCharts();
         }
 
-        function del(idx) { if(confirm("Permanently delete record?")) sync('delete', null, idx); }
-
         function renewEntry(idx) {
             closeExpModal();
             const t = transactions[idx];
-            openModal();
+            openModal(idx);
             document.getElementById('f-agent').value = t.agent;
             document.getElementById('f-cust').value = t.customer;
             document.getElementById('f-num').value = t.number;
@@ -240,21 +249,21 @@
             calcExp();
         }
 
-        function updateCharts() {
-            const agentData = {}; const planData = {};
-            transactions.forEach(t => {
-                agentData[t.agent] = (agentData[t.agent] || 0) + parseFloat(t.amount);
-                planData[t.plan] = (planData[t.plan] || 0) + 1;
-            });
-            if (agentChart) agentChart.destroy();
-            if (planChart) planChart.destroy();
-            agentChart = new Chart(document.getElementById('agentChart'), { type: 'bar', data: { labels: Object.keys(agentData), datasets: [{ label: 'USD', data: Object.values(agentData), backgroundColor: '#23AD4A', borderRadius: 5 }] }, options: { maintainAspectRatio: false }});
-            planChart = new Chart(document.getElementById('planChart'), { type: 'doughnut', data: { labels: Object.keys(planData), datasets: [{ data: Object.values(planData), backgroundColor: ['#23AD4A', '#2196f3', '#ef5350', '#ffb300', '#9c27b0'] }] }, options: { maintainAspectRatio: false }});
-        }
+        function del(idx) { if(confirm("Delete record?")) sync('delete', null, idx); }
 
         function save() {
             const idx = document.getElementById('edit-idx').value;
-            const data = { agent: document.getElementById('f-agent').value, customer: document.getElementById('f-cust').value, number: document.getElementById('f-num').value, contact: document.getElementById('f-con').value, plan: document.getElementById('f-plan').value, amount: document.getElementById('f-amt').value, renew: document.getElementById('f-date').value, period: document.getElementById('f-period').value, expire: document.getElementById('f-exp').value };
+            const data = { 
+                agent: document.getElementById('f-agent').value, 
+                customer: document.getElementById('f-cust').value, 
+                number: document.getElementById('f-num').value, 
+                contact: document.getElementById('f-con').value, 
+                plan: document.getElementById('f-plan').value, 
+                amount: document.getElementById('f-amt').value, 
+                renew: document.getElementById('f-date').value, 
+                period: document.getElementById('f-period').value, 
+                expire: document.getElementById('f-exp').value 
+            };
             sync('save', data, idx);
             closeModal();
         }
@@ -263,6 +272,18 @@
             const d = new Date(document.getElementById('f-date').value);
             d.setMonth(d.getMonth() + parseInt(document.getElementById('f-period').value || 1));
             document.getElementById('f-exp').value = d.toISOString().split('T')[0];
+        }
+
+        function updateCharts() {
+            const agentData = {}; const planData = {};
+            transactions.forEach(t => {
+                agentData[t.agent] = (agentData[t.agent] || 0) + parseFloat(t.amount);
+                planData[t.plan] = (planData[t.plan] || 0) + 1;
+            });
+            if (agentChart) agentChart.destroy();
+            if (planChart) planChart.destroy();
+            agentChart = new Chart(document.getElementById('agentChart'), { type: 'bar', data: { labels: Object.keys(agentData), datasets: [{ label: 'Sales', data: Object.values(agentData), backgroundColor: '#23AD4A' }] }, options: { maintainAspectRatio: false }});
+            planChart = new Chart(document.getElementById('planChart'), { type: 'doughnut', data: { labels: Object.keys(planData), datasets: [{ data: Object.values(planData), backgroundColor: ['#23AD4A', '#2196f3', '#ef5350', '#ffb300', '#9c27b0'] }] }, options: { maintainAspectRatio: false }});
         }
 
         function switchTab(t) {
@@ -277,6 +298,7 @@
         function openModal(i = -1) { 
             document.getElementById('form').reset(); 
             document.getElementById('edit-idx').value = i; 
+            document.getElementById('modal-title').innerText = i > -1 ? "Update Customer Record" : "New Transaction";
             if(i > -1) {
                 const t = transactions[i];
                 document.getElementById('f-agent').value = t.agent;
