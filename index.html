@@ -49,9 +49,8 @@
         .modal-content { background: white; margin: 40px auto; width: 680px; border-radius: 16px; overflow: hidden; max-height: 90vh; overflow-y: auto; }
         
         .btn-action { background: var(--primary); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-        .btn-outline { background: white; border: 1px solid var(--border); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        .btn-outline { background: white; border: 1px solid var(--border); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-right: 5px; }
         .btn-danger { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
-        .btn-danger:hover { background: var(--danger); color: white; }
 
         .view-all-btn { position: absolute; top: 20px; right: 20px; color: var(--info); cursor: pointer; font-size: 0.8rem; text-decoration: underline; }
         
@@ -61,7 +60,7 @@
 </head>
 <body>
 
-    <div id="sync-status">Syncing...</div>
+    <div id="sync-status">Processing Sync...</div>
 
     <aside class="sidebar">
         <div class="sidebar-header">Shop Axiata</div>
@@ -74,7 +73,7 @@
     <main class="main-content">
         <div class="top-navbar">
             <h2 id="page-title">Dashboard Overview</h2>
-            <button class="btn-action" onclick="openModal()">+ New Entry</button>
+            <button class="btn-action" onclick="openModal()">+ New Top Up</button>
         </div>
 
         <section id="view-dashboard">
@@ -84,7 +83,7 @@
                     <div class="value" id="dash-rev">$0.00</div>
                 </div>
                 <div class="stat-card" style="border: 1px solid var(--danger)">
-                    <div style="font-size:0.75rem; color:var(--danger); font-weight:600">EXPIRING WITHIN 7 DAYS</div>
+                    <div style="font-size:0.75rem; color:var(--danger); font-weight:600">EXPIRING (7 DAYS)</div>
                     <div class="value" id="dash-alert" style="color:var(--danger)">0</div>
                     <div class="view-all-btn" onclick="openExpModal()">View All</div>
                 </div>
@@ -96,7 +95,7 @@
                     <canvas id="agentChart"></canvas>
                 </div>
                 <div class="chart-box">
-                    <h4 style="margin-bottom:15px; color:var(--text-muted)">Tariff Plan Distribution</h4>
+                    <h4 style="margin-bottom:15px; color:var(--text-muted)">Tariff Distribution</h4>
                     <canvas id="planChart"></canvas>
                 </div>
             </div>
@@ -105,7 +104,7 @@
         <section id="view-history" style="display:none">
             <div class="card">
                 <table>
-                    <thead><tr><th>Agent</th><th>Customer</th><th>Service No.</th><th>Plan</th><th>Amount</th><th>Expiry</th><th>Action</th></tr></thead>
+                    <thead><tr><th>Agent</th><th>Customer</th><th>Service No.</th><th>Plan</th><th>Amount</th><th>Expiry</th><th>Actions</th></tr></thead>
                     <tbody id="table-body"></tbody>
                 </table>
             </div>
@@ -124,25 +123,34 @@
                     <div><label>Agent</label><select id="f-agent"><option>RIM Saray</option><option>KUN Chamnan</option></select></div>
                     <div><label>Customer Name</label><input type="text" id="f-cust" required></div>
                     <div><label>Service Number</label><input type="text" id="f-num" required></div>
-                    <div><label>Contact Info</label><input type="text" id="f-con" required></div>
-                    <div><label>Plan</label><select id="f-plan">
-                        <option>Smart@Home</option><option>Fiber</option><option>Postpaid</option>
-                    </select></div>
+                    <div><label>Contact Phone</label><input type="text" id="f-con" required></div>
+                    
+                    <div><label>Tariff Plan</label>
+                        <select id="f-plan">
+                            <option>Smart@Home</option>
+                            <option>Fiber</option>
+                            <option>M2M</option>
+                            <option>Postpaid</option>
+                            <option>Smart Loar</option>
+                            <option>Smart Data Tamchet</option>
+                        </select>
+                    </div>
+                    
                     <div><label>Amount ($)</label><input type="number" id="f-amt" step="0.01" required></div>
-                    <div><label>Start Date</label><input type="date" id="f-date" onchange="calcExp()" required></div>
-                    <div><label>Period (Month)</label><input type="number" id="f-period" value="1" oninput="calcExp()"></div>
+                    <div><label>Top Up Date</label><input type="date" id="f-date" onchange="calcExp()" required></div>
+                    <div><label>Period (Month)</label><input type="number" id="f-period" value="1" min="1" oninput="calcExp()"></div>
                 </div>
-                <label>Expiry Date</label>
-                <input type="date" id="f-exp" readonly style="background:#f9f9f9">
-                <button type="button" class="btn-action" style="width:100%; justify-content:center; margin-top:10px" onclick="save()">Save to Sheet</button>
+                <label>Calculated Expiry</label>
+                <input type="date" id="f-exp" readonly style="background:#f9f9f9; color:var(--primary); font-weight:600">
+                <button type="button" class="btn-action" style="width:100%; justify-content:center; margin-top:10px" onclick="save()">Confirm & Save</button>
             </form>
         </div>
     </div>
 
     <div id="expModal" class="modal">
-        <div class="modal-content" style="width: 800px;">
+        <div class="modal-content" style="width: 850px;">
             <div style="padding:20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center">
-                <b style="color:var(--danger)">Customers Expiring Soon</b>
+                <b style="color:var(--danger)">7-Day Expiry Notification</b>
                 <span onclick="closeExpModal()" style="cursor:pointer; font-size:1.5rem">&times;</span>
             </div>
             <div style="padding:20px">
@@ -170,7 +178,7 @@
                 const res = await fetch(url);
                 transactions = await res.json();
                 render();
-            } catch (e) { alert("Sync Error"); }
+            } catch (e) { console.error("Sync error", e); }
             document.getElementById('sync-status').style.display = 'none';
         }
 
@@ -185,13 +193,12 @@
                 const expDate = new Date(t.expire);
                 const diffDays = Math.ceil((expDate - now) / (1000*60*60*24));
 
-                // History Table Row
                 body.innerHTML += `<tr>
                     <td>${t.agent}</td>
                     <td><b>${t.customer}</b><br><small>${t.contact}</small></td>
                     <td>${t.number}</td>
-                    <td>${t.plan}</td>
-                    <td>$${parseFloat(t.amount).toFixed(2)}</td>
+                    <td><span style="background:var(--primary-light); color:var(--primary); padding:3px 8px; border-radius:5px; font-size:0.75rem">${t.plan}</span></td>
+                    <td style="font-weight:600">$${parseFloat(t.amount).toFixed(2)}</td>
                     <td style="color:${diffDays <= 7 ? 'var(--danger)' : 'inherit'}">${t.expire}</td>
                     <td>
                         <button class="btn-outline" onclick="openModal(${i})">Edit</button>
@@ -199,14 +206,13 @@
                     </td>
                 </tr>`;
 
-                // Expiring List Logic
                 if (diffDays <= 7) {
                     alertCount++;
                     expBody.innerHTML += `<tr>
                         <td><b>${t.customer}</b></td>
                         <td>${t.number}</td>
-                        <td style="color:var(--danger)">${t.expire} (${diffDays < 0 ? 'Expired' : diffDays + ' days left'})</td>
-                        <td><button class="btn-action" style="padding:5px 15px; font-size:0.75rem" onclick="renewEntry(${i})">Renew</button></td>
+                        <td style="color:var(--danger)">${t.expire} (${diffDays < 0 ? 'Expired' : diffDays + ' days'})</td>
+                        <td><button class="btn-action" style="padding:5px 15px; font-size:0.7rem" onclick="renewEntry(${i})">Renew</button></td>
                     </tr>`;
                 }
 
@@ -218,17 +224,18 @@
             updateCharts();
         }
 
-        function del(idx) { if(confirm("Permanently delete this record?")) sync('delete', null, idx); }
+        function del(idx) { if(confirm("Permanently delete record?")) sync('delete', null, idx); }
 
         function renewEntry(idx) {
             closeExpModal();
             const t = transactions[idx];
-            openModal(); // Reset form
+            openModal();
             document.getElementById('f-agent').value = t.agent;
             document.getElementById('f-cust').value = t.customer;
             document.getElementById('f-num').value = t.number;
             document.getElementById('f-con').value = t.contact;
             document.getElementById('f-plan').value = t.plan;
+            document.getElementById('f-amt').value = t.amount;
             document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
             calcExp();
         }
@@ -241,19 +248,20 @@
             });
             if (agentChart) agentChart.destroy();
             if (planChart) planChart.destroy();
-            agentChart = new Chart(document.getElementById('agentChart'), { type: 'bar', data: { labels: Object.keys(agentData), datasets: [{ label: 'Sales', data: Object.values(agentData), backgroundColor: '#23AD4A' }] }, options: { maintainAspectRatio: false }});
-            planChart = new Chart(document.getElementById('planChart'), { type: 'doughnut', data: { labels: Object.keys(planData), datasets: [{ data: Object.values(planData), backgroundColor: ['#23AD4A', '#2196f3', '#ef5350'] }] }, options: { maintainAspectRatio: false }});
+            agentChart = new Chart(document.getElementById('agentChart'), { type: 'bar', data: { labels: Object.keys(agentData), datasets: [{ label: 'USD', data: Object.values(agentData), backgroundColor: '#23AD4A', borderRadius: 5 }] }, options: { maintainAspectRatio: false }});
+            planChart = new Chart(document.getElementById('planChart'), { type: 'doughnut', data: { labels: Object.keys(planData), datasets: [{ data: Object.values(planData), backgroundColor: ['#23AD4A', '#2196f3', '#ef5350', '#ffb300', '#9c27b0'] }] }, options: { maintainAspectRatio: false }});
         }
 
         function save() {
+            const idx = document.getElementById('edit-idx').value;
             const data = { agent: document.getElementById('f-agent').value, customer: document.getElementById('f-cust').value, number: document.getElementById('f-num').value, contact: document.getElementById('f-con').value, plan: document.getElementById('f-plan').value, amount: document.getElementById('f-amt').value, renew: document.getElementById('f-date').value, period: document.getElementById('f-period').value, expire: document.getElementById('f-exp').value };
-            sync('save', data, document.getElementById('edit-idx').value);
+            sync('save', data, idx);
             closeModal();
         }
 
         function calcExp() {
             const d = new Date(document.getElementById('f-date').value);
-            d.setMonth(d.getMonth() + parseInt(document.getElementById('f-period').value));
+            d.setMonth(d.getMonth() + parseInt(document.getElementById('f-period').value || 1));
             document.getElementById('f-exp').value = d.toISOString().split('T')[0];
         }
 
@@ -263,6 +271,7 @@
             document.getElementById('m-dash').classList.toggle('active', t==='dashboard');
             document.getElementById('m-hist').classList.toggle('active', t==='history');
             document.getElementById('page-title').innerText = t==='dashboard'?'Overview':'History';
+            if(t==='dashboard') updateCharts();
         }
 
         function openModal(i = -1) { 
@@ -270,10 +279,14 @@
             document.getElementById('edit-idx').value = i; 
             if(i > -1) {
                 const t = transactions[i];
+                document.getElementById('f-agent').value = t.agent;
                 document.getElementById('f-cust').value = t.customer;
                 document.getElementById('f-num').value = t.number;
+                document.getElementById('f-con').value = t.contact;
+                document.getElementById('f-plan').value = t.plan;
                 document.getElementById('f-amt').value = t.amount;
                 document.getElementById('f-date').value = t.renew;
+                document.getElementById('f-period').value = t.period;
                 document.getElementById('f-exp').value = t.expire;
             }
             document.getElementById('modal').style.display = 'block'; 
