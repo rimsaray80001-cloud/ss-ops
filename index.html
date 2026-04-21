@@ -21,26 +21,28 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Kantumruy Pro', sans-serif; background: var(--bg); color: var(--text-main); display: flex; overflow: hidden; }
 
+        /* Sidebar */
         .sidebar { width: var(--sidebar-width); background: #ffffff; height: 100vh; position: fixed; border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; }
         .sidebar-header { padding: 32px 24px; font-weight: 600; color: var(--primary); font-size: 1.25rem; border-bottom: 1px solid #f1f3f4; }
         .menu { list-style: none; padding: 16px; flex-grow: 1; }
         .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; margin-bottom: 4px; color: var(--text-muted); transition: all 0.2s; }
         .menu-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
 
+        /* Content */
         .main-content { margin-left: var(--sidebar-width); flex: 1; height: 100vh; overflow-y: auto; }
         .top-navbar { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 90; }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 30px 40px; }
+        /* Dashboard Layout */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 30px 40px 10px 40px; }
         .stat-card { background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border); }
         .stat-card .value { font-size: 2.1rem; font-weight: 600; }
 
-        /* Report Layouts */
-        .report-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 0 40px 40px 40px; }
-        .chart-box { background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border); min-height: 400px; }
+        .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 20px 40px; }
+        .chart-box { background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border); height: 350px; }
 
         #sync-status { display: none; position: fixed; top: 20px; right: 20px; background: white; border: 1px solid var(--primary); color: var(--primary); padding: 10px 20px; border-radius: 50px; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-weight: 600; }
 
-        .card { background: #fff; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin: 0 40px 40px 40px; }
+        .card { background: #fff; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin: 20px 40px 40px 40px; }
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 18px 24px; background: #f8f9fa; border-bottom: 1px solid var(--border); font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); }
         td { padding: 18px 24px; border-bottom: 1px solid #f1f3f4; font-size: 0.9rem; }
@@ -61,7 +63,6 @@
         <div class="sidebar-header">Shop Axiata</div>
         <ul class="menu">
             <li class="menu-item active" id="m-dash" onclick="switchTab('dashboard')">Dashboard</li>
-            <li class="menu-item" id="m-rep" onclick="switchTab('reports')">Reports</li>
             <li class="menu-item" id="m-hist" onclick="switchTab('history')">History</li>
         </ul>
     </aside>
@@ -83,16 +84,14 @@
                     <div class="value" id="dash-alert" style="color:var(--danger)">0</div>
                 </div>
             </div>
-        </section>
 
-        <section id="view-reports" style="display:none">
-            <div class="report-container">
+            <div class="charts-container">
                 <div class="chart-box">
-                    <h4 style="margin-bottom:20px; color:var(--text-muted)">Agent Performance ($)</h4>
+                    <h4 style="margin-bottom:15px; color:var(--text-muted); font-size:0.9rem">Agent Performance ($)</h4>
                     <canvas id="agentChart"></canvas>
                 </div>
                 <div class="chart-box">
-                    <h4 style="margin-bottom:20px; color:var(--text-muted)">Tariff Plan Distribution</h4>
+                    <h4 style="margin-bottom:15px; color:var(--text-muted); font-size:0.9rem">Tariff Plan Distribution</h4>
                     <canvas id="planChart"></canvas>
                 </div>
             </div>
@@ -111,7 +110,7 @@
     <div id="modal" class="modal">
         <div class="modal-content">
             <div style="padding:20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center">
-                <b>Transaction Record</b>
+                <b id="modal-title">Transaction Record</b>
                 <span onclick="closeModal()" style="cursor:pointer; font-size:1.5rem">&times;</span>
             </div>
             <form id="form" style="padding:32px">
@@ -120,7 +119,7 @@
                     <div><label>Agent</label><select id="f-agent"><option>RIM Saray</option><option>KUN Chamnan</option></select></div>
                     <div><label>Customer Name</label><input type="text" id="f-cust" required></div>
                     <div><label>Service Number</label><input type="text" id="f-num" required></div>
-                    <div><label>Contact Info</label><input type="text" id="f-contact" required></div>
+                    <div><label>Contact Phone</label><input type="text" id="f-contact" required></div>
                     <div><label>Tariff Plan</label>
                         <select id="f-plan">
                             <option>Smart@Home</option><option>Fiber</option><option>M2M</option>
@@ -156,7 +155,7 @@
                 transactions = await response.json();
                 render();
                 updateCharts();
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Sync Error", e); }
             document.getElementById('sync-status').style.display = 'none';
         }
 
@@ -178,7 +177,7 @@
                 </tr>`;
                 
                 const tDate = new Date(t.renew);
-                if(tDate.getMonth() === now.getMonth()) rev += parseFloat(t.amount);
+                if(tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear()) rev += parseFloat(t.amount);
                 
                 const expDate = new Date(t.expire);
                 const diff = (expDate - now) / (1000*60*60*24);
@@ -201,33 +200,46 @@
             if (agentChart) agentChart.destroy();
             if (planChart) planChart.destroy();
 
-            agentChart = new Chart(document.getElementById('agentChart'), {
+            const ctxAgent = document.getElementById('agentChart').getContext('2d');
+            agentChart = new Chart(ctxAgent, {
                 type: 'bar',
                 data: {
                     labels: Object.keys(agentData),
-                    datasets: [{ label: 'Sales ($)', data: Object.values(agentData), backgroundColor: '#23AD4A' }]
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: Object.values(agentData),
+                        backgroundColor: '#23AD4A',
+                        borderRadius: 6
+                    }]
                 },
-                options: { maintainAspectRatio: false }
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
 
-            planChart = new Chart(document.getElementById('planChart'), {
+            const ctxPlan = document.getElementById('planChart').getContext('2d');
+            planChart = new Chart(ctxPlan, {
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(planData),
-                    datasets: [{ data: Object.values(planData), backgroundColor: ['#23AD4A', '#2196f3', '#ef5350', '#ffb300', '#9c27b0'] }]
+                    datasets: [{
+                        data: Object.values(planData),
+                        backgroundColor: ['#23AD4A', '#2196f3', '#ef5350', '#ffb300', '#9c27b0', '#00bcd4']
+                    }]
                 },
-                options: { maintainAspectRatio: false }
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
         }
 
         function switchTab(t) {
-            document.querySelectorAll('.view-section, section').forEach(s => s.style.display = 'none');
-            document.getElementById(`view-${t}`).style.display = (t === 'reports' ? 'grid' : 'block');
+            document.getElementById('view-dashboard').style.display = (t==='dashboard' ? 'block' : 'none');
+            document.getElementById('view-history').style.display = (t==='history' ? 'block' : 'none');
             
-            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-            document.getElementById(`m-${t.substring(0,4)}`).classList.add('active');
+            document.getElementById('m-dash').classList.toggle('active', t==='dashboard');
+            document.getElementById('m-hist').classList.toggle('active', t==='history');
             
-            document.getElementById('page-title').innerText = t.charAt(0).toUpperCase() + t.slice(1);
+            document.getElementById('page-title').innerText = t==='dashboard' ? 'Dashboard Overview' : 'Transaction History';
+            
+            // If switching back to dashboard, ensure charts resize correctly
+            if(t==='dashboard') updateCharts();
         }
 
         function save() {
@@ -260,12 +272,13 @@
         function openModal(i = -1) {
             document.getElementById('form').reset();
             document.getElementById('edit-idx').value = i;
+            document.getElementById('modal-title').innerText = i > -1 ? "Update Record" : "New Transaction Record";
             if(i > -1) {
                 const t = transactions[i];
                 document.getElementById('f-agent').value = t.agent;
                 document.getElementById('f-cust').value = t.customer;
                 document.getElementById('f-num').value = t.number;
-                document.getElementById('f-con').value = t.contact;
+                document.getElementById('f-contact').value = t.contact;
                 document.getElementById('f-plan').value = t.plan;
                 document.getElementById('f-amt').value = t.amount;
                 document.getElementById('f-date').value = t.renew;
