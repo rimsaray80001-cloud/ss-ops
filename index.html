@@ -13,7 +13,8 @@
     <style>
         :root {
             --primary: #23AD4A; --primary-hover: #1e913e; --primary-light: #e8f5e9;
-            --danger: #ef5350; --danger-light: #ffebee; --info: #2196f3; --bg: #f8f9fa;
+            --danger: #ef5350; --danger-hover: #d32f2f; --danger-light: #ffebee; 
+            --info: #2196f3; --bg: #f8f9fa;
             --text-main: #202124; --text-muted: #5f6368; --border: #dadce0;
             --sidebar-width: 260px;
         }
@@ -21,47 +22,46 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Kantumruy Pro', sans-serif; background: var(--bg); color: var(--text-main); display: flex; overflow: hidden; }
 
-        /* Sidebar */
         .sidebar { width: var(--sidebar-width); background: #ffffff; height: 100vh; position: fixed; border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; }
         .sidebar-header { padding: 32px 24px; font-weight: 600; color: var(--primary); font-size: 1.25rem; border-bottom: 1px solid #f1f3f4; }
         .menu { list-style: none; padding: 16px; flex-grow: 1; }
         .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; margin-bottom: 4px; color: var(--text-muted); transition: all 0.2s; }
         .menu-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
 
-        /* Content */
         .main-content { margin-left: var(--sidebar-width); flex: 1; height: 100vh; overflow-y: auto; }
         .top-navbar { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 90; }
         
-        /* Alert Banner */
-        .alert-banner { background: var(--danger-light); border: 1px solid var(--danger); color: #b71c1c; margin: 20px 40px 0 40px; padding: 15px 20px; border-radius: 8px; display: none; }
-        .alert-item { font-size: 0.85rem; margin-top: 5px; font-weight: 600; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 30px 40px; }
+        .stat-card { background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border); position: relative; }
+        .stat-card .value { font-size: 2.1rem; font-weight: 600; margin-top: 10px; }
 
-        /* Dashboard Layout */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 20px 40px; }
-        .stat-card { background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border); }
-        .stat-card .value { font-size: 2.1rem; font-weight: 600; }
-
-        .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 0 40px 20px 40px; }
+        .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 0 40px 40px 40px; }
         .chart-box { background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border); height: 350px; }
 
         #sync-status { display: none; position: fixed; top: 20px; right: 20px; background: white; border: 1px solid var(--primary); color: var(--primary); padding: 10px 20px; border-radius: 50px; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-weight: 600; }
 
-        .card { background: #fff; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin: 20px 40px 40px 40px; }
+        .card { background: #fff; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin: 0 40px 40px 40px; }
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 18px 24px; background: #f8f9fa; border-bottom: 1px solid var(--border); font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); }
         td { padding: 18px 24px; border-bottom: 1px solid #f1f3f4; font-size: 0.9rem; }
         
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(32, 33, 36, 0.6); backdrop-filter: blur(2px); }
-        .modal-content { background: white; margin: 40px auto; width: 680px; border-radius: 16px; overflow: hidden; }
+        .modal-content { background: white; margin: 40px auto; width: 680px; border-radius: 16px; overflow: hidden; max-height: 90vh; overflow-y: auto; }
         
-        .btn-action { background: var(--primary); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .btn-action { background: var(--primary); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .btn-outline { background: white; border: 1px solid var(--border); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        .btn-danger { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
+        .view-all-btn { position: absolute; top: 20px; right: 20px; color: var(--info); cursor: pointer; font-size: 0.8rem; text-decoration: underline; }
+        
         input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; margin-bottom: 15px; }
         label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; display: block; }
     </style>
 </head>
 <body>
 
-    <div id="sync-status">Syncing Data...</div>
+    <div id="sync-status">Syncing...</div>
 
     <aside class="sidebar">
         <div class="sidebar-header">Shop Axiata</div>
@@ -74,36 +74,29 @@
     <main class="main-content">
         <div class="top-navbar">
             <h2 id="page-title">Dashboard Overview</h2>
-            <button class="btn-action" onclick="openModal()">+ New Top Up</button>
+            <button class="btn-action" onclick="openModal()">+ New Entry</button>
         </div>
 
         <section id="view-dashboard">
-            <div id="exp-alert-banner" class="alert-banner">
-                <div style="display:flex; align-items:center; gap:8px">
-                    <span style="font-size:1.2rem">⚠️</span>
-                    <strong>Action Required: Expiry Alerts</strong>
-                </div>
-                <div id="alert-list"></div>
-            </div>
-
             <div class="stats-grid">
                 <div class="stat-card">
                     <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600">REVENUE THIS MONTH</div>
                     <div class="value" id="dash-rev">$0.00</div>
                 </div>
-                <div class="stat-card">
-                    <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600">EXPIRING WITHIN 7 DAYS</div>
+                <div class="stat-card" style="border: 1px solid var(--danger)">
+                    <div style="font-size:0.75rem; color:var(--danger); font-weight:600">EXPIRING WITHIN 7 DAYS</div>
                     <div class="value" id="dash-alert" style="color:var(--danger)">0</div>
+                    <div class="view-all-btn" onclick="openExpModal()">View All</div>
                 </div>
             </div>
 
             <div class="charts-container">
                 <div class="chart-box">
-                    <h4 style="margin-bottom:15px; color:var(--text-muted); font-size:0.9rem">Agent Performance ($)</h4>
+                    <h4 style="margin-bottom:15px; color:var(--text-muted)">Agent Performance ($)</h4>
                     <canvas id="agentChart"></canvas>
                 </div>
                 <div class="chart-box">
-                    <h4 style="margin-bottom:15px; color:var(--text-muted); font-size:0.9rem">Tariff Plan Distribution</h4>
+                    <h4 style="margin-bottom:15px; color:var(--text-muted)">Tariff Plan Distribution</h4>
                     <canvas id="planChart"></canvas>
                 </div>
             </div>
@@ -122,7 +115,7 @@
     <div id="modal" class="modal">
         <div class="modal-content">
             <div style="padding:20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center">
-                <b id="modal-title">Transaction Record</b>
+                <b id="modal-title">Transaction Details</b>
                 <span onclick="closeModal()" style="cursor:pointer; font-size:1.5rem">&times;</span>
             </div>
             <form id="form" style="padding:32px">
@@ -131,21 +124,33 @@
                     <div><label>Agent</label><select id="f-agent"><option>RIM Saray</option><option>KUN Chamnan</option></select></div>
                     <div><label>Customer Name</label><input type="text" id="f-cust" required></div>
                     <div><label>Service Number</label><input type="text" id="f-num" required></div>
-                    <div><label>Contact Phone</label><input type="text" id="f-contact" required></div>
-                    <div><label>Tariff Plan</label>
-                        <select id="f-plan">
-                            <option>Smart@Home</option><option>Fiber</option><option>M2M</option>
-                            <option>Postpaid</option><option>Smart Loar</option><option>Smart Data Tamchet</option>
-                        </select>
-                    </div>
+                    <div><label>Contact Info</label><input type="text" id="f-con" required></div>
+                    <div><label>Plan</label><select id="f-plan">
+                        <option>Smart@Home</option><option>Fiber</option><option>Postpaid</option>
+                    </select></div>
                     <div><label>Amount ($)</label><input type="number" id="f-amt" step="0.01" required></div>
-                    <div><label>Top Up Date</label><input type="date" id="f-date" onchange="calcExp()" required></div>
-                    <div><label>Duration (Months)</label><input type="number" id="f-period" value="1" oninput="calcExp()"></div>
+                    <div><label>Start Date</label><input type="date" id="f-date" onchange="calcExp()" required></div>
+                    <div><label>Period (Month)</label><input type="number" id="f-period" value="1" oninput="calcExp()"></div>
                 </div>
-                <label>System Calculated Expiry</label>
-                <input type="date" id="f-exp" readonly style="background:#f1f3f4; font-weight:600">
-                <button type="button" class="btn-action" style="width:100%; justify-content:center" onclick="save()">Save to Google Sheet</button>
+                <label>Expiry Date</label>
+                <input type="date" id="f-exp" readonly style="background:#f9f9f9">
+                <button type="button" class="btn-action" style="width:100%; justify-content:center; margin-top:10px" onclick="save()">Save to Sheet</button>
             </form>
+        </div>
+    </div>
+
+    <div id="expModal" class="modal">
+        <div class="modal-content" style="width: 800px;">
+            <div style="padding:20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center">
+                <b style="color:var(--danger)">Customers Expiring Soon</b>
+                <span onclick="closeExpModal()" style="cursor:pointer; font-size:1.5rem">&times;</span>
+            </div>
+            <div style="padding:20px">
+                <table style="width:100%">
+                    <thead><tr style="background:#fff5f5"><th>Customer</th><th>Number</th><th>Expiry Date</th><th>Action</th></tr></thead>
+                    <tbody id="exp-list-body"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -162,151 +167,120 @@
                 let url = `${SCRIPT_URL}?action=${action}`;
                 if (payload) url += `&data=${encodeURIComponent(JSON.stringify(payload))}`;
                 if (index !== -1) url += `&index=${index}`;
-
-                const response = await fetch(url);
-                transactions = await response.json();
+                const res = await fetch(url);
+                transactions = await res.json();
                 render();
-                updateCharts();
-            } catch (e) { console.error(e); }
+            } catch (e) { alert("Sync Error"); }
             document.getElementById('sync-status').style.display = 'none';
         }
 
         function render() {
             const body = document.getElementById('table-body');
-            const alertBanner = document.getElementById('exp-alert-banner');
-            const alertList = document.getElementById('alert-list');
-            
-            body.innerHTML = '';
-            alertList.innerHTML = '';
-            
-            let rev = 0, alertsCount = 0;
+            const expBody = document.getElementById('exp-list-body');
+            body.innerHTML = ''; expBody.innerHTML = '';
+            let rev = 0, alertCount = 0;
             const now = new Date();
-            now.setHours(0, 0, 0, 0);
 
             transactions.forEach((t, i) => {
                 const expDate = new Date(t.expire);
-                expDate.setHours(0, 0, 0, 0);
-                
-                const diffTime = expDate - now;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const diffDays = Math.ceil((expDate - now) / (1000*60*60*24));
 
-                // 1. Alert Message Logic (7 days or less)
-                if (diffDays <= 7) {
-                    alertsCount++;
-                    alertList.innerHTML += `
-                        <div class="alert-item">
-                            • ${t.customer} (${t.number}) expires in ${diffDays < 0 ? 'ALREADY EXPIRED' : diffDays + ' days'} (${t.expire})
-                        </div>`;
-                }
-
-                // 2. Render Table
+                // History Table Row
                 body.innerHTML += `<tr>
                     <td>${t.agent}</td>
                     <td><b>${t.customer}</b><br><small>${t.contact}</small></td>
                     <td>${t.number}</td>
                     <td>${t.plan}</td>
-                    <td style="font-weight:600">$${parseFloat(t.amount).toFixed(2)}</td>
-                    <td style="color:${diffDays <= 7 ? 'var(--danger)' : 'inherit'}; font-weight:${diffDays <= 7 ? 'bold' : 'normal'}">${t.expire}</td>
-                    <td><button style="border:none; background:none; color:var(--info); cursor:pointer" onclick="openModal(${i})">Edit</button></td>
+                    <td>$${parseFloat(t.amount).toFixed(2)}</td>
+                    <td style="color:${diffDays <= 7 ? 'var(--danger)' : 'inherit'}">${t.expire}</td>
+                    <td>
+                        <button class="btn-outline" onclick="openModal(${i})">Edit</button>
+                        <button class="btn-danger" onclick="del(${i})">Delete</button>
+                    </td>
                 </tr>`;
-                
-                // 3. Monthly Revenue Logic
-                const tDate = new Date(t.renew);
-                if(tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear()) rev += parseFloat(t.amount);
+
+                // Expiring List Logic
+                if (diffDays <= 7) {
+                    alertCount++;
+                    expBody.innerHTML += `<tr>
+                        <td><b>${t.customer}</b></td>
+                        <td>${t.number}</td>
+                        <td style="color:var(--danger)">${t.expire} (${diffDays < 0 ? 'Expired' : diffDays + ' days left'})</td>
+                        <td><button class="btn-action" style="padding:5px 15px; font-size:0.75rem" onclick="renewEntry(${i})">Renew</button></td>
+                    </tr>`;
+                }
+
+                if(new Date(t.renew).getMonth() === now.getMonth() && new Date(t.renew).getFullYear() === now.getFullYear()) rev += parseFloat(t.amount);
             });
 
-            // Toggle Alert Banner visibility
-            alertBanner.style.display = alertsCount > 0 ? 'block' : 'none';
             document.getElementById('dash-rev').innerText = `$${rev.toFixed(2)}`;
-            document.getElementById('dash-alert').innerText = alertsCount;
+            document.getElementById('dash-alert').innerText = alertCount;
+            updateCharts();
+        }
+
+        function del(idx) { if(confirm("Permanently delete this record?")) sync('delete', null, idx); }
+
+        function renewEntry(idx) {
+            closeExpModal();
+            const t = transactions[idx];
+            openModal(); // Reset form
+            document.getElementById('f-agent').value = t.agent;
+            document.getElementById('f-cust').value = t.customer;
+            document.getElementById('f-num').value = t.number;
+            document.getElementById('f-con').value = t.contact;
+            document.getElementById('f-plan').value = t.plan;
+            document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+            calcExp();
         }
 
         function updateCharts() {
-            const agentData = {};
-            const planData = {};
+            const agentData = {}; const planData = {};
             transactions.forEach(t => {
                 agentData[t.agent] = (agentData[t.agent] || 0) + parseFloat(t.amount);
                 planData[t.plan] = (planData[t.plan] || 0) + 1;
             });
-
             if (agentChart) agentChart.destroy();
             if (planChart) planChart.destroy();
-
-            const ctxAgent = document.getElementById('agentChart').getContext('2d');
-            agentChart = new Chart(ctxAgent, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(agentData),
-                    datasets: [{ label: 'Revenue ($)', data: Object.values(agentData), backgroundColor: '#23AD4A', borderRadius: 6 }]
-                },
-                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
-
-            const ctxPlan = document.getElementById('planChart').getContext('2d');
-            planChart = new Chart(ctxPlan, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(planData),
-                    datasets: [{ data: Object.values(planData), backgroundColor: ['#23AD4A', '#2196f3', '#ef5350', '#ffb300', '#9c27b0'] }]
-                },
-                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-            });
-        }
-
-        function switchTab(t) {
-            document.getElementById('view-dashboard').style.display = (t==='dashboard' ? 'block' : 'none');
-            document.getElementById('view-history').style.display = (t==='history' ? 'block' : 'none');
-            document.getElementById('m-dash').classList.toggle('active', t==='dashboard');
-            document.getElementById('m-hist').classList.toggle('active', t==='history');
-            document.getElementById('page-title').innerText = t==='dashboard' ? 'Dashboard Overview' : 'Transaction History';
-            if(t==='dashboard') updateCharts();
+            agentChart = new Chart(document.getElementById('agentChart'), { type: 'bar', data: { labels: Object.keys(agentData), datasets: [{ label: 'Sales', data: Object.values(agentData), backgroundColor: '#23AD4A' }] }, options: { maintainAspectRatio: false }});
+            planChart = new Chart(document.getElementById('planChart'), { type: 'doughnut', data: { labels: Object.keys(planData), datasets: [{ data: Object.values(planData), backgroundColor: ['#23AD4A', '#2196f3', '#ef5350'] }] }, options: { maintainAspectRatio: false }});
         }
 
         function save() {
-            const idx = parseInt(document.getElementById('edit-idx').value);
-            const data = {
-                agent: document.getElementById('f-agent').value,
-                customer: document.getElementById('f-cust').value,
-                number: document.getElementById('f-num').value,
-                contact: document.getElementById('f-contact').value,
-                plan: document.getElementById('f-plan').value,
-                amount: document.getElementById('f-amt').value,
-                renew: document.getElementById('f-date').value,
-                expire: document.getElementById('f-exp').value,
-                period: document.getElementById('f-period').value
-            };
+            const data = { agent: document.getElementById('f-agent').value, customer: document.getElementById('f-cust').value, number: document.getElementById('f-num').value, contact: document.getElementById('f-con').value, plan: document.getElementById('f-plan').value, amount: document.getElementById('f-amt').value, renew: document.getElementById('f-date').value, period: document.getElementById('f-period').value, expire: document.getElementById('f-exp').value };
+            sync('save', data, document.getElementById('edit-idx').value);
             closeModal();
-            sync('save', data, idx);
         }
 
         function calcExp() {
-            const d = document.getElementById('f-date').value;
-            const p = parseInt(document.getElementById('f-period').value) || 1;
-            if(d) {
-                let date = new Date(d);
-                date.setMonth(date.getMonth() + p);
-                document.getElementById('f-exp').value = date.toISOString().split('T')[0];
-            }
+            const d = new Date(document.getElementById('f-date').value);
+            d.setMonth(d.getMonth() + parseInt(document.getElementById('f-period').value));
+            document.getElementById('f-exp').value = d.toISOString().split('T')[0];
         }
 
-        function openModal(i = -1) {
-            document.getElementById('form').reset();
-            document.getElementById('edit-idx').value = i;
+        function switchTab(t) {
+            document.getElementById('view-dashboard').style.display = t==='dashboard'?'block':'none';
+            document.getElementById('view-history').style.display = t==='history'?'block':'none';
+            document.getElementById('m-dash').classList.toggle('active', t==='dashboard');
+            document.getElementById('m-hist').classList.toggle('active', t==='history');
+            document.getElementById('page-title').innerText = t==='dashboard'?'Overview':'History';
+        }
+
+        function openModal(i = -1) { 
+            document.getElementById('form').reset(); 
+            document.getElementById('edit-idx').value = i; 
             if(i > -1) {
                 const t = transactions[i];
-                document.getElementById('f-agent').value = t.agent;
                 document.getElementById('f-cust').value = t.customer;
                 document.getElementById('f-num').value = t.number;
-                document.getElementById('f-contact').value = t.contact;
-                document.getElementById('f-plan').value = t.plan;
                 document.getElementById('f-amt').value = t.amount;
                 document.getElementById('f-date').value = t.renew;
-                document.getElementById('f-period').value = t.period;
                 document.getElementById('f-exp').value = t.expire;
             }
-            document.getElementById('modal').style.display = 'block';
+            document.getElementById('modal').style.display = 'block'; 
         }
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        function openExpModal() { document.getElementById('expModal').style.display = 'block'; }
+        function closeExpModal() { document.getElementById('expModal').style.display = 'none'; }
     </script>
 </body>
 </html>
