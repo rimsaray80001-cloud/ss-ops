@@ -6,7 +6,7 @@
     <title>Smart Axiata | Shop Ops Dashboard</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -29,75 +29,98 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Kantumruy Pro', sans-serif; background: var(--bg); color: var(--text-dark); display: flex; min-height: 100vh; }
+        body { 
+            font-family: 'Plus Jakarta Sans', 'Kantumruy Pro', sans-serif; 
+            background: var(--bg); 
+            color: var(--text-dark); 
+            display: flex; 
+            min-height: 100vh; 
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
 
         /* Sidebar Navigation */
         .sidebar { 
             width: var(--sidebar-width); 
-            background: var(--primary); 
+            background: linear-gradient(135deg, #113c1c 0%, #1B8C3F 100%); 
             height: 100vh; 
             position: fixed; 
             display: flex; 
             flex-direction: column; 
             z-index: 1000; 
             color: var(--white);
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .sidebar-brand { 
-            padding: 35px 25px; 
-            font-size: 1.6rem; 
-            font-weight: 700; 
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 30px 24px; 
+            font-size: 1.4rem; 
+            font-weight: 800; 
+            letter-spacing: -0.5px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+        }
+        .sidebar-brand svg {
+            color: #52C41A;
         }
         .sidebar-brand span {
             color: #FFF;
         }
-        .menu-list { list-style: none; padding: 25px 15px; flex-grow: 1; }
+        .menu-list { list-style: none; padding: 20px 16px; flex-grow: 1; }
         .menu-item { 
-            padding: 14px 20px; 
-            margin-bottom: 10px; 
-            border-radius: 12px; 
+            padding: 12px 18px; 
+            margin-bottom: 8px; 
+            border-radius: 10px; 
             cursor: pointer; 
-            color: rgba(255,255,255,0.85); 
+            color: rgba(255,255,255,0.75); 
             font-weight: 500; 
-            transition: all 0.3s ease; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
             display: flex; 
             align-items: center; 
             gap: 12px; 
+            font-size: 0.95rem;
         }
         .menu-item:hover {
-            background: var(--primary-dark);
+            background: rgba(255, 255, 255, 0.08);
             color: var(--white);
+            transform: translateX(4px);
         }
         .menu-item.active { 
             background: var(--white); 
             color: var(--primary); 
             font-weight: 600;
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: none;
+        }
+        .menu-item.active:hover {
+            background: var(--white); 
+            color: var(--primary); 
+            transform: none;
         }
 
         /* Sidebar Quick Actions */
         .sidebar-footer {
             padding: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            background: rgba(0, 0, 0, 0.05);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0, 0, 0, 0.15);
         }
         .sidebar-quick-title {
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.5);
             margin-bottom: 10px;
             font-weight: 700;
         }
         .btn-sidebar {
             width: 100%;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.15);
             color: var(--white);
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
             padding: 10px 15px;
             border-radius: 8px;
             font-weight: 600;
@@ -112,25 +135,27 @@
         .btn-sidebar:hover {
             background: var(--white);
             color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .sidebar-search-box {
             width: 100%;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.1);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.08);
             color: white;
             font-family: inherit;
             font-size: 0.85rem;
             margin-top: 10px;
+            transition: all 0.2s;
         }
         .sidebar-search-box::placeholder {
-            color: rgba(255,255,255,0.5);
+            color: rgba(255,255,255,0.4);
         }
         .sidebar-search-box:focus {
             outline: none;
-            border-color: white;
-            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.12);
         }
 
         /* Content Layout */
@@ -392,6 +417,41 @@
             color: #DDD;
             margin-bottom: 15px;
         }
+
+        /* Modal Overlay & Content Styling */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transform: translateY(-20px);
+            transition: transform 0.25s ease;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -400,6 +460,162 @@
     <div id="sync-status">
         <div class="spinner"></div>
         <span id="sync-text">Processing Sync...</span>
+    </div>
+
+    <!-- 1. SIGN UP MODAL POPUP -->
+    <div class="modal-overlay" id="signup-modal-overlay">
+        <div class="modal-content">
+            <div class="card-header" style="margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #F0F0F0;">
+                <h2 class="card-title" id="form-heading">New Customer Entry Form</h2>
+                <button onclick="closeSignupModal()" style="border: none; background: none; font-size: 1.5rem; cursor: pointer; color: var(--text-gray);">&times;</button>
+            </div>
+
+            <form id="entry-form" onsubmit="handleFormSubmit(event)">
+                <input type="hidden" id="f-id" value="">
+                <input type="hidden" id="f-row-index" value="-1">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="f-cust">Customer Name *</label>
+                        <input type="text" id="f-cust" placeholder="Enter Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="f-num">Top Up Number / Wifi ID *</label>
+                        <input type="text" id="f-num" placeholder="Enter Top Up Number (e.g. 012345678)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="f-con">Contact Phone *</label>
+                        <input type="text" id="f-con" placeholder="Enter Contact Phone Number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="f-source">Source *</label>
+                        <select id="f-source" required>
+                            <option value="" disabled selected>Select Source</option>
+                            <option value="Shop">Shop</option>
+                            <option value="Sale">Sale</option>
+                            <option value="Dealer">Dealer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="f-pic">PIC (Sale or Agent Name) *</label>
+                        <input type="text" id="f-pic" placeholder="Enter PIC Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="f-tariff">Tariff / Service Plan *</label>
+                        <select id="f-tariff" required>
+                            <option value="" disabled selected>Select Tariff / Service</option>
+                            <option value="Smart@Home Light">Smart@Home Light</option>
+                            <option value="Smart@Home 5G">Smart@Home 5G</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="f-amt">Amount ($) *</label>
+                        <input type="number" id="f-amt" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="f-signup-date">Sign Up Date *</label>
+                        <input type="date" id="f-signup-date" onchange="autoCalculateFields()" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="f-period">Contract Period *</label>
+                        <select id="f-period" onchange="autoCalculateFields()" required>
+                            <option value="" disabled selected>Select Period</option>
+                            <option value="1">1 Month (Renewal)</option>
+                            <option value="3">3 Months</option>
+                            <option value="6">6 Months</option>
+                            <option value="12">12 Months</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="f-status">Status *</label>
+                        <select id="f-status" required>
+                            <option value="Active" selected>Active</option>
+                            <option value="Suspend">Suspend</option>
+                            <option value="Terminated">Terminated</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="f-expire-date">Calculated Expiry Date</label>
+                        <input type="date" id="f-expire-date" readonly style="font-weight:700; color:var(--primary);">
+                    </div>
+                    <div class="form-group">
+                        <label for="f-overdue-days">Overdue Days</label>
+                        <input type="number" id="f-overdue-days" readonly value="0" style="font-weight:700;">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeSignupModal()">Close & Clear</button>
+                    <button type="submit" class="btn-primary" id="btn-submit">Submit Customer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. RENEWAL MODAL POPUP -->
+    <div class="modal-overlay" id="renewal-modal-overlay">
+        <div class="modal-content">
+            <div class="card-header" style="margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #F0F0F0;">
+                <h2 class="card-title" id="renewal-form-heading">Process Customer Renewal</h2>
+                <button onclick="closeRenewalModal()" style="border: none; background: none; font-size: 1.5rem; cursor: pointer; color: var(--text-gray);">&times;</button>
+            </div>
+            <form id="renewal-form" onsubmit="handleRenewalSubmit(event)">
+                <input type="hidden" id="r-cust-id">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="r-cust-name">Customer Name</label>
+                        <input type="text" id="r-cust-name" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="r-cust-number">Top Up Number / Wifi ID</label>
+                        <input type="text" id="r-cust-number" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="r-current-expire">Current Expiry Date</label>
+                        <input type="date" id="r-current-expire" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="r-new-start">New Start Date *</label>
+                        <input type="date" id="r-new-start" onchange="autoCalculateRenewalFields()" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="r-tariff">Tariff / Service Plan *</label>
+                        <select id="r-tariff" required>
+                            <option value="Smart@Home Light">Smart@Home Light</option>
+                            <option value="Smart@Home 5G">Smart@Home 5G</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="r-amt">Amount ($) *</label>
+                        <input type="number" id="r-amt" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="r-period">Contract Period *</label>
+                        <select id="r-period" onchange="autoCalculateRenewalFields()" required>
+                            <option value="1" selected>1 Month (Renewal)</option>
+                            <option value="3">3 Months</option>
+                            <option value="6">6 Months</option>
+                            <option value="12">12 Months</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="r-status">Renewal Status *</label>
+                        <select id="r-status" required>
+                            <option value="Success" selected>Success (Renew & Activate)</option>
+                            <option value="Pending Payment">Pending Payment</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="r-new-expire">New Expiry Date</label>
+                        <input type="date" id="r-new-expire" readonly style="font-weight:700; color:var(--primary);">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeRenewalModal()">Cancel</button>
+                    <button type="submit" class="btn-primary" id="btn-submit-renewal">Submit Renewal</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Left Sidebar -->
@@ -449,99 +665,41 @@
             </div>
         </div>
 
-        <!-- 1. SIGN UP TAB (Entry Form) -->
+        <!-- 1. SIGN UP TAB (Customer List & Search) -->
         <section id="view-signup">
             <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title" id="form-heading">New Customer Entry Form</h2>
-                    <button class="btn-primary" id="btn-init-form" onclick="resetForm()">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18"></path></svg>
-                        Clear Form
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 10px; flex: 1; max-width: 500px;">
+                        <input type="text" id="signup-search-box" class="search-input" placeholder="Search signed up customers by name, top up number, PIC..." onkeyup="renderSignupList()">
+                    </div>
+                    <button class="btn-primary" onclick="openSignupModal()" style="display: flex; align-items: center; gap: 8px;">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        New Sign Up
                     </button>
                 </div>
 
-                <form id="entry-form" onsubmit="handleFormSubmit(event)">
-                    <input type="hidden" id="f-id" value="">
-                    <input type="hidden" id="f-row-index" value="-1">
-                    
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="f-cust">Customer Name *</label>
-                            <input type="text" id="f-cust" placeholder="Enter Full Name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="f-num">Top Up Number / Wifi ID *</label>
-                            <input type="text" id="f-num" placeholder="Enter Top Up Number (e.g. 012345678)" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="f-con">Contact Phone *</label>
-                            <input type="text" id="f-con" placeholder="Enter Contact Phone Number" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="f-source">Source *</label>
-                            <select id="f-source" required>
-                                <option value="" disabled selected>Select Source</option>
-                                <option value="Shop">Shop</option>
-                                <option value="Sale">Sale</option>
-                                <option value="Dealer">Dealer</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="f-pic">PIC (Sale or Agent Name) *</label>
-                            <input type="text" id="f-pic" placeholder="Enter PIC Name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="f-tariff">Tariff / Service Plan *</label>
-                            <select id="f-tariff" required>
-                                <option value="" disabled selected>Select Tariff / Service</option>
-                                <option value="Smart@Home Light">Smart@Home Light</option>
-                                <option value="Smart@Home 5G">Smart@Home 5G</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="f-amt">Amount ($) *</label>
-                            <input type="number" id="f-amt" step="0.01" placeholder="0.00" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="f-signup-date">Sign Up Date *</label>
-                            <input type="date" id="f-signup-date" onchange="autoCalculateFields()" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="f-period">Contract Period *</label>
-                            <select id="f-period" onchange="autoCalculateFields()" required>
-                                <option value="" disabled selected>Select Period</option>
-                                <option value="1">1 Month (Renewal)</option>
-                                <option value="3">3 Months</option>
-                                <option value="6">6 Months</option>
-                                <option value="12">12 Months</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="f-status">Status *</label>
-                            <select id="f-status" required>
-                                <option value="Active" selected>Active</option>
-                                <option value="Suspend">Suspend</option>
-                                <option value="Terminated">Terminated</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="f-expire-date">Calculated Expiry Date</label>
-                            <input type="date" id="f-expire-date" readonly style="font-weight:700; color:var(--primary);">
-                        </div>
-                        <div class="form-group">
-                            <label for="f-overdue-days">Overdue Days</label>
-                            <input type="number" id="f-overdue-days" readonly value="0" style="font-weight:700;">
-                        </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Customer Info</th>
+                                <th>Top Up Number / Wifi ID</th>
+                                <th>Source & PIC</th>
+                                <th>Plan & Amount</th>
+                                <th>Contract Period</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="signup-table-body">
+                            <!-- Rendered dynamically -->
+                        </tbody>
+                    </table>
+                    <div id="signup-table-empty-state" class="empty-state" style="display: none;">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p>No customers found matching your criteria</p>
                     </div>
-
-                    <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="resetForm()">Close & Clear</button>
-                        <button type="submit" class="btn-primary" id="btn-submit">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                            Submit Customer
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
         </section>
 
@@ -558,20 +716,24 @@
             </div>
 
             <!-- Stats KPI Cards -->
-            <div class="stats-grid">
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
                 <div class="stat-card primary">
-                    <div class="stat-label">Total Subscriptions</div>
-                    <div class="stat-value" id="stat-total">0 <span class="stat-unit">cust</span></div>
+                    <div class="stat-label">Total Active Customers</div>
+                    <div class="stat-value" id="stat-total-active">0 <span class="stat-unit">cust</span></div>
                 </div>
                 <div class="stat-card success">
-                    <div class="stat-label">Total Value (Contract)</div>
-                    <div class="stat-value" id="stat-revenue">$0.00</div>
-                </div>
-                <div class="stat-card danger">
-                    <div class="stat-label">Expiring Soon (<= 5 Days)</div>
-                    <div class="stat-value" id="stat-expiring">0</div>
+                    <div class="stat-label">Success Renew (Month)</div>
+                    <div class="stat-value" id="stat-success-renew">0 <span class="stat-unit">cust</span></div>
                 </div>
                 <div class="stat-card warning">
+                    <div class="stat-label">Pending Payment (Month)</div>
+                    <div class="stat-value" id="stat-pending-payment">0 <span class="stat-unit">cust</span></div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-label">Expired < 5 Day</div>
+                    <div class="stat-value" id="stat-expiring">0</div>
+                </div>
+                <div class="stat-card danger" style="border-left-color: #8C1D1D;">
                     <div class="stat-label">Overdue Contracts</div>
                     <div class="stat-value" id="stat-overdue">0</div>
                 </div>
@@ -692,6 +854,7 @@
         };
 
         let customers = [];
+        let renewals = [];
         let agentChart = null;
         let planChart = null;
 
@@ -699,6 +862,7 @@
         window.onload = async () => {
             loadConfig();
             loadLocalData();
+            loadRenewals();
             await fetchSyncData();
             autoCalculateFields();
             
@@ -839,6 +1003,19 @@
 
         function saveLocalData() {
             localStorage.setItem('ss_ops_customers', JSON.stringify(customers));
+        }
+
+        function loadRenewals() {
+            const savedRenewals = localStorage.getItem('ss_ops_renewals');
+            if (savedRenewals) {
+                renewals = JSON.parse(savedRenewals);
+            } else {
+                renewals = [];
+            }
+        }
+
+        function saveRenewals() {
+            localStorage.setItem('ss_ops_renewals', JSON.stringify(renewals));
         }
 
         function recalculateOverdueDaysLocally() {
@@ -1023,9 +1200,53 @@
         }
 
         function initNewForm() {
-            switchTab('signup');
+            openSignupModal();
+        }
+
+        function openSignupModal() {
             resetForm();
+            document.getElementById('signup-modal-overlay').classList.add('active');
             document.getElementById('f-cust').focus();
+        }
+
+        function closeSignupModal() {
+            document.getElementById('signup-modal-overlay').classList.remove('active');
+        }
+
+        function editCustomer(id) {
+            const c = customers.find(item => item.id === id);
+            if (!c) return;
+            
+            document.getElementById('f-id').value = c.id;
+            document.getElementById('f-row-index').value = c.sheetRowIndex || -1;
+            document.getElementById('form-heading').innerText = "Edit Customer Entry Form";
+            
+            document.getElementById('f-cust').value = c.customer;
+            document.getElementById('f-num').value = c.number;
+            document.getElementById('f-con').value = c.contact;
+            document.getElementById('f-source').value = c.source;
+            document.getElementById('f-pic').value = c.pic;
+            document.getElementById('f-tariff').value = c.tariff;
+            document.getElementById('f-amt').value = c.amount;
+            document.getElementById('f-signup-date').value = c.signup_date;
+            document.getElementById('f-period').value = c.period;
+            document.getElementById('f-status').value = c.status;
+            
+            autoCalculateFields();
+            
+            document.getElementById('signup-modal-overlay').classList.add('active');
+        }
+
+        async function deleteCustomer(id, rowIndex) {
+            if (confirm("Are you sure you want to delete this customer?")) {
+                if (config.scriptUrl) {
+                    await syncCloudAction('delete', null, id, rowIndex);
+                } else {
+                    customers = customers.filter(c => c.id !== id);
+                    saveLocalData();
+                    renderAll();
+                }
+            }
         }
 
         function handleFormSubmit(e) {
@@ -1071,14 +1292,15 @@
                 syncCloudAction('save', payload);
             }
 
-            resetForm();
-            switchTab('topup');
+            closeSignupModal();
+            switchTab('signup');
         }
 
         // Customer List Rendering & Table Actions
         function renderAll() {
             recalculateOverdueDaysLocally();
             renderCustomerList();
+            renderSignupList();
             updateKPIs();
             renderCharts();
         }
@@ -1098,14 +1320,28 @@
                 return new Date(a.expire_date) - new Date(b.expire_date);
             });
 
-            let visibleCount = 0;
             const today = new Date();
-            today.setHours(0,0,0,0);
+            const lastDayOfCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            lastDayOfCurrentMonth.setHours(23, 59, 59, 999);
 
+            let visibleCount = 0;
             let alertCount = 0;
             let alertingCustomersText = [];
 
             displayList.forEach(c => {
+                // Condition for Top Up Tab visibility: Active and expire date is in or before current month
+                let isTopupEligible = false;
+                if (c.status === 'Active' && c.expire_date) {
+                    const exp = new Date(c.expire_date);
+                    if (exp <= lastDayOfCurrentMonth) {
+                        isTopupEligible = true;
+                    }
+                }
+
+                if (!isTopupEligible) {
+                    return; // Skip rendering this customer in Top Up list
+                }
+
                 const matchesSearch = c.customer.toLowerCase().includes(search) || 
                                       c.number.includes(search) || 
                                       c.contact.includes(search) || 
@@ -1115,25 +1351,20 @@
 
                 // Calculate expiry alert
                 let alertBadgeHTML = '';
-                
                 if (c.expire_date) {
                     const exp = new Date(c.expire_date);
                     exp.setHours(0,0,0,0);
                     const diffTime = exp - today;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                    if (c.status === 'Active') {
-                        if (diffDays < 0) {
-                            alertBadgeHTML = `<span class="alert-pill danger">🔴 Overdue ${Math.abs(diffDays)}d</span>`;
-                        } else if (diffDays <= 5) {
-                            alertBadgeHTML = `<span class="alert-pill warning">⚠️ Expire ${diffDays}d</span>`;
-                            alertCount++;
-                            alertingCustomersText.push(`${c.customer} (${c.number})`);
-                        } else {
-                            alertBadgeHTML = `<span class="alert-pill success">🟢 Active (${diffDays}d)</span>`;
-                        }
+                    if (diffDays < 0) {
+                        alertBadgeHTML = `<span class="alert-pill danger">🔴 Overdue ${Math.abs(diffDays)}d</span>`;
+                    } else if (diffDays <= 5) {
+                        alertBadgeHTML = `<span class="alert-pill warning">⚠️ Expire ${diffDays}d</span>`;
+                        alertCount++;
+                        alertingCustomersText.push(`${c.customer} (${c.number})`);
                     } else {
-                        alertBadgeHTML = `<span class="alert-pill" style="background:#ECECEC; color:#8C8C8C;">⚪ Non-Active</span>`;
+                        alertBadgeHTML = `<span class="alert-pill success">🟢 Active (${diffDays}d)</span>`;
                     }
                 }
 
@@ -1170,14 +1401,8 @@
                             </td>
                             <td>
                                 <div class="action-btn-group">
-                                    <button class="btn-icon edit" onclick="editCustomer('${c.id}')" title="Edit Customer">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                    </button>
-                                    <button class="btn-icon renew" onclick="initRenewal('${c.id}')" title="1-Month Contract Renewal">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18"></path></svg>
-                                    </button>
-                                    <button class="btn-icon delete" onclick="deleteCustomer('${c.id}', ${c.sheetRowIndex || -1})" title="Delete Customer">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    <button class="btn-icon renew" onclick="openRenewalModal('${c.id}')" title="Process Renewal">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                                     </button>
                                 </div>
                             </td>
@@ -1210,6 +1435,234 @@
             }
         }
 
+        function renderSignupList() {
+            const body = document.getElementById('signup-table-body');
+            const search = document.getElementById('signup-search-box').value.toLowerCase();
+            const emptyState = document.getElementById('signup-table-empty-state');
+            
+            body.innerHTML = '';
+            
+            let displayList = [...customers].sort((a, b) => {
+                if (!a.expire_date) return 1;
+                if (!b.expire_date) return -1;
+                return new Date(a.expire_date) - new Date(b.expire_date);
+            });
+
+            let visibleCount = 0;
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            displayList.forEach(c => {
+                const matchesSearch = c.customer.toLowerCase().includes(search) || 
+                                      c.number.includes(search) || 
+                                      c.contact.includes(search) || 
+                                      c.pic.toLowerCase().includes(search);
+
+                if (matchesSearch) {
+                    visibleCount++;
+                    const amountFormatted = parseFloat(c.amount).toFixed(2);
+                    
+                    let alertBadgeHTML = '';
+                    if (c.expire_date) {
+                        const exp = new Date(c.expire_date);
+                        exp.setHours(0,0,0,0);
+                        const diffTime = exp - today;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (c.status === 'Active') {
+                            if (diffDays < 0) {
+                                alertBadgeHTML = `<span class="alert-pill danger">🔴 Overdue ${Math.abs(diffDays)}d</span>`;
+                            } else if (diffDays <= 5) {
+                                alertBadgeHTML = `<span class="alert-pill warning">⚠️ Expire ${diffDays}d</span>`;
+                            } else {
+                                alertBadgeHTML = `<span class="alert-pill success">🟢 Active (${diffDays}d)</span>`;
+                            }
+                        } else {
+                            alertBadgeHTML = `<span class="alert-pill" style="background:#ECECEC; color:#8C8C8C;">⚪ Non-Active</span>`;
+                        }
+                    }
+
+                    body.innerHTML += `
+                        <tr>
+                            <td>
+                                <strong>${c.customer}</strong><br>
+                                <span style="font-size:0.8rem; color:var(--text-gray);">${c.contact}</span>
+                            </td>
+                            <td><strong style="color:var(--primary); font-family:monospace;">${c.number}</strong></td>
+                            <td>
+                                <span>${c.source}</span><br>
+                                <small style="color:var(--text-gray);">PIC: ${c.pic}</small>
+                            </td>
+                            <td>
+                                <span style="background:var(--primary-light); color:var(--primary); padding:4px 10px; border-radius:6px; font-weight:600; font-size:0.8rem;">
+                                    ${c.tariff}
+                                </span><br>
+                                <small style="font-weight:600; color:#333;">$${amountFormatted}</small>
+                            </td>
+                            <td>
+                                <span>${c.expire_date}</span><br>
+                                <small style="color:${c.overdue_days > 0 ? 'var(--danger)' : 'var(--text-gray)'}; font-weight:${c.overdue_days > 0 ? 'bold' : 'normal'};">
+                                    ${c.overdue_days > 0 ? 'Overdue ' + c.overdue_days + ' days' : 'Period: ' + c.period + 'm'}
+                                </small>
+                            </td>
+                            <td>
+                                <span class="badge ${c.status.toLowerCase()}" style="margin-bottom:6px;">${c.status}</span><br>
+                                ${alertBadgeHTML}
+                            </td>
+                            <td>
+                                <div class="action-btn-group">
+                                    <button class="btn-icon edit" onclick="editCustomer('${c.id}')" title="Edit Customer">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    </button>
+                                    <button class="btn-icon delete" onclick="deleteCustomer('${c.id}', ${c.sheetRowIndex || -1})" title="Delete Customer">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>`;
+                }
+            });
+
+            emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+
+        function openRenewalModal(id) {
+            const c = customers.find(item => item.id === id);
+            if (!c) return;
+            
+            document.getElementById('r-cust-id').value = c.id;
+            document.getElementById('r-cust-name').value = c.customer;
+            document.getElementById('r-cust-number').value = c.number;
+            document.getElementById('r-current-expire').value = c.expire_date || "";
+            
+            const todayStr = new Date().toISOString().split('T')[0];
+            let defaultStart = todayStr;
+            if (c.expire_date) {
+                const expDate = new Date(c.expire_date);
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                if (expDate >= today) {
+                    const nextDay = new Date(expDate);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    defaultStart = nextDay.toISOString().split('T')[0];
+                }
+            }
+            document.getElementById('r-new-start').value = defaultStart;
+            document.getElementById('r-tariff').value = c.tariff || "Smart@Home Light";
+            document.getElementById('r-amt').value = c.amount || 0;
+            document.getElementById('r-period').value = "1";
+            document.getElementById('r-status').value = "Success";
+            
+            autoCalculateRenewalFields();
+            
+            document.getElementById('renewal-modal-overlay').classList.add('active');
+        }
+
+        function closeRenewalModal() {
+            document.getElementById('renewal-modal-overlay').classList.remove('active');
+        }
+
+        function autoCalculateRenewalFields() {
+            const startDateStr = document.getElementById('r-new-start').value;
+            const periodStr = document.getElementById('r-period').value;
+            
+            if (!startDateStr || !periodStr) {
+                document.getElementById('r-new-expire').value = "";
+                return;
+            }
+            
+            const startDate = new Date(startDateStr);
+            const period = parseInt(periodStr);
+            
+            startDate.setMonth(startDate.getMonth() + period);
+            const newExpiryStr = startDate.toISOString().split('T')[0];
+            document.getElementById('r-new-expire').value = newExpiryStr;
+        }
+
+        function handleRenewalSubmit(e) {
+            e.preventDefault();
+            
+            const customerId = document.getElementById('r-cust-id').value;
+            const customer = customers.find(c => c.id === customerId);
+            if (!customer) return;
+            
+            const newStartDate = document.getElementById('r-new-start').value;
+            const period = parseInt(document.getElementById('r-period').value);
+            const tariff = document.getElementById('r-tariff').value;
+            const amount = parseFloat(document.getElementById('r-amt').value) || 0;
+            const renewalStatus = document.getElementById('r-status').value;
+            const newExpireDate = document.getElementById('r-new-expire').value;
+            
+            const renewalId = "REN_" + new Date().getTime() + "_" + Math.floor(Math.random() * 1000);
+            
+            const startD = new Date(newStartDate);
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const monthSheetName = "Sheet " + monthNames[startD.getMonth()];
+            const renewalMonthYear = startD.getFullYear() + "-" + String(startD.getMonth() + 1).padStart(2, '0');
+            
+            const renewalPayload = {
+                renewal_id: renewalId,
+                customer_id: customerId,
+                customer: customer.customer,
+                number: customer.number,
+                contact: customer.contact,
+                source: customer.source,
+                pic: customer.pic,
+                tariff: tariff,
+                amount: amount,
+                new_start_date: newStartDate,
+                period: period,
+                new_expire_date: newExpireDate,
+                renewal_status: renewalStatus,
+                renewal_month: renewalMonthYear
+            };
+            
+            renewals.push(renewalPayload);
+            saveRenewals();
+            
+            if (config.scriptUrl) {
+                sendRenewalToCloud(renewalPayload, monthSheetName);
+            }
+            
+            if (renewalStatus === "Success") {
+                customer.signup_date = newStartDate;
+                customer.period = period;
+                customer.expire_date = newExpireDate;
+                customer.status = "Active";
+                customer.tariff = tariff;
+                customer.amount = amount;
+                
+                if (config.scriptUrl) {
+                    syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1);
+                } else {
+                    saveLocalData();
+                    renderAll();
+                }
+            } else {
+                renderAll();
+            }
+            
+            closeRenewalModal();
+        }
+
+        async function sendRenewalToCloud(payload, monthSheetName) {
+            showSyncToast("Saving monthly renewal to cloud...");
+            try {
+                let url = `${config.scriptUrl}?action=save_renewal&sheetId=${config.sheetId}&monthSheetName=${encodeURIComponent(monthSheetName)}`;
+                url += `&data=${encodeURIComponent(JSON.stringify(payload))}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data && data.error) {
+                    console.error("Cloud Error saving renewal:", data.error);
+                }
+            } catch (err) {
+                console.error("Cloud Renewal Sync failed", err);
+            } finally {
+                hideSyncToast();
+            }
+        }
+
         // Sidebar Navigation & Search helper
         function switchTab(tabId) {
             document.getElementById('view-signup').style.display = tabId === 'signup' ? 'block' : 'none';
@@ -1223,6 +1676,7 @@
             if (tabId === 'signup') {
                 document.getElementById('page-title').innerText = "Sign Up";
                 document.getElementById('page-title-desc').innerText = "Add a new customer contract or modify an existing registration";
+                renderAll();
             } else if (tabId === 'topup') {
                 document.getElementById('page-title').innerText = "Top Up & Renewals";
                 document.getElementById('page-title-desc').innerText = "Check and process customer wifi subscription list & contract status";
@@ -1244,24 +1698,26 @@
 
         // Dashboard Visual KPI & Analytics Update
         function updateKPIs() {
-            const total = customers.length;
-            let revenue = 0;
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth();
+            
+            let totalActive = 0;
             let expiring = 0;
             let overdue = 0;
             
-            const today = new Date();
-            today.setHours(0,0,0,0);
-
             customers.forEach(c => {
                 if (c.status === "Active") {
-                    revenue += parseFloat(c.amount) || 0;
+                    totalActive++;
                     
                     if (c.expire_date) {
                         const exp = new Date(c.expire_date);
                         exp.setHours(0,0,0,0);
                         const diffTime = exp - today;
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+                        
                         if (diffDays < 0) {
                             overdue++;
                         } else if (diffDays <= 5) {
@@ -1270,9 +1726,26 @@
                     }
                 }
             });
-
-            document.getElementById('stat-total').innerText = total;
-            document.getElementById('stat-revenue').innerText = `$${revenue.toFixed(2)}`;
+            
+            // Compute success and pending renewals for the current month
+            let successRenewCount = 0;
+            let pendingPaymentCount = 0;
+            
+            const currentMonthYearStr = currentYear + "-" + String(currentMonth + 1).padStart(2, '0'); // YYYY-MM
+            
+            renewals.forEach(r => {
+                if (r.renewal_month === currentMonthYearStr) {
+                    if (r.renewal_status === "Success") {
+                        successRenewCount++;
+                    } else if (r.renewal_status === "Pending Payment") {
+                        pendingPaymentCount++;
+                    }
+                }
+            });
+            
+            document.getElementById('stat-total-active').innerText = totalActive;
+            document.getElementById('stat-success-renew').innerText = successRenewCount;
+            document.getElementById('stat-pending-payment').innerText = pendingPaymentCount;
             document.getElementById('stat-expiring').innerText = expiring;
             document.getElementById('stat-overdue').innerText = overdue;
         }
