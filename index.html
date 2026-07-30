@@ -506,6 +506,7 @@
                             <option value="" disabled selected>Select Tariff / Service</option>
                             <option value="Smart@Home Light">Smart@Home Light</option>
                             <option value="Smart@Home 5G">Smart@Home 5G</option>
+                            <option value="Fiber+">Fiber+</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -583,6 +584,7 @@
                         <select id="r-tariff" required>
                             <option value="Smart@Home Light">Smart@Home Light</option>
                             <option value="Smart@Home 5G">Smart@Home 5G</option>
+                            <option value="Fiber+">Fiber+</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -618,6 +620,16 @@
         </div>
     </div>
 
+    <!-- STATUS MODAL POPUP (Success / Failure Notification) -->
+    <div class="modal-overlay" id="status-modal-overlay">
+        <div class="modal-content" style="max-width: 400px; text-align: center; padding: 40px 30px;">
+            <div id="status-modal-icon" style="font-size: 4rem; margin-bottom: 20px;"></div>
+            <h2 id="status-modal-title" style="margin-bottom: 12px; font-weight: 700; color: #333;"></h2>
+            <p id="status-modal-message" style="color: var(--text-gray); margin-bottom: 30px; line-height: 1.5; font-size: 0.95rem;"></p>
+            <button class="btn-primary" onclick="closeStatusModal()" style="width: 100%; justify-content: center; height: 44px; font-weight: 600;">OK</button>
+        </div>
+    </div>
+
     <!-- Left Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-brand">
@@ -626,7 +638,11 @@
         </div>
         
         <ul class="menu-list">
-            <li class="menu-item active" id="m-signup" onclick="switchTab('signup')">
+            <li class="menu-item active" id="m-dashboard" onclick="switchTab('dashboard')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path></svg>
+                Dashboard
+            </li>
+            <li class="menu-item" id="m-signup" onclick="switchTab('signup')">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
                 Sign Up
             </li>
@@ -639,16 +655,6 @@
                 Setting
             </li>
         </ul>
-
-        <!-- Sidebar Quick Action Section -->
-        <div class="sidebar-footer">
-            <div class="sidebar-quick-title">Quick Actions</div>
-            <button class="btn-sidebar" onclick="initNewForm()">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                + Sign Up
-            </button>
-            <input type="text" id="sidebar-search" class="sidebar-search-box" placeholder="Quick find phone..." onkeyup="handleSidebarSearch(event)">
-        </div>
     </aside>
 
     <!-- Main Content Area -->
@@ -665,8 +671,37 @@
             </div>
         </div>
 
+        <!-- 0. DASHBOARD TAB -->
+        <section id="view-dashboard">
+            <!-- Dashboard Stats Grid -->
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 25px;">
+                <div class="stat-card primary">
+                    <div class="stat-label">New Sign Ups (This Month)</div>
+                    <div class="stat-value" id="db-new-signups">0 <span class="stat-unit">cust</span></div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-label">Successful Top Ups (This Month)</div>
+                    <div class="stat-value" id="db-success-topups">0 <span class="stat-unit">cust</span></div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-label">Pending Top Ups (This Month)</div>
+                    <div class="stat-value" id="db-pending-topups">0 <span class="stat-unit">cust</span></div>
+                </div>
+                <div class="stat-card info" style="border-left-color: #2196F3;">
+                    <div class="stat-label">Total Active Contracts</div>
+                    <div class="stat-value" id="db-total-active">0 <span class="stat-unit">cust</span></div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-container" id="charts-row">
+                <div class="chart-box"><canvas id="agentChart"></canvas></div>
+                <div class="chart-box"><canvas id="planChart"></canvas></div>
+            </div>
+        </section>
+
         <!-- 1. SIGN UP TAB (Customer List & Search) -->
-        <section id="view-signup">
+        <section id="view-signup" style="display:none">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; flex-wrap: wrap;">
                     <div style="display: flex; gap: 10px; flex: 1; max-width: 500px;">
@@ -739,12 +774,6 @@
                 </div>
             </div>
 
-            <!-- Analytics Charts -->
-            <div class="charts-container" id="charts-row">
-                <div class="chart-box"><canvas id="agentChart"></canvas></div>
-                <div class="chart-box"><canvas id="planChart"></canvas></div>
-            </div>
-
             <!-- Customer Report Card -->
             <div class="card">
                 <div class="card-header">
@@ -785,6 +814,41 @@
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v4.5m12 3.5h.01M16.24 7.76l-1.414 1.414m-7.07 7.07l-1.414 1.414M9 9h.01M9 12h.01M9 15h.01M12 9h.01M12 12h.01M12 15h.01M15 12h.01M15 15h.01"></path></svg>
                         <h3>No Customers Found</h3>
                         <p>Try clearing your search or add a new customer in the Sign Up tab.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Top Up Records Card -->
+            <div class="card" style="margin-top: 25px;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <h2 class="card-title">Monthly Top Up Records</h2>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label for="monthly-view-select" style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0;">Select Month:</label>
+                        <select id="monthly-view-select" style="width: auto; margin-bottom: 0; padding: 6px 12px; height: 38px;" onchange="renderMonthlyRenewals()">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Customer & Contact</th>
+                                <th>Top Up Number</th>
+                                <th>Source & PIC</th>
+                                <th>Tariff / Plan</th>
+                                <th>Start & Expiry Date</th>
+                                <th>Payment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthly-renewals-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                    <div id="monthly-renewals-empty-state" class="empty-state" style="display: none;">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                        <p>No top up records found for the selected month</p>
                     </div>
                 </div>
             </div>
@@ -865,6 +929,7 @@
             loadRenewals();
             await fetchSyncData();
             autoCalculateFields();
+            switchTab('dashboard');
             
             // Render Google Apps Script code to the settings tab block
             document.getElementById('backend-code-block').innerText = getBackendCodeText();
@@ -1077,7 +1142,7 @@
             }
         }
 
-        async function syncCloudAction(action, payload = null, id = "", index = -1) {
+        async function syncCloudAction(action, payload = null, id = "", index = -1, silent = false) {
             if (!config.scriptUrl) {
                 // If offline / local only, simulate success locally
                 if (action === 'save') {
@@ -1098,6 +1163,9 @@
                 saveLocalData();
                 recalculateOverdueDaysLocally();
                 renderAll();
+                if (!silent) {
+                    showSuccessModal("Local Save Successful", "Data saved successfully in the browser's local storage (Offline Mode).");
+                }
                 return;
             }
 
@@ -1130,12 +1198,19 @@
                     }));
                     saveLocalData();
                     recalculateOverdueDaysLocally();
+                    if (!silent) {
+                        const msg = action === 'save' ? "Customer registration details saved and synced with cloud successfully." : "Customer registration deleted and synced with cloud successfully.";
+                        showSuccessModal("Cloud Sync Successful", msg);
+                    }
                 } else if (data && data.error) {
-                    alert("Cloud Error: " + data.error);
+                    if (!silent) {
+                        showFailModal("Cloud Error", data.error);
+                    } else {
+                        console.error("Cloud Error in syncCloudAction:", data.error);
+                    }
                 }
             } catch (err) {
                 console.error("Cloud synchronization failed", err);
-                alert("Cloud Sync failed. Action saved locally in the browser.");
                 // Fallback action
                 if (action === 'save') {
                     if (id) {
@@ -1150,6 +1225,9 @@
                 }
                 saveLocalData();
                 recalculateOverdueDaysLocally();
+                if (!silent) {
+                    showFailModal("Cloud Sync Failed", "Unable to sync with Google Sheet. Action has been saved locally in the browser.");
+                }
             } finally {
                 hideSyncToast();
                 renderAll();
@@ -1170,8 +1248,8 @@
             const period = parseInt(periodStr);
             const signupDate = new Date(signupDateStr);
             
-            // Add months
-            signupDate.setMonth(signupDate.getMonth() + period);
+            // Add period (30 days per month)
+            signupDate.setDate(signupDate.getDate() + (period * 30));
             const expiryStr = signupDate.toISOString().split('T')[0];
             document.getElementById('f-expire-date').value = expiryStr;
 
@@ -1239,13 +1317,7 @@
 
         async function deleteCustomer(id, rowIndex) {
             if (confirm("Are you sure you want to delete this customer?")) {
-                if (config.scriptUrl) {
-                    await syncCloudAction('delete', null, id, rowIndex);
-                } else {
-                    customers = customers.filter(c => c.id !== id);
-                    saveLocalData();
-                    renderAll();
-                }
+                await syncCloudAction('delete', null, id, rowIndex);
             }
         }
 
@@ -1296,6 +1368,16 @@
             switchTab('signup');
         }
 
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         // Customer List Rendering & Table Actions
         function renderAll() {
             recalculateOverdueDaysLocally();
@@ -1303,6 +1385,105 @@
             renderSignupList();
             updateKPIs();
             renderCharts();
+            populateMonthlyViewSelect();
+            renderMonthlyRenewals();
+        }
+
+        function populateMonthlyViewSelect() {
+            const select = document.getElementById('monthly-view-select');
+            if (!select) return;
+            
+            const monthsSet = new Set();
+            
+            // Add current month by default
+            const today = new Date();
+            const currentMonthStr = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, '0');
+            monthsSet.add(currentMonthStr);
+            
+            renewals.forEach(r => {
+                if (r.renewal_month) {
+                    monthsSet.add(r.renewal_month);
+                }
+            });
+            
+            const sortedMonths = Array.from(monthsSet).sort((a, b) => b.localeCompare(a));
+            const prevSelected = select.value;
+            
+            select.innerHTML = '';
+            sortedMonths.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                const [year, month] = m.split('-');
+                const dateObj = new Date(parseInt(year), parseInt(month) - 1, 1);
+                const monthName = dateObj.toLocaleString('default', { month: 'long' });
+                opt.innerText = `${monthName} ${year}`;
+                select.appendChild(opt);
+            });
+            
+            if (sortedMonths.includes(prevSelected)) {
+                select.value = prevSelected;
+            } else {
+                select.value = currentMonthStr;
+            }
+        }
+
+        function renderMonthlyRenewals() {
+            const select = document.getElementById('monthly-view-select');
+            const tbody = document.getElementById('monthly-renewals-table-body');
+            const emptyState = document.getElementById('monthly-renewals-empty-state');
+            
+            if (!select || !tbody) return;
+            
+            const selectedMonth = select.value;
+            const filteredRenewals = renewals.filter(r => r.renewal_month === selectedMonth);
+            
+            tbody.innerHTML = '';
+            
+            if (filteredRenewals.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            filteredRenewals.forEach(r => {
+                const tr = document.createElement('tr');
+                
+                let badgeClass = 'badge suspend';
+                if (r.renewal_status === 'Success') {
+                    badgeClass = 'badge active';
+                } else if (r.renewal_status === 'Failed' || r.renewal_status === 'Terminated') {
+                    badgeClass = 'badge terminated';
+                }
+                
+                tr.innerHTML = `
+                    <td>
+                        <div style="font-weight: 600; color: var(--text-dark);">${escapeHtml(r.customer)}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-gray);">${escapeHtml(r.contact)}</div>
+                    </td>
+                    <td>
+                        <strong style="color:var(--primary); font-family:monospace;">${escapeHtml(r.number)}</strong>
+                    </td>
+                    <td>
+                        <div style="font-weight: 500;">${escapeHtml(r.source)}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-gray);">PIC: ${escapeHtml(r.pic)}</div>
+                    </td>
+                    <td>
+                        <span style="background:var(--primary-light); color:var(--primary); padding:4px 10px; border-radius:6px; font-weight:600; font-size:0.8rem;">
+                            ${escapeHtml(r.tariff)}
+                        </span><br>
+                        <small style="font-weight:600; color:#333;">$${parseFloat(r.amount).toFixed(2)}</small>
+                    </td>
+                    <td>
+                        <div style="font-size: 0.85rem; font-weight: 500;">Start: ${escapeHtml(r.new_start_date)}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-gray);">Expire: ${escapeHtml(r.new_expire_date)} (${escapeHtml(r.period)}m)</div>
+                    </td>
+                    <td>
+                        <span class="${badgeClass}">${escapeHtml(r.renewal_status)}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         function renderCustomerList() {
@@ -1574,7 +1755,8 @@
             const startDate = new Date(startDateStr);
             const period = parseInt(periodStr);
             
-            startDate.setMonth(startDate.getMonth() + period);
+            // Add period (30 days per month)
+            startDate.setDate(startDate.getDate() + (period * 30));
             const newExpiryStr = startDate.toISOString().split('T')[0];
             document.getElementById('r-new-expire').value = newExpiryStr;
         }
@@ -1622,6 +1804,8 @@
             
             if (config.scriptUrl) {
                 sendRenewalToCloud(renewalPayload, monthSheetName);
+            } else {
+                showSuccessModal("Local Renewal Saved", "Renewal action saved locally in the browser's local storage (Offline Mode).");
             }
             
             if (renewalStatus === "Success") {
@@ -1633,13 +1817,15 @@
                 customer.amount = amount;
                 
                 if (config.scriptUrl) {
-                    syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1);
+                    syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1, true);
                 } else {
                     saveLocalData();
                     renderAll();
                 }
             } else {
-                renderAll();
+                if (!config.scriptUrl) {
+                    renderAll();
+                }
             }
             
             closeRenewalModal();
@@ -1655,25 +1841,36 @@
                 const data = await response.json();
                 if (data && data.error) {
                     console.error("Cloud Error saving renewal:", data.error);
+                    showFailModal("Renewal Sync Failed", "Cloud Error: " + data.error);
+                    return;
                 }
+                showSuccessModal("Renewal Sync Successful", "Customer subscription renewal has been processed and saved to the cloud sheet successfully.");
             } catch (err) {
                 console.error("Cloud Renewal Sync failed", err);
+                showFailModal("Renewal Sync Failed", "Unable to sync renewal with Google Sheet. Action has been saved locally in the browser.");
             } finally {
                 hideSyncToast();
+                renderAll();
             }
         }
 
         // Sidebar Navigation & Search helper
         function switchTab(tabId) {
+            document.getElementById('view-dashboard').style.display = tabId === 'dashboard' ? 'block' : 'none';
             document.getElementById('view-signup').style.display = tabId === 'signup' ? 'block' : 'none';
             document.getElementById('view-topup').style.display = tabId === 'topup' ? 'block' : 'none';
             document.getElementById('view-setting').style.display = tabId === 'setting' ? 'block' : 'none';
             
+            document.getElementById('m-dashboard').classList.toggle('active', tabId === 'dashboard');
             document.getElementById('m-signup').classList.toggle('active', tabId === 'signup');
             document.getElementById('m-topup').classList.toggle('active', tabId === 'topup');
             document.getElementById('m-setting').classList.toggle('active', tabId === 'setting');
 
-            if (tabId === 'signup') {
+            if (tabId === 'dashboard') {
+                document.getElementById('page-title').innerText = "Dashboard";
+                document.getElementById('page-title-desc').innerText = "Overview of wifi subscriptions, new sign ups, top ups, and distribution charts";
+                renderAll();
+            } else if (tabId === 'signup') {
                 document.getElementById('page-title').innerText = "Sign Up";
                 document.getElementById('page-title-desc').innerText = "Add a new customer contract or modify an existing registration";
                 renderAll();
@@ -1707,6 +1904,7 @@
             let totalActive = 0;
             let expiring = 0;
             let overdue = 0;
+            let newSignupsCount = 0;
             
             customers.forEach(c => {
                 if (c.status === "Active") {
@@ -1723,6 +1921,13 @@
                         } else if (diffDays <= 5) {
                             expiring++;
                         }
+                    }
+                }
+                
+                if (c.signup_date) {
+                    const sd = new Date(c.signup_date);
+                    if (!isNaN(sd.getTime()) && sd.getFullYear() === currentYear && sd.getMonth() === currentMonth) {
+                        newSignupsCount++;
                     }
                 }
             });
@@ -1748,10 +1953,20 @@
             document.getElementById('stat-pending-payment').innerText = pendingPaymentCount;
             document.getElementById('stat-expiring').innerText = expiring;
             document.getElementById('stat-overdue').innerText = overdue;
+
+            // Update Dashboard KPIs
+            const dbNewSignups = document.getElementById('db-new-signups');
+            if (dbNewSignups) dbNewSignups.innerHTML = `${newSignupsCount} <span class="stat-unit">cust</span>`;
+            const dbSuccessTopups = document.getElementById('db-success-topups');
+            if (dbSuccessTopups) dbSuccessTopups.innerHTML = `${successRenewCount} <span class="stat-unit">cust</span>`;
+            const dbPendingTopups = document.getElementById('db-pending-topups');
+            if (dbPendingTopups) dbPendingTopups.innerHTML = `${pendingPaymentCount} <span class="stat-unit">cust</span>`;
+            const dbTotalActive = document.getElementById('db-total-active');
+            if (dbTotalActive) dbTotalActive.innerHTML = `${totalActive} <span class="stat-unit">cust</span>`;
         }
 
         function renderCharts() {
-            if (document.getElementById('view-topup').style.display === 'none') {
+            if (document.getElementById('view-dashboard').style.display === 'none') {
                 return;
             }
 
@@ -1796,9 +2011,9 @@
             planChart = new Chart(document.getElementById('planChart'), {
                 type: 'doughnut',
                 data: { 
-                    labels: Object.keys(planData).length ? Object.keys(planData) : ['Smart@Home Light', 'Smart@Home 5G'], 
+                    labels: Object.keys(planData).length ? Object.keys(planData) : ['Smart@Home Light', 'Smart@Home 5G', 'Fiber+'], 
                     datasets: [{ 
-                        data: Object.keys(planData).length ? Object.values(planData) : [1, 1], 
+                        data: Object.keys(planData).length ? Object.values(planData) : [1, 1, 0], 
                         backgroundColor: ['#1B8C3F', '#FAAD14', '#FF4D4F', '#2196F3', '#9C27B0'] 
                     }] 
                 },
@@ -1821,6 +2036,30 @@
 
         function hideSyncToast() {
             document.getElementById('sync-status').style.display = 'none';
+        }
+
+        function showSuccessModal(title, message) {
+            document.getElementById('status-modal-icon').innerHTML = `
+                <svg fill="none" stroke="#1B8C3F" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 64px; height: 64px; margin: 0 auto 15px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>`;
+            document.getElementById('status-modal-title').innerText = title;
+            document.getElementById('status-modal-message').innerText = message;
+            document.getElementById('status-modal-overlay').classList.add('active');
+        }
+
+        function showFailModal(title, message) {
+            document.getElementById('status-modal-icon').innerHTML = `
+                <svg fill="none" stroke="#FF4D4F" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 64px; height: 64px; margin: 0 auto 15px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>`;
+            document.getElementById('status-modal-title').innerText = title;
+            document.getElementById('status-modal-message').innerText = message;
+            document.getElementById('status-modal-overlay').classList.add('active');
+        }
+
+        function closeStatusModal() {
+            document.getElementById('status-modal-overlay').classList.remove('active');
         }
 
         function copyBackendCode() {
@@ -2016,8 +2255,7 @@ function deleteData(sheet, id, index) {
 
 function jsonResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeader("Access-Control-Allow-Origin", "*");
+    .setMimeType(ContentService.MimeType.JSON);
 }`;
         }
     </script>

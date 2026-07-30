@@ -251,6 +251,5 @@ function saveRenewalData(ss, monthSheetName, payload) {
 
 function jsonResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeader("Access-Control-Allow-Origin", "*");
+    .setMimeType(ContentService.MimeType.JSON);
 }
