@@ -38,6 +38,7 @@ function handleRequest(e) {
     let payload = null;
     let id = e.parameter.id;
     let index = e.parameter.index;
+    let monthSheetName = e.parameter.monthSheetName;
     
     if (e.parameter.data) {
       payload = JSON.parse(e.parameter.data);
@@ -46,6 +47,7 @@ function handleRequest(e) {
       payload = postBody.data;
       id = id || postBody.id;
       index = index || postBody.index;
+      monthSheetName = monthSheetName || postBody.monthSheetName;
     }
     
     if (action === 'save') {
@@ -54,6 +56,17 @@ function handleRequest(e) {
       }
       saveData(sheet, payload, id, index);
       return jsonResponse(getData(sheet));
+    }
+    
+    if (action === 'save_renewal') {
+      if (!payload) {
+        return jsonResponse({ error: "Missing payload data for renewal save" });
+      }
+      if (!monthSheetName) {
+        return jsonResponse({ error: "Missing monthSheetName for renewal save" });
+      }
+      saveRenewalData(ss, monthSheetName, payload);
+      return jsonResponse({ success: true, data: getData(sheet) });
     }
     
     if (action === 'delete') {
@@ -119,10 +132,15 @@ function getPropertyKey(header) {
     "Tariff / Service": "tariff",
     "Amount": "amount",
     "Sign Up Date": "signup_date",
+    "New Start Date": "new_start_date",
     "Period": "period",
     "Expiry Date": "expire_date",
+    "New Expiry Date": "new_expire_date",
     "Status": "status",
-    "Overdue Days": "overdue_days"
+    "Renewal Status": "renewal_status",
+    "Overdue Days": "overdue_days",
+    "Renewal ID": "renewal_id",
+    "Logged At": "logged_at"
   };
   return map[header] || header.toLowerCase().replace(/[^a-z0-9]/g, "_");
 }
@@ -181,6 +199,53 @@ function deleteData(sheet, id, index) {
   
   if (targetRowIndex > 1 && targetRowIndex <= sheet.getLastRow()) {
     sheet.deleteRow(targetRowIndex);
+  }
+}
+
+function saveRenewalData(ss, monthSheetName, payload) {
+  let renewalSheet = ss.getSheetByName(monthSheetName);
+  if (!renewalSheet) {
+    renewalSheet = ss.insertSheet(monthSheetName);
+  }
+  
+  // Ensure headers for the renewal sheet
+  if (renewalSheet.getLastRow() === 0) {
+    const headers = [
+      "Renewal ID", "Customer Name", "Top Up Number", "Contact", 
+      "Source", "PIC", "Tariff / Service", "Amount", 
+      "New Start Date", "Period", "New Expiry Date", "Renewal Status", "Logged At"
+    ];
+    renewalSheet.appendRow(headers);
+    renewalSheet.getRange(1, 1, 1, headers.length)
+      .setFontWeight("bold")
+      .setBackground("#1B8C3F")
+      .setFontColor("white");
+  }
+  
+  const headers = renewalSheet.getRange(1, 1, 1, renewalSheet.getLastColumn()).getValues()[0];
+  
+  const searchId = payload.renewal_id || ("REN_" + new Date().getTime() + "_" + Math.floor(Math.random() * 1000));
+  payload.renewal_id = searchId;
+  payload.logged_at = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
+  
+  const dataRows = renewalSheet.getDataRange().getValues();
+  let targetRowIndex = -1;
+  for (let i = 1; i < dataRows.length; i++) {
+    if (dataRows[i][0].toString() === searchId.toString()) {
+      targetRowIndex = i + 1;
+      break;
+    }
+  }
+  
+  const rowValues = headers.map(header => {
+    const key = getPropertyKey(header);
+    return payload[key] !== undefined ? payload[key] : "";
+  });
+  
+  if (targetRowIndex > 1 && targetRowIndex <= renewalSheet.getLastRow()) {
+    renewalSheet.getRange(targetRowIndex, 1, 1, rowValues.length).setValues([rowValues]);
+  } else {
+    renewalSheet.appendRow(rowValues);
   }
 }
 
