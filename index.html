@@ -620,6 +620,16 @@
         </div>
     </div>
 
+    <!-- STATUS MODAL POPUP (Success / Failure Notification) -->
+    <div class="modal-overlay" id="status-modal-overlay">
+        <div class="modal-content" style="max-width: 400px; text-align: center; padding: 40px 30px;">
+            <div id="status-modal-icon" style="font-size: 4rem; margin-bottom: 20px;"></div>
+            <h2 id="status-modal-title" style="margin-bottom: 12px; font-weight: 700; color: #333;"></h2>
+            <p id="status-modal-message" style="color: var(--text-gray); margin-bottom: 30px; line-height: 1.5; font-size: 0.95rem;"></p>
+            <button class="btn-primary" onclick="closeStatusModal()" style="width: 100%; justify-content: center; height: 44px; font-weight: 600;">OK</button>
+        </div>
+    </div>
+
     <!-- Left Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-brand">
@@ -1079,7 +1089,7 @@
             }
         }
 
-        async function syncCloudAction(action, payload = null, id = "", index = -1) {
+        async function syncCloudAction(action, payload = null, id = "", index = -1, silent = false) {
             if (!config.scriptUrl) {
                 // If offline / local only, simulate success locally
                 if (action === 'save') {
@@ -1100,6 +1110,9 @@
                 saveLocalData();
                 recalculateOverdueDaysLocally();
                 renderAll();
+                if (!silent) {
+                    showSuccessModal("Local Save Successful", "Data saved successfully in the browser's local storage (Offline Mode).");
+                }
                 return;
             }
 
@@ -1132,12 +1145,19 @@
                     }));
                     saveLocalData();
                     recalculateOverdueDaysLocally();
+                    if (!silent) {
+                        const msg = action === 'save' ? "Customer registration details saved and synced with cloud successfully." : "Customer registration deleted and synced with cloud successfully.";
+                        showSuccessModal("Cloud Sync Successful", msg);
+                    }
                 } else if (data && data.error) {
-                    alert("Cloud Error: " + data.error);
+                    if (!silent) {
+                        showFailModal("Cloud Error", data.error);
+                    } else {
+                        console.error("Cloud Error in syncCloudAction:", data.error);
+                    }
                 }
             } catch (err) {
                 console.error("Cloud synchronization failed", err);
-                alert("Cloud Sync failed. Action saved locally in the browser.");
                 // Fallback action
                 if (action === 'save') {
                     if (id) {
@@ -1152,6 +1172,9 @@
                 }
                 saveLocalData();
                 recalculateOverdueDaysLocally();
+                if (!silent) {
+                    showFailModal("Cloud Sync Failed", "Unable to sync with Google Sheet. Action has been saved locally in the browser.");
+                }
             } finally {
                 hideSyncToast();
                 renderAll();
@@ -1241,13 +1264,7 @@
 
         async function deleteCustomer(id, rowIndex) {
             if (confirm("Are you sure you want to delete this customer?")) {
-                if (config.scriptUrl) {
-                    await syncCloudAction('delete', null, id, rowIndex);
-                } else {
-                    customers = customers.filter(c => c.id !== id);
-                    saveLocalData();
-                    renderAll();
-                }
+                await syncCloudAction('delete', null, id, rowIndex);
             }
         }
 
@@ -1625,6 +1642,8 @@
             
             if (config.scriptUrl) {
                 sendRenewalToCloud(renewalPayload, monthSheetName);
+            } else {
+                showSuccessModal("Local Renewal Saved", "Renewal action saved locally in the browser's local storage (Offline Mode).");
             }
             
             if (renewalStatus === "Success") {
@@ -1636,13 +1655,15 @@
                 customer.amount = amount;
                 
                 if (config.scriptUrl) {
-                    syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1);
+                    syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1, true);
                 } else {
                     saveLocalData();
                     renderAll();
                 }
             } else {
-                renderAll();
+                if (!config.scriptUrl) {
+                    renderAll();
+                }
             }
             
             closeRenewalModal();
@@ -1658,11 +1679,16 @@
                 const data = await response.json();
                 if (data && data.error) {
                     console.error("Cloud Error saving renewal:", data.error);
+                    showFailModal("Renewal Sync Failed", "Cloud Error: " + data.error);
+                    return;
                 }
+                showSuccessModal("Renewal Sync Successful", "Customer subscription renewal has been processed and saved to the cloud sheet successfully.");
             } catch (err) {
                 console.error("Cloud Renewal Sync failed", err);
+                showFailModal("Renewal Sync Failed", "Unable to sync renewal with Google Sheet. Action has been saved locally in the browser.");
             } finally {
                 hideSyncToast();
+                renderAll();
             }
         }
 
@@ -1824,6 +1850,30 @@
 
         function hideSyncToast() {
             document.getElementById('sync-status').style.display = 'none';
+        }
+
+        function showSuccessModal(title, message) {
+            document.getElementById('status-modal-icon').innerHTML = `
+                <svg fill="none" stroke="#1B8C3F" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 64px; height: 64px; margin: 0 auto 15px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>`;
+            document.getElementById('status-modal-title').innerText = title;
+            document.getElementById('status-modal-message').innerText = message;
+            document.getElementById('status-modal-overlay').classList.add('active');
+        }
+
+        function showFailModal(title, message) {
+            document.getElementById('status-modal-icon').innerHTML = `
+                <svg fill="none" stroke="#FF4D4F" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 64px; height: 64px; margin: 0 auto 15px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>`;
+            document.getElementById('status-modal-title').innerText = title;
+            document.getElementById('status-modal-message').innerText = message;
+            document.getElementById('status-modal-overlay').classList.add('active');
+        }
+
+        function closeStatusModal() {
+            document.getElementById('status-modal-overlay').classList.remove('active');
         }
 
         function copyBackendCode() {
