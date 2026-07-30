@@ -506,6 +506,7 @@
                             <option value="" disabled selected>Select Tariff / Service</option>
                             <option value="Smart@Home Light">Smart@Home Light</option>
                             <option value="Smart@Home 5G">Smart@Home 5G</option>
+                            <option value="Fiber+">Fiber+</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -583,6 +584,7 @@
                         <select id="r-tariff" required>
                             <option value="Smart@Home Light">Smart@Home Light</option>
                             <option value="Smart@Home 5G">Smart@Home 5G</option>
+                            <option value="Fiber+">Fiber+</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -1170,8 +1172,8 @@
             const period = parseInt(periodStr);
             const signupDate = new Date(signupDateStr);
             
-            // Add months
-            signupDate.setMonth(signupDate.getMonth() + period);
+            // Add period (30 days per month)
+            signupDate.setDate(signupDate.getDate() + (period * 30));
             const expiryStr = signupDate.toISOString().split('T')[0];
             document.getElementById('f-expire-date').value = expiryStr;
 
@@ -1574,7 +1576,8 @@
             const startDate = new Date(startDateStr);
             const period = parseInt(periodStr);
             
-            startDate.setMonth(startDate.getMonth() + period);
+            // Add period (30 days per month)
+            startDate.setDate(startDate.getDate() + (period * 30));
             const newExpiryStr = startDate.toISOString().split('T')[0];
             document.getElementById('r-new-expire').value = newExpiryStr;
         }
