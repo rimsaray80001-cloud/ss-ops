@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Axiata | Shop Ops</title>
+    <title>Smart Axiata | Shop Ops Dashboard</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,269 +11,1541 @@
 
     <style>
         :root {
-            --primary: #23AD4A; --primary-dark: #1e943f; --primary-light: #e9f7ed;
-            --danger: #FF4D4F; --bg: #F0F2F5; --text-dark: #1A1A1A; --text-gray: #646464;
-            --white: #FFFFFF; --shadow: 0 4px 12px rgba(0,0,0,0.05); --sidebar-width: 280px;
+            --primary: #1B8C3F; 
+            --primary-dark: #14722c; 
+            --primary-light: #e9f7ed;
+            --danger: #FF4D4F; 
+            --danger-bg: #FFF1F0;
+            --warning: #FAAD14;
+            --warning-bg: #FFFBE6;
+            --success: #52C41A;
+            --success-bg: #F6FFED;
+            --bg: #F0F2F5; 
+            --text-dark: #1A1A1A; 
+            --text-gray: #646464;
+            --white: #FFFFFF; 
+            --shadow: 0 4px 12px rgba(0,0,0,0.05); 
+            --sidebar-width: 280px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Kantumruy Pro', sans-serif; background: var(--bg); color: var(--text-dark); display: flex; min-height: 100vh; }
 
         /* Sidebar Navigation */
-        .sidebar { width: var(--sidebar-width); background: var(--white); height: 100vh; position: fixed; border-right: 1px solid #E5E5E5; display: flex; flex-direction: column; z-index: 1000; }
-        .sidebar-brand { padding: 40px 30px; font-size: 1.5rem; font-weight: 700; color: var(--primary); }
-        .menu-list { list-style: none; padding: 0 15px; flex-grow: 1; }
-        .menu-item { padding: 14px 20px; margin-bottom: 8px; border-radius: 12px; cursor: pointer; color: var(--text-gray); font-weight: 500; transition: all 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .menu-item.active { background: var(--primary-light); color: var(--primary); }
+        .sidebar { 
+            width: var(--sidebar-width); 
+            background: var(--primary); 
+            height: 100vh; 
+            position: fixed; 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 1000; 
+            color: var(--white);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar-brand { 
+            padding: 35px 25px; 
+            font-size: 1.6rem; 
+            font-weight: 700; 
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar-brand span {
+            color: #FFF;
+        }
+        .menu-list { list-style: none; padding: 25px 15px; flex-grow: 1; }
+        .menu-item { 
+            padding: 14px 20px; 
+            margin-bottom: 10px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            color: rgba(255,255,255,0.85); 
+            font-weight: 500; 
+            transition: all 0.3s ease; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        .menu-item:hover {
+            background: var(--primary-dark);
+            color: var(--white);
+        }
+        .menu-item.active { 
+            background: var(--white); 
+            color: var(--primary); 
+            font-weight: 600;
+            box-shadow: var(--shadow);
+        }
+
+        /* Sidebar Quick Actions */
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .sidebar-quick-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .btn-sidebar {
+            width: 100%;
+            background: rgba(255,255,255,0.2);
+            color: var(--white);
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        .btn-sidebar:hover {
+            background: var(--white);
+            color: var(--primary);
+        }
+        .sidebar-search-box {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-family: inherit;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+        .sidebar-search-box::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        .sidebar-search-box:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255,255,255,0.15);
+        }
 
         /* Content Layout */
-        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px; }
-        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
+        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px; min-height: 100vh; display: flex; flex-direction: column; }
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-title-desc { font-size: 0.9rem; color: var(--text-gray); margin-top: 4px; }
         
         /* Stats & Charts */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 35px; }
-        .stat-card { background: var(--white); padding: 25px; border-radius: 16px; box-shadow: var(--shadow); }
-        .stat-label { font-size: 0.85rem; color: var(--text-gray); font-weight: 600; text-transform: uppercase; }
-        .stat-value { font-size: 2rem; font-weight: 700; margin-top: 5px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--white); padding: 22px; border-radius: 16px; box-shadow: var(--shadow); border-left: 5px solid #DDD; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-card.primary { border-left-color: var(--primary); }
+        .stat-card.danger { border-left-color: var(--danger); }
+        .stat-card.warning { border-left-color: var(--warning); }
+        .stat-card.success { border-left-color: var(--success); }
+        .stat-label { font-size: 0.8rem; color: var(--text-gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; margin-top: 6px; display: flex; align-items: baseline; gap: 5px; }
+        .stat-unit { font-size: 0.9rem; color: var(--text-gray); font-weight: 500; }
 
-        .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 35px; }
-        .chart-box { background: var(--white); padding: 25px; border-radius: 16px; box-shadow: var(--shadow); height: 350px; }
+        .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .chart-box { background: var(--white); padding: 22px; border-radius: 16px; box-shadow: var(--shadow); height: 320px; }
 
-        /* History Table */
-        .data-card { background: var(--white); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
-        .search-bar { padding: 20px 30px; border-bottom: 1px solid #F0F0F0; }
-        .search-input { width: 100%; padding: 12px 20px; border-radius: 10px; border: 1px solid #DDD; font-family: inherit; }
+        /* General Card Layout */
+        .card { background: var(--white); border-radius: 16px; box-shadow: var(--shadow); padding: 30px; margin-bottom: 30px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #F0F0F0; }
+        .card-title { font-size: 1.25rem; font-weight: 700; color: var(--text-dark); }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #FAFAFA; padding: 18px 25px; text-align: left; font-size: 0.75rem; color: var(--text-gray); text-transform: uppercase; font-weight: 700; }
-        td { padding: 18px 25px; border-bottom: 1px solid #F0F0F0; }
+        /* Alert Banner */
+        .alert-banner {
+            background-color: var(--danger-bg);
+            border: 1px solid #FFA39E;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            color: #D32F2F;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(255, 77, 79, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 77, 79, 0); }
+        }
+
+        /* Forms Layout */
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .form-full-width { grid-column: span 2; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-gray); }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border-radius: 10px; 
+            border: 1px solid #DDD; 
+            font-family: inherit; 
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            transition: all 0.3s;
+            background-color: #FAFAFA;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #FFF;
+            box-shadow: 0 0 0 3px rgba(27, 140, 63, 0.15);
+        }
+        input[readonly] {
+            background-color: #F0F2F5;
+            color: var(--text-gray);
+            cursor: not-allowed;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #F0F0F0;
+        }
+
+        /* History & Customers Table */
+        .search-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 1px solid #DDD;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: var(--white);
+        }
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(27, 140, 63, 0.15);
+            outline: none;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            background: var(--white);
+            border-radius: 12px;
+            border: 1px solid #E5E5E5;
+        }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: #FAFAFA; padding: 16px 20px; font-size: 0.75rem; color: var(--text-gray); text-transform: uppercase; font-weight: 700; border-bottom: 2px solid #F0F0F0; }
+        td { padding: 16px 20px; border-bottom: 1px solid #F0F0F0; font-size: 0.95rem; color: var(--text-dark); vertical-align: middle; }
+        tr:hover td { background-color: #FAFAFA; }
+
+        /* Status Pills */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge.active { background-color: var(--success-bg); color: var(--success); }
+        .badge.suspend { background-color: var(--warning-bg); color: var(--warning); }
+        .badge.terminated { background-color: var(--danger-bg); color: var(--danger); }
+        
+        /* Alert Pills */
+        .alert-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .alert-pill.danger { background-color: var(--danger-bg); color: #D32F2F; border: 1px solid #FFCCC7; }
+        .alert-pill.warning { background-color: var(--warning-bg); color: #D48806; border: 1px solid #FFE58F; }
+        .alert-pill.success { background-color: var(--success-bg); color: #389E0D; border: 1px solid #B7EB8F; }
 
         /* Action Buttons */
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; }
-        .btn-ghost { background: none; border: 1px solid #DDD; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
-        .btn-danger { color: var(--danger); border-color: var(--danger); }
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; font-family: inherit; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary { background: #E5E7EB; color: #4B5563; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; font-family: inherit; }
+        .btn-secondary:hover { background: #D1D5DB; }
+        
+        /* Icon Buttons */
+        .action-btn-group {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-icon {
+            background: #FAFAFA;
+            border: 1px solid #E5E5E5;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-gray);
+        }
+        .btn-icon:hover {
+            background: #F0F2F5;
+            color: var(--text-dark);
+        }
+        .btn-icon.edit:hover {
+            color: #1890FF;
+            border-color: #91D5FF;
+            background-color: #E6F7FF;
+        }
+        .btn-icon.delete:hover {
+            color: var(--danger);
+            border-color: #FFA39E;
+            background-color: var(--danger-bg);
+        }
+        .btn-icon.renew:hover {
+            color: var(--primary);
+            border-color: #B7EB8F;
+            background-color: var(--primary-light);
+        }
 
-        /* Modals */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; backdrop-filter: blur(4px); }
-        .modal-content { background: white; width: 650px; margin: 50px auto; border-radius: 20px; padding: 40px; position: relative; }
-        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-gray); }
-        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #DDD; margin-bottom: 20px; font-family: inherit; }
+        /* Settings CSS */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        .code-container {
+            background-color: #1E1E1E;
+            color: #D4D4D4;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            max-height: 350px;
+            overflow-y: auto;
+            position: relative;
+            margin-top: 10px;
+        }
+        .btn-copy {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        .btn-copy:hover {
+            background: rgba(255,255,255,0.25);
+        }
 
-        #sync-status { display: none; position: fixed; top: 20px; right: 20px; background: var(--primary); color: white; padding: 8px 20px; border-radius: 50px; font-weight: 600; z-index: 3000; }
+        /* Toast Status & Notification */
+        #sync-status { 
+            display: none; 
+            position: fixed; 
+            bottom: 25px; 
+            right: 25px; 
+            background: #111; 
+            color: white; 
+            padding: 12px 25px; 
+            border-radius: 10px; 
+            font-weight: 500; 
+            z-index: 3000; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            align-items: center;
+            gap: 10px;
+        }
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty state styling */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-gray);
+        }
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: #DDD;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
 
-    <div id="sync-status">Processing Sync...</div>
+    <!-- Toast Sync Notification -->
+    <div id="sync-status">
+        <div class="spinner"></div>
+        <span id="sync-text">Processing Sync...</span>
+    </div>
 
+    <!-- Left Sidebar -->
     <aside class="sidebar">
-        <div class="sidebar-brand">Smart Axiata</div>
+        <div class="sidebar-brand">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:32px; height:32px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <span>Smart Axiata</span>
+        </div>
+        
         <ul class="menu-list">
-            <li class="menu-item active" id="m-dash" onclick="switchTab('dashboard')">Dashboard</li>
-            <li class="menu-item" id="m-hist" onclick="switchTab('history')">History</li>
+            <li class="menu-item active" id="m-signup" onclick="switchTab('signup')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                Sign Up
+            </li>
+            <li class="menu-item" id="m-topup" onclick="switchTab('topup')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                Top Up / Customers
+            </li>
+            <li class="menu-item" id="m-setting" onclick="switchTab('setting')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Setting
+            </li>
         </ul>
+
+        <!-- Sidebar Quick Action Section -->
+        <div class="sidebar-footer">
+            <div class="sidebar-quick-title">Quick Actions</div>
+            <button class="btn-sidebar" onclick="initNewForm()">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                + Sign Up
+            </button>
+            <input type="text" id="sidebar-search" class="sidebar-search-box" placeholder="Quick find phone..." onkeyup="handleSidebarSearch(event)">
+        </div>
     </aside>
 
+    <!-- Main Content Area -->
     <main class="main-content">
+        
+        <!-- Header -->
         <div class="header-section">
-            <h1 id="page-title">Dashboard Overview</h1>
-            <button class="btn-primary" onclick="openModal()">+ New Transaction</button>
+            <div>
+                <h1 id="page-title">Sign Up Customer</h1>
+                <p id="page-title-desc" class="page-title-desc">Add a new Wifi customer contract or renew their plan</p>
+            </div>
+            <div id="connection-indicator">
+                <span class="badge active" id="sync-mode-badge" style="cursor:pointer;" onclick="switchTab('setting')">Local Sync Mode</span>
+            </div>
         </div>
 
-        <section id="view-dashboard">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Total Revenue (Month)</div>
-                    <div class="stat-value" id="dash-rev">$0.00</div>
+        <!-- 1. SIGN UP TAB (Entry Form) -->
+        <section id="view-signup">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title" id="form-heading">New Customer Entry Form</h2>
+                    <button class="btn-primary" id="btn-init-form" onclick="resetForm()">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18"></path></svg>
+                        Clear Form
+                    </button>
                 </div>
-                <div class="stat-card" style="border-left: 4px solid var(--danger);">
-                    <div class="stat-label" style="color: var(--danger);">Expiring (7 Days)</div>
-                    <div class="stat-value" id="dash-alert">0</div>
-                </div>
-            </div>
-            <div class="charts-container">
-                <div class="chart-box"><canvas id="agentChart"></canvas></div>
-                <div class="chart-box"><canvas id="planChart"></canvas></div>
+
+                <form id="entry-form" onsubmit="handleFormSubmit(event)">
+                    <input type="hidden" id="f-id" value="">
+                    <input type="hidden" id="f-row-index" value="-1">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="f-cust">Customer Name *</label>
+                            <input type="text" id="f-cust" placeholder="Enter Full Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-num">Top Up Number / Wifi ID *</label>
+                            <input type="text" id="f-num" placeholder="Enter Top Up Number (e.g. 012345678)" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-con">Contact Phone *</label>
+                            <input type="text" id="f-con" placeholder="Enter Contact Phone Number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-source">Source *</label>
+                            <select id="f-source" required>
+                                <option value="" disabled selected>Select Source</option>
+                                <option value="Shop">Shop</option>
+                                <option value="Sale">Sale</option>
+                                <option value="Dealer">Dealer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-pic">PIC (Sale or Agent Name) *</label>
+                            <input type="text" id="f-pic" placeholder="Enter PIC Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-tariff">Tariff / Service Plan *</label>
+                            <select id="f-tariff" required>
+                                <option value="" disabled selected>Select Tariff / Service</option>
+                                <option value="Smart@Home Light">Smart@Home Light</option>
+                                <option value="Smart@Home 5G">Smart@Home 5G</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-amt">Amount ($) *</label>
+                            <input type="number" id="f-amt" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-signup-date">Sign Up Date *</label>
+                            <input type="date" id="f-signup-date" onchange="autoCalculateFields()" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-period">Contract Period *</label>
+                            <select id="f-period" onchange="autoCalculateFields()" required>
+                                <option value="" disabled selected>Select Period</option>
+                                <option value="1">1 Month (Renewal)</option>
+                                <option value="3">3 Months</option>
+                                <option value="6">6 Months</option>
+                                <option value="12">12 Months</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-status">Status *</label>
+                            <select id="f-status" required>
+                                <option value="Active" selected>Active</option>
+                                <option value="Suspend">Suspend</option>
+                                <option value="Terminated">Terminated</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-expire-date">Calculated Expiry Date</label>
+                            <input type="date" id="f-expire-date" readonly style="font-weight:700; color:var(--primary);">
+                        </div>
+                        <div class="form-group">
+                            <label for="f-overdue-days">Overdue Days</label>
+                            <input type="number" id="f-overdue-days" readonly value="0" style="font-weight:700;">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="resetForm()">Close & Clear</button>
+                        <button type="submit" class="btn-primary" id="btn-submit">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                            Submit Customer
+                        </button>
+                    </div>
+                </form>
             </div>
         </section>
 
-        <section id="view-history" style="display:none">
-            <div class="data-card">
-                <div class="search-bar">
-                    <input type="text" id="search-box" class="search-input" placeholder="Search by phone number or customer name..." onkeyup="render()">
+        <!-- 2. TOP UP TAB (Customer List & Analytics) -->
+        <section id="view-topup" style="display:none">
+            <!-- Alert Banner for Expiring Customers -->
+            <div id="alert-banner-container" style="display: none;">
+                <div class="alert-banner">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:24px; height:24px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <div>
+                        <strong>Attention!</strong> <span id="alert-banner-text">There are customer contracts expiring within 5 days!</span>
+                    </div>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Customer</th>
-                            <th>Service No.</th>
-                            <th>Tariff Plan</th>
-                            <th>Expiry Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body"></tbody>
-                </table>
+            </div>
+
+            <!-- Stats KPI Cards -->
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-label">Total Subscriptions</div>
+                    <div class="stat-value" id="stat-total">0 <span class="stat-unit">cust</span></div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-label">Total Value (Contract)</div>
+                    <div class="stat-value" id="stat-revenue">$0.00</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-label">Expiring Soon (<= 5 Days)</div>
+                    <div class="stat-value" id="stat-expiring">0</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-label">Overdue Contracts</div>
+                    <div class="stat-value" id="stat-overdue">0</div>
+                </div>
+            </div>
+
+            <!-- Analytics Charts -->
+            <div class="charts-container" id="charts-row">
+                <div class="chart-box"><canvas id="agentChart"></canvas></div>
+                <div class="chart-box"><canvas id="planChart"></canvas></div>
+            </div>
+
+            <!-- Customer Report Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Customer Renewal & Top Up List</h2>
+                    <div class="badge success" id="list-count-badge">0 Customers</div>
+                </div>
+
+                <!-- Search Control -->
+                <div class="search-container">
+                    <input type="text" id="search-box" class="search-input" placeholder="Search by customer name, top up number, PIC or contact..." onkeyup="renderCustomerList()">
+                    <select id="filter-status" style="width: auto; margin-bottom: 0;" onchange="renderCustomerList()">
+                        <option value="">All Statuses</option>
+                        <option value="Active">Active</option>
+                        <option value="Suspend">Suspend</option>
+                        <option value="Terminated">Terminated</option>
+                    </select>
+                </div>
+
+                <!-- Customers Table -->
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Customer & Contact</th>
+                                <th>Top Up Number</th>
+                                <th>Source & PIC</th>
+                                <th>Tariff / Service Plan</th>
+                                <th>Expiry Date & Overdue</th>
+                                <th>Alert Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customer-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                    <div id="table-empty-state" class="empty-state" style="display: none;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v4.5m12 3.5h.01M16.24 7.76l-1.414 1.414m-7.07 7.07l-1.414 1.414M9 9h.01M9 12h.01M9 15h.01M12 9h.01M12 12h.01M12 15h.01M15 12h.01M15 15h.01"></path></svg>
+                        <h3>No Customers Found</h3>
+                        <p>Try clearing your search or add a new customer in the Sign Up tab.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. SETTING TAB -->
+        <section id="view-setting" style="display:none">
+            <div class="settings-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Google Sheets Real-time Synchronization</h2>
+                        <span class="badge active" id="sync-setting-indicator">Local Only</span>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <p style="color: var(--text-gray); margin-bottom: 15px; font-size: 0.95rem; line-height: 1.5;">
+                            Configure your Google Spreadsheet integration for real-time synchronization. If the Web App URL is configured, all data will be synced with your sheet in real-time. If empty, the dashboard will seamlessly fall back to local browser storage, allowing you to work offline.
+                        </p>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group form-full-width">
+                            <label for="set-sheet-id">Google Spreadsheet ID *</label>
+                            <input type="text" id="set-sheet-id" placeholder="e.g. 1zhRKPlJN60YgwqVvkzCrIGPBHW36U5t5B_dDgx6JCcI">
+                            <small style="color:var(--text-gray); margin-top:5px;">Default ID pre-configured: <code>1zhRKPlJN60YgwqVvkzCrIGPBHW36U5t5B_dDgx6JCcI</code></small>
+                        </div>
+                        <div class="form-group form-full-width">
+                            <label for="set-script-url">Google Apps Script Web App Deployment URL</label>
+                            <input type="url" id="set-script-url" placeholder="https://script.google.com/macros/s/.../exec">
+                            <small style="color:var(--text-gray); margin-top:5px;">Deploy the script below as a Web App (Execute as "Me", Access "Anyone") and paste the execution URL here.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions" style="margin-top: 25px;">
+                        <button class="btn-secondary" onclick="resetSettingsToDefault()">Reset Defaults</button>
+                        <button class="btn-primary" onclick="saveSettings()">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Save Settings & Sync
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Google Apps Script Backend Code</h2>
+                    </div>
+                    <p style="color: var(--text-gray); font-size: 0.95rem; margin-bottom: 15px;">
+                        Create a new <strong>Google Apps Script</strong> project tied to your spreadsheet, copy and paste the code below, and deploy it as a <strong>Web App</strong> (Execute as: <code>Me</code>, Who has access: <code>Anyone</code>).
+                    </p>
+                    <div class="code-container">
+                        <button class="btn-copy" onclick="copyBackendCode()">Copy Code</button>
+                        <pre id="backend-code-block">
+// Loading backend script code...
+                        </pre>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
 
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <h2 style="margin-bottom: 25px;">Transaction Details</h2>
-            <form id="form">
-                <input type="hidden" id="edit-idx" value="-1">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div><label>Agent</label><select id="f-agent"><option>RIM Saray</option><option>KUN Chamnan</option></select></div>
-                    <div><label>Customer Name</label><input type="text" id="f-cust" required></div>
-                    <div><label>Service Number</label><input type="text" id="f-num" required></div>
-                    <div><label>Contact Phone</label><input type="text" id="f-con" required></div>
-                    <div><label>Tariff Plan</label><select id="f-plan">
-                        <option>Smart@Home</option><option>Fiber</option><option>M2M</option>
-                        <option>Postpaid</option><option>Smart Loar</option><option>Smart Data Tamchet</option>
-                    </select></div>
-                    <div><label>Amount ($)</label><input type="number" id="f-amt" step="0.01" required></div>
-                    <div><label>Date</label><input type="date" id="f-date" onchange="calcExp()" required></div>
-                    <div><label>Validity (Months)</label><input type="number" id="f-period" value="1" oninput="calcExp()"></div>
-                </div>
-                <label>Calculated Expiry</label>
-                <input type="date" id="f-exp" readonly style="background:#F9F9F9; color:var(--primary); font-weight:700;">
-                <div style="text-align: right; margin-top: 10px;">
-                    <button type="button" class="btn-ghost" onclick="closeModal()">Cancel</button>
-                    <button type="button" class="btn-primary" onclick="save()">Save Record</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxL_0VcQy5EE16AWoGy1UmXbX94GhveLbynno3a3UgmP1R9uSmu-5sdGBUmFSp_tPVrpg/exec";
-        let transactions = [];
-        let agentChart, planChart;
+        // Constants & Configuration
+        const DEFAULT_SHEET_ID = "1zhRKPlJN60YgwqVvkzCrIGPBHW36U5t5B_dDgx6JCcI";
+        
+        let config = {
+            sheetId: DEFAULT_SHEET_ID,
+            scriptUrl: ""
+        };
 
-        window.onload = () => sync('get');
+        let customers = [];
+        let agentChart = null;
+        let planChart = null;
 
-        async function sync(action, payload = null, index = -1) {
-            document.getElementById('sync-status').style.display = 'block';
-            try {
-                let url = `${SCRIPT_URL}?action=${action}`;
-                if (payload) url += `&data=${encodeURIComponent(JSON.stringify(payload))}`;
-                if (index !== -1) url += `&index=${index}`;
-                const res = await fetch(url);
-                transactions = await res.json();
-                render();
-            } catch (e) { console.error("Sync Error", e); }
-            document.getElementById('sync-status').style.display = 'none';
+        // Initialize Web Application
+        window.onload = async () => {
+            loadConfig();
+            loadLocalData();
+            await fetchSyncData();
+            autoCalculateFields();
+            
+            // Render Google Apps Script code to the settings tab block
+            document.getElementById('backend-code-block').innerText = getBackendCodeText();
+        };
+
+        // Local Settings & Configurations
+        function loadConfig() {
+            const savedSheetId = localStorage.getItem('ss_ops_sheet_id');
+            const savedScriptUrl = localStorage.getItem('ss_ops_script_url');
+            
+            config.sheetId = savedSheetId || DEFAULT_SHEET_ID;
+            config.scriptUrl = savedScriptUrl || "";
+
+            document.getElementById('set-sheet-id').value = config.sheetId;
+            document.getElementById('set-script-url').value = config.scriptUrl;
+
+            updateSyncBadge();
         }
 
-        function render() {
-            const body = document.getElementById('table-body');
+        // Save dashboard configurations
+        function saveSettings() {
+            const sId = document.getElementById('set-sheet-id').value.trim();
+            const sUrl = document.getElementById('set-script-url').value.trim();
+
+            if (!sId) {
+                alert("Spreadsheet ID is required.");
+                return;
+            }
+
+            config.sheetId = sId;
+            config.scriptUrl = sUrl;
+
+            localStorage.setItem('ss_ops_sheet_id', sId);
+            localStorage.setItem('ss_ops_script_url', sUrl);
+
+            updateSyncBadge();
+            fetchSyncData();
+            alert("Settings saved successfully! Synchronizing data...");
+        }
+
+        function resetSettingsToDefault() {
+            if (confirm("Reset to default Sheet ID and clear custom Web App URL?")) {
+                localStorage.removeItem('ss_ops_sheet_id');
+                localStorage.removeItem('ss_ops_script_url');
+                loadConfig();
+                fetchSyncData();
+            }
+        }
+
+        function updateSyncBadge() {
+            const isConnected = !!config.scriptUrl;
+            const badgeMain = document.getElementById('sync-mode-badge');
+            const badgeSetting = document.getElementById('sync-setting-indicator');
+
+            if (isConnected) {
+                badgeMain.className = "badge active";
+                badgeMain.innerText = "Cloud Sync Active";
+                badgeMain.style.backgroundColor = "var(--success-bg)";
+                badgeMain.style.color = "var(--success)";
+
+                badgeSetting.className = "badge active";
+                badgeSetting.innerText = "Real-Time Sync Active";
+                badgeSetting.style.backgroundColor = "var(--success-bg)";
+                badgeSetting.style.color = "var(--success)";
+            } else {
+                badgeMain.className = "badge suspend";
+                badgeMain.innerText = "Local Storage Mode";
+                badgeMain.style.backgroundColor = "var(--warning-bg)";
+                badgeMain.style.color = "var(--warning)";
+
+                badgeSetting.className = "badge suspend";
+                badgeSetting.innerText = "Local Only (No Cloud Script URL)";
+                badgeSetting.style.backgroundColor = "var(--warning-bg)";
+                badgeSetting.style.color = "var(--warning)";
+            }
+        }
+
+        // Data Storage & Synchronization
+        function loadLocalData() {
+            const localData = localStorage.getItem('ss_ops_customers');
+            if (localData) {
+                customers = JSON.parse(localData);
+            } else {
+                // Pre-populate some Mock Data to make it look great immediately
+                customers = [
+                    {
+                        id: "CUST_1",
+                        customer: "An Sreypich",
+                        number: "012888999",
+                        contact: "099888777",
+                        source: "Shop",
+                        pic: "RIM Saray",
+                        tariff: "Smart@Home Light",
+                        amount: 15.00,
+                        signup_date: "2026-05-01",
+                        period: 3,
+                        expire_date: "2026-08-01",
+                        status: "Active",
+                        overdue_days: 0
+                    },
+                    {
+                        id: "CUST_2",
+                        customer: "Chan Narin",
+                        number: "096555444",
+                        contact: "015111222",
+                        source: "Sale",
+                        pic: "KUN Chamnan",
+                        tariff: "Smart@Home 5G",
+                        amount: 29.00,
+                        signup_date: "2026-07-28",
+                        period: 1,
+                        expire_date: "2026-08-28",
+                        status: "Active",
+                        overdue_days: 0
+                    },
+                    {
+                        id: "CUST_3",
+                        customer: "Sokha Mean",
+                        number: "088333222",
+                        contact: "077444555",
+                        source: "Dealer",
+                        pic: "Chhorvy Agent",
+                        tariff: "Smart@Home Light",
+                        amount: 12.00,
+                        signup_date: "2026-04-10",
+                        period: 3,
+                        expire_date: "2026-07-10",
+                        status: "Active",
+                        overdue_days: 20
+                    }
+                ];
+                saveLocalData();
+            }
+            recalculateOverdueDaysLocally();
+        }
+
+        function saveLocalData() {
+            localStorage.setItem('ss_ops_customers', JSON.stringify(customers));
+        }
+
+        function recalculateOverdueDaysLocally() {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            customers.forEach(c => {
+                if (c.expire_date && c.status === "Active") {
+                    const exp = new Date(c.expire_date);
+                    exp.setHours(0,0,0,0);
+                    const diffTime = today - exp;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    c.overdue_days = diffDays > 0 ? diffDays : 0;
+                } else {
+                    c.overdue_days = 0;
+                }
+            });
+        }
+
+        async function fetchSyncData() {
+            if (!config.scriptUrl) {
+                renderAll();
+                return;
+            }
+
+            showSyncToast("Fetching latest cloud data...");
+            try {
+                const url = `${config.scriptUrl}?action=get&sheetId=${config.sheetId}&_t=${new Date().getTime()}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data && Array.isArray(data)) {
+                    customers = data.map(item => ({
+                        id: item.id || "C_MOCK_" + new Date().getTime(),
+                        customer: item.customer || "",
+                        number: item.number || "",
+                        contact: item.contact || "",
+                        source: item.source || "Shop",
+                        pic: item.pic || "",
+                        tariff: item.tariff || "",
+                        amount: parseFloat(item.amount) || 0,
+                        signup_date: item.signup_date || "",
+                        period: parseInt(item.period) || 1,
+                        expire_date: item.expire_date || "",
+                        status: item.status || "Active",
+                        overdue_days: parseInt(item.overdue_days) || 0,
+                        sheetRowIndex: item.sheetRowIndex || -1
+                    }));
+                    saveLocalData();
+                    recalculateOverdueDaysLocally();
+                } else if (data && data.error) {
+                    console.error("Cloud Error:", data.error);
+                }
+            } catch (err) {
+                console.error("Failed to sync with cloud", err);
+            } finally {
+                hideSyncToast();
+                renderAll();
+            }
+        }
+
+        async function syncCloudAction(action, payload = null, id = "", index = -1) {
+            if (!config.scriptUrl) {
+                // If offline / local only, simulate success locally
+                if (action === 'save') {
+                    if (id) {
+                        // Edit Mode
+                        const idx = customers.findIndex(c => c.id === id);
+                        if (idx !== -1) {
+                            customers[idx] = { ...customers[idx], ...payload };
+                        }
+                    } else {
+                        // New Customer
+                        payload.id = "CUST_" + new Date().getTime() + "_" + Math.floor(Math.random()*100);
+                        customers.push(payload);
+                    }
+                } else if (action === 'delete') {
+                    customers = customers.filter(c => c.id !== id);
+                }
+                saveLocalData();
+                recalculateOverdueDaysLocally();
+                renderAll();
+                return;
+            }
+
+            showSyncToast(action === 'save' ? "Saving contract to cloud..." : "Deleting customer from cloud...");
+            try {
+                let url = `${config.scriptUrl}?action=${action}&sheetId=${config.sheetId}`;
+                if (id) url += `&id=${encodeURIComponent(id)}`;
+                if (index !== -1) url += `&index=${index}`;
+                if (payload) url += `&data=${encodeURIComponent(JSON.stringify(payload))}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data && Array.isArray(data)) {
+                    customers = data.map(item => ({
+                        id: item.id || "C_" + new Date().getTime(),
+                        customer: item.customer || "",
+                        number: item.number || "",
+                        contact: item.contact || "",
+                        source: item.source || "Shop",
+                        pic: item.pic || "",
+                        tariff: item.tariff || "",
+                        amount: parseFloat(item.amount) || 0,
+                        signup_date: item.signup_date || "",
+                        period: parseInt(item.period) || 1,
+                        expire_date: item.expire_date || "",
+                        status: item.status || "Active",
+                        overdue_days: parseInt(item.overdue_days) || 0,
+                        sheetRowIndex: item.sheetRowIndex || -1
+                    }));
+                    saveLocalData();
+                    recalculateOverdueDaysLocally();
+                } else if (data && data.error) {
+                    alert("Cloud Error: " + data.error);
+                }
+            } catch (err) {
+                console.error("Cloud synchronization failed", err);
+                alert("Cloud Sync failed. Action saved locally in the browser.");
+                // Fallback action
+                if (action === 'save') {
+                    if (id) {
+                        const idx = customers.findIndex(c => c.id === id);
+                        if (idx !== -1) customers[idx] = { ...customers[idx], ...payload };
+                    } else {
+                        payload.id = "CUST_" + new Date().getTime();
+                        customers.push(payload);
+                    }
+                } else if (action === 'delete') {
+                    customers = customers.filter(c => c.id !== id);
+                }
+                saveLocalData();
+                recalculateOverdueDaysLocally();
+            } finally {
+                hideSyncToast();
+                renderAll();
+            }
+        }
+
+        // Form Calculations & Actions
+        function autoCalculateFields() {
+            const signupDateStr = document.getElementById('f-signup-date').value;
+            const periodStr = document.getElementById('f-period').value;
+            
+            if (!signupDateStr || !periodStr) {
+                document.getElementById('f-expire-date').value = "";
+                document.getElementById('f-overdue-days').value = 0;
+                return;
+            }
+
+            const period = parseInt(periodStr);
+            const signupDate = new Date(signupDateStr);
+            
+            // Add months
+            signupDate.setMonth(signupDate.getMonth() + period);
+            const expiryStr = signupDate.toISOString().split('T')[0];
+            document.getElementById('f-expire-date').value = expiryStr;
+
+            // Calculate overdue
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            signupDate.setHours(0,0,0,0);
+
+            const diffTime = today - signupDate;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const overdue = diffDays > 0 ? diffDays : 0;
+            
+            document.getElementById('f-overdue-days').value = overdue;
+        }
+
+        function resetForm() {
+            document.getElementById('entry-form').reset();
+            document.getElementById('f-id').value = "";
+            document.getElementById('f-row-index').value = "-1";
+            document.getElementById('form-heading').innerText = "New Customer Entry Form";
+            document.getElementById('f-status').value = "Active";
+            
+            // Default to today's date
+            document.getElementById('f-signup-date').value = new Date().toISOString().split('T')[0];
+            autoCalculateFields();
+        }
+
+        function initNewForm() {
+            switchTab('signup');
+            resetForm();
+            document.getElementById('f-cust').focus();
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const customerName = document.getElementById('f-cust').value.trim();
+            const topUpNumber = document.getElementById('f-num').value.trim();
+            const contactPhone = document.getElementById('f-con').value.trim();
+            const source = document.getElementById('f-source').value;
+            const pic = document.getElementById('f-pic').value.trim();
+            const tariff = document.getElementById('f-tariff').value;
+            const amount = parseFloat(document.getElementById('f-amt').value) || 0;
+            const signupDate = document.getElementById('f-signup-date').value;
+            const period = parseInt(document.getElementById('f-period').value);
+            const expireDate = document.getElementById('f-expire-date').value;
+            const status = document.getElementById('f-status').value;
+            const overdueDays = parseInt(document.getElementById('f-overdue-days').value) || 0;
+            
+            const id = document.getElementById('f-id').value;
+            const rowIndex = parseInt(document.getElementById('f-row-index').value) || -1;
+
+            const payload = {
+                customer: customerName,
+                number: topUpNumber,
+                contact: contactPhone,
+                source: source,
+                pic: pic,
+                tariff: tariff,
+                amount: amount,
+                signup_date: signupDate,
+                period: period,
+                expire_date: expireDate,
+                status: status,
+                overdue_days: overdueDays
+            };
+
+            if (id) {
+                // Edit save
+                payload.id = id;
+                syncCloudAction('save', payload, id, rowIndex);
+            } else {
+                // New save
+                syncCloudAction('save', payload);
+            }
+
+            resetForm();
+            switchTab('topup');
+        }
+
+        // Customer List Rendering & Table Actions
+        function renderAll() {
+            recalculateOverdueDaysLocally();
+            renderCustomerList();
+            updateKPIs();
+            renderCharts();
+        }
+
+        function renderCustomerList() {
+            const body = document.getElementById('customer-table-body');
             const search = document.getElementById('search-box').value.toLowerCase();
-            body.innerHTML = ''; 
-            let alertCount = 0; let rev = 0;
-            const now = new Date();
+            const filterStatus = document.getElementById('filter-status').value;
+            const emptyState = document.getElementById('table-empty-state');
+            
+            body.innerHTML = '';
+            
+            // Sort customers: Expiring Soonest / Most Overdue first
+            let displayList = [...customers].sort((a, b) => {
+                if (!a.expire_date) return 1;
+                if (!b.expire_date) return -1;
+                return new Date(a.expire_date) - new Date(b.expire_date);
+            });
 
-            // Feature restored: Sort by Most Expired First
-            let displayList = transactions.map((t, i) => ({...t, originalIndex: i}))
-                                         .sort((a, b) => new Date(a.expire) - new Date(b.expire));
+            let visibleCount = 0;
+            const today = new Date();
+            today.setHours(0,0,0,0);
 
-            displayList.forEach(t => {
-                const diff = Math.ceil((new Date(t.expire) - now) / (1000*60*60*24));
-                const matches = t.customer.toLowerCase().includes(search) || t.number.includes(search) || t.contact.includes(search);
+            let alertCount = 0;
+            let alertingCustomersText = [];
 
-                if (matches) {
+            displayList.forEach(c => {
+                const matchesSearch = c.customer.toLowerCase().includes(search) || 
+                                      c.number.includes(search) || 
+                                      c.contact.includes(search) || 
+                                      c.pic.toLowerCase().includes(search);
+                                      
+                const matchesStatus = !filterStatus || c.status === filterStatus;
+
+                // Calculate expiry alert
+                let alertBadgeHTML = '';
+                
+                if (c.expire_date) {
+                    const exp = new Date(c.expire_date);
+                    exp.setHours(0,0,0,0);
+                    const diffTime = exp - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (c.status === 'Active') {
+                        if (diffDays < 0) {
+                            alertBadgeHTML = `<span class="alert-pill danger">🔴 Overdue ${Math.abs(diffDays)}d</span>`;
+                        } else if (diffDays <= 5) {
+                            alertBadgeHTML = `<span class="alert-pill warning">⚠️ Expire ${diffDays}d</span>`;
+                            alertCount++;
+                            alertingCustomersText.push(`${c.customer} (${c.number})`);
+                        } else {
+                            alertBadgeHTML = `<span class="alert-pill success">🟢 Active (${diffDays}d)</span>`;
+                        }
+                    } else {
+                        alertBadgeHTML = `<span class="alert-pill" style="background:#ECECEC; color:#8C8C8C;">⚪ Non-Active</span>`;
+                    }
+                }
+
+                if (matchesSearch && matchesStatus) {
+                    visibleCount++;
+                    const amountFormatted = parseFloat(c.amount).toFixed(2);
+                    
                     body.innerHTML += `
                         <tr>
-                            <td><strong>${t.customer}</strong><br><small style="color:#888">${t.contact}</small></td>
-                            <td>${t.number}</td>
-                            <td><span style="background:var(--primary-light); color:var(--primary); padding:4px 10px; border-radius:6px; font-weight:600; font-size:0.8rem;">${t.plan}</span></td>
-                            <td style="color:${diff <= 7 ? 'var(--danger)' : 'inherit'}; font-weight:${diff <= 7 ? '700' : '400'}">${t.expire}</td>
                             <td>
-                                <button class="btn-ghost" onclick="openModal(${t.originalIndex})">Edit</button>
-                                <button class="btn-ghost btn-danger" onclick="del(${t.originalIndex})">Del</button>
+                                <strong>${c.customer}</strong><br>
+                                <span style="font-size:0.8rem; color:var(--text-gray);">${c.contact}</span>
+                            </td>
+                            <td><strong style="color:var(--primary); font-family:monospace;">${c.number}</strong></td>
+                            <td>
+                                <span>${c.source}</span><br>
+                                <small style="color:var(--text-gray);">PIC: ${c.pic}</small>
+                            </td>
+                            <td>
+                                <span style="background:var(--primary-light); color:var(--primary); padding:4px 10px; border-radius:6px; font-weight:600; font-size:0.8rem;">
+                                    ${c.tariff}
+                                </span><br>
+                                <small style="font-weight:600; color:#333;">$${amountFormatted}</small>
+                            </td>
+                            <td>
+                                <span>${c.expire_date}</span><br>
+                                <small style="color:${c.overdue_days > 0 ? 'var(--danger)' : 'var(--text-gray)'}; font-weight:${c.overdue_days > 0 ? 'bold' : 'normal'};">
+                                    ${c.overdue_days > 0 ? 'Overdue ' + c.overdue_days + ' days' : 'Period: ' + c.period + 'm'}
+                                </small>
+                            </td>
+                            <td>
+                                <span class="badge ${c.status.toLowerCase()}" style="margin-bottom:6px;">${c.status}</span><br>
+                                ${alertBadgeHTML}
+                            </td>
+                            <td>
+                                <div class="action-btn-group">
+                                    <button class="btn-icon edit" onclick="editCustomer('${c.id}')" title="Edit Customer">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    </button>
+                                    <button class="btn-icon renew" onclick="initRenewal('${c.id}')" title="1-Month Contract Renewal">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18"></path></svg>
+                                    </button>
+                                    <button class="btn-icon delete" onclick="deleteCustomer('${c.id}', ${c.sheetRowIndex || -1})" title="Delete Customer">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>`;
+                } else if (!matchesSearch && c.status === 'Active' && c.expire_date) {
+                    // Still count expiring alerts on hidden search rows
+                    const exp = new Date(c.expire_date);
+                    exp.setHours(0,0,0,0);
+                    const diffTime = exp - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays >= 0 && diffDays <= 5) {
+                        alertCount++;
+                        alertingCustomersText.push(`${c.customer} (${c.number})`);
+                    }
                 }
-                if (diff <= 7) alertCount++;
-                if (new Date(t.renew).getMonth() === now.getMonth() && new Date(t.renew).getFullYear() === now.getFullYear()) rev += parseFloat(t.amount);
             });
 
-            document.getElementById('dash-alert').innerText = alertCount;
-            document.getElementById('dash-rev').innerText = `$${rev.toFixed(2)}`;
-            updateCharts();
-        }
+            document.getElementById('list-count-badge').innerText = `${visibleCount} Customers`;
+            emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
 
-        function save() {
-            const idx = document.getElementById('edit-idx').value;
-            const data = {
-                agent: document.getElementById('f-agent').value, customer: document.getElementById('f-cust').value,
-                number: document.getElementById('f-num').value, contact: document.getElementById('f-con').value,
-                plan: document.getElementById('f-plan').value, amount: document.getElementById('f-amt').value,
-                renew: document.getElementById('f-date').value, period: document.getElementById('f-period').value,
-                expire: document.getElementById('f-exp').value
-            };
-            sync('save', data, idx);
-            closeModal();
-        }
-
-        function del(idx) { if(confirm("Confirm Delete?")) sync('delete', null, idx); }
-
-        function calcExp() {
-            const d = new Date(document.getElementById('f-date').value);
-            if(!isNaN(d)) {
-                d.setMonth(d.getMonth() + parseInt(document.getElementById('f-period').value || 1));
-                document.getElementById('f-exp').value = d.toISOString().split('T')[0];
+            // Expire alert banner logic
+            const alertBanner = document.getElementById('alert-banner-container');
+            const alertText = document.getElementById('alert-banner-text');
+            
+            if (alertCount > 0) {
+                alertBanner.style.display = 'block';
+                alertText.innerText = `There are ${alertCount} customer(s) expiring within 5 days: ${alertingCustomersText.join(', ')}`;
+            } else {
+                alertBanner.style.display = 'none';
             }
         }
 
-        function openModal(i = -1) {
-            document.getElementById('form').reset();
-            document.getElementById('edit-idx').value = i;
-            if(i > -1) {
-                const t = transactions[i];
-                document.getElementById('f-agent').value = t.agent;
-                document.getElementById('f-cust').value = t.customer;
-                document.getElementById('f-num').value = t.number;
-                document.getElementById('f-con').value = t.contact;
-                document.getElementById('f-plan').value = t.plan;
-                document.getElementById('f-amt').value = t.amount;
-                document.getElementById('f-date').value = t.renew;
-                document.getElementById('f-period').value = t.period;
-                document.getElementById('f-exp').value = t.expire;
+        // Sidebar Navigation & Search helper
+        function switchTab(tabId) {
+            document.getElementById('view-signup').style.display = tabId === 'signup' ? 'block' : 'none';
+            document.getElementById('view-topup').style.display = tabId === 'topup' ? 'block' : 'none';
+            document.getElementById('view-setting').style.display = tabId === 'setting' ? 'block' : 'none';
+            
+            document.getElementById('m-signup').classList.toggle('active', tabId === 'signup');
+            document.getElementById('m-topup').classList.toggle('active', tabId === 'topup');
+            document.getElementById('m-setting').classList.toggle('active', tabId === 'setting');
+
+            if (tabId === 'signup') {
+                document.getElementById('page-title').innerText = "Sign Up";
+                document.getElementById('page-title-desc').innerText = "Add a new customer contract or modify an existing registration";
+            } else if (tabId === 'topup') {
+                document.getElementById('page-title').innerText = "Top Up & Renewals";
+                document.getElementById('page-title-desc').innerText = "Check and process customer wifi subscription list & contract status";
+                renderAll();
+            } else if (tabId === 'setting') {
+                document.getElementById('page-title').innerText = "Dashboard Settings";
+                document.getElementById('page-title-desc').innerText = "Integrate your Google Sheets database and fetch synchronization scripts";
             }
-            document.getElementById('modal').style.display = 'block';
         }
 
-        function closeModal() { document.getElementById('modal').style.display = 'none'; }
-
-        function switchTab(t) {
-            document.getElementById('view-dashboard').style.display = t==='dashboard'?'block':'none';
-            document.getElementById('view-history').style.display = t==='history'?'block':'none';
-            document.getElementById('m-dash').classList.toggle('active', t==='dashboard');
-            document.getElementById('m-hist').classList.toggle('active', t==='history');
-            document.getElementById('page-title').innerText = t==='dashboard'?'Overview':'History';
+        function handleSidebarSearch(e) {
+            const query = e.target.value.trim();
+            if (e.key === 'Enter' && query) {
+                switchTab('topup');
+                document.getElementById('search-box').value = query;
+                renderCustomerList();
+            }
         }
 
-        function updateCharts() {
-            const agentData = {}; const planData = {};
-            transactions.forEach(t => {
-                agentData[t.agent] = (agentData[t.agent] || 0) + parseFloat(t.amount);
-                planData[t.plan] = (planData[t.plan] || 0) + 1;
+        // Dashboard Visual KPI & Analytics Update
+        function updateKPIs() {
+            const total = customers.length;
+            let revenue = 0;
+            let expiring = 0;
+            let overdue = 0;
+            
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            customers.forEach(c => {
+                if (c.status === "Active") {
+                    revenue += parseFloat(c.amount) || 0;
+                    
+                    if (c.expire_date) {
+                        const exp = new Date(c.expire_date);
+                        exp.setHours(0,0,0,0);
+                        const diffTime = exp - today;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (diffDays < 0) {
+                            overdue++;
+                        } else if (diffDays <= 5) {
+                            expiring++;
+                        }
+                    }
+                }
             });
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-revenue').innerText = `$${revenue.toFixed(2)}`;
+            document.getElementById('stat-expiring').innerText = expiring;
+            document.getElementById('stat-overdue').innerText = overdue;
+        }
+
+        function renderCharts() {
+            if (document.getElementById('view-topup').style.display === 'none') {
+                return;
+            }
+
+            const sourceData = {};
+            const planData = {};
+            
+            customers.forEach(c => {
+                if (c.status === "Active") {
+                    sourceData[c.source] = (sourceData[c.source] || 0) + 1;
+                    planData[c.tariff] = (planData[c.tariff] || 0) + 1;
+                }
+            });
+
             if (agentChart) agentChart.destroy();
             if (planChart) planChart.destroy();
             
             agentChart = new Chart(document.getElementById('agentChart'), {
                 type: 'bar',
-                data: { labels: Object.keys(agentData), datasets: [{ label: 'Sales ($)', data: Object.values(agentData), backgroundColor: '#23AD4A', borderRadius: 8 }] },
-                options: { maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Sales by Agent ($)' } } }
+                data: { 
+                    labels: Object.keys(sourceData).length ? Object.keys(sourceData) : ['Shop', 'Sale', 'Dealer'], 
+                    datasets: [{ 
+                        label: 'Active Contracts', 
+                        data: Object.keys(sourceData).length ? Object.values(sourceData) : [0, 0, 0], 
+                        backgroundColor: '#1B8C3F', 
+                        borderRadius: 8 
+                    }] 
+                },
+                options: { 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false }, 
+                        title: { display: true, text: 'Active Contracts by Source', font: { family: 'Kantumruy Pro', size: 14 } } 
+                    },
+                    scales: {
+                        y: {
+                            ticks: { stepSize: 1, precision: 0 }
+                        }
+                    }
+                }
             });
 
             planChart = new Chart(document.getElementById('planChart'), {
                 type: 'doughnut',
-                data: { labels: Object.keys(planData), datasets: [{ data: Object.values(planData), backgroundColor: ['#23AD4A', '#2196F3', '#FF4D4F', '#FFB300', '#9C27B0'] }] },
-                options: { maintainAspectRatio: false, plugins: { title: { display: true, text: 'Tariff Distribution' } } }
+                data: { 
+                    labels: Object.keys(planData).length ? Object.keys(planData) : ['Smart@Home Light', 'Smart@Home 5G'], 
+                    datasets: [{ 
+                        data: Object.keys(planData).length ? Object.values(planData) : [1, 1], 
+                        backgroundColor: ['#1B8C3F', '#FAAD14', '#FF4D4F', '#2196F3', '#9C27B0'] 
+                    }] 
+                },
+                options: { 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        title: { display: true, text: 'Tariff / Service Plan Distribution', font: { family: 'Kantumruy Pro', size: 14 } } 
+                    } 
+                }
             });
+        }
+
+        // Helper Toast & Clipboard Functions
+        function showSyncToast(text) {
+            const toast = document.getElementById('sync-status');
+            const toastText = document.getElementById('sync-text');
+            toastText.innerText = text;
+            toast.style.display = 'flex';
+        }
+
+        function hideSyncToast() {
+            document.getElementById('sync-status').style.display = 'none';
+        }
+
+        function copyBackendCode() {
+            const code = getBackendCodeText();
+            navigator.clipboard.writeText(code).then(() => {
+                alert("Apps Script code copied to clipboard! You can paste it into Extensions > Apps Script in Google Sheets.");
+            }).catch(err => {
+                console.error('Failed to copy', err);
+                alert("Could not copy automatically. Please select and copy manually.");
+            });
+        }
+
+        function getBackendCodeText() {
+            return `/**
+ * Google Apps Script for SS-OPS Customer Top-Up Dashboard
+ * Deployed as a Web App:
+ * - Execute as: Me (your email)
+ * - Who has access: Anyone
+ */
+
+const DEFAULT_SPREADSHEET_ID = "1zhRKPlJN60YgwqVvkzCrIGPBHW36U5t5B_dDgx6JCcI";
+
+function doGet(e) {
+  return handleRequest(e);
+}
+
+function doPost(e) {
+  return handleRequest(e);
+}
+
+function handleRequest(e) {
+  try {
+    const action = e.parameter.action || (e.postData && JSON.parse(e.postData.contents).action);
+    const customSheetId = e.parameter.sheetId || (e.postData && JSON.parse(e.postData.contents).sheetId);
+    const spreadsheetId = customSheetId || DEFAULT_SPREADSHEET_ID;
+    
+    const ss = SpreadsheetApp.openById(spreadsheetId);
+    let sheet = ss.getSheets()[0];
+    if (!sheet) {
+      sheet = ss.insertSheet();
+    }
+    
+    ensureHeaders(sheet);
+    
+    if (action === 'get') {
+      const data = getData(sheet);
+      return jsonResponse(data);
+    }
+    
+    let payload = null;
+    let id = e.parameter.id;
+    let index = e.parameter.index;
+    
+    if (e.parameter.data) {
+      payload = JSON.parse(e.parameter.data);
+    } else if (e.postData) {
+      const postBody = JSON.parse(e.postData.contents);
+      payload = postBody.data;
+      id = id || postBody.id;
+      index = index || postBody.index;
+    }
+    
+    if (action === 'save') {
+      if (!payload) {
+        return jsonResponse({ error: "Missing payload data for save" });
+      }
+      saveData(sheet, payload, id, index);
+      return jsonResponse(getData(sheet));
+    }
+    
+    if (action === 'delete') {
+      deleteData(sheet, id, index);
+      return jsonResponse(getData(sheet));
+    }
+    
+    return jsonResponse({ error: "Invalid action. Supported: get, save, delete" });
+  } catch (error) {
+    return jsonResponse({ error: error.toString() });
+  }
+}
+
+function ensureHeaders(sheet) {
+  if (sheet.getLastRow() === 0) {
+    const headers = [
+      "ID", "Customer Name", "Top Up Number", "Contact", 
+      "Source", "PIC", "Tariff / Service", "Amount", 
+      "Sign Up Date", "Period", "Expiry Date", "Status", "Overdue Days"
+    ];
+    sheet.appendRow(headers);
+    sheet.getRange(1, 1, 1, headers.length)
+      .setFontWeight("bold")
+      .setBackground("#1B8C3F")
+      .setFontColor("white");
+  }
+}
+
+function getData(sheet) {
+  const rows = sheet.getDataRange().getValues();
+  if (rows.length <= 1) return [];
+  
+  const headers = rows[0];
+  const data = [];
+  
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const item = {};
+    headers.forEach((header, colIdx) => {
+      const key = getPropertyKey(header);
+      let val = row[colIdx];
+      if (val instanceof Date) {
+        val = Utilities.formatDate(val, Session.getScriptTimeZone(), "yyyy-MM-dd");
+      }
+      item[key] = val;
+    });
+    item.sheetRowIndex = i + 1;
+    data.push(item);
+  }
+  return data;
+}
+
+function getPropertyKey(header) {
+  const map = {
+    "ID": "id",
+    "Customer Name": "customer",
+    "Top Up Number": "number",
+    "Contact": "contact",
+    "Source": "source",
+    "PIC": "pic",
+    "Tariff / Service": "tariff",
+    "Amount": "amount",
+    "Sign Up Date": "signup_date",
+    "Period": "period",
+    "Expiry Date": "expire_date",
+    "Status": "status",
+    "Overdue Days": "overdue_days"
+  };
+  return map[header] || header.toLowerCase().replace(/[^a-z0-9]/g, "_");
+}
+
+function saveData(sheet, payload, id, index) {
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const dataRows = sheet.getDataRange().getValues();
+  
+  let targetRowIndex = -1;
+  const searchId = id || payload.id;
+  
+  if (searchId) {
+    for (let i = 1; i < dataRows.length; i++) {
+      if (dataRows[i][0].toString() === searchId.toString()) {
+        targetRowIndex = i + 1;
+        break;
+      }
+    }
+  } else if (index !== undefined && index !== null && index !== "" && index !== -1) {
+    targetRowIndex = parseInt(index);
+  }
+  
+  const rowValues = headers.map(header => {
+    const key = getPropertyKey(header);
+    if (key === "id" && !payload.id) {
+      return searchId || "CUST_" + new Date().getTime() + "_" + Math.floor(Math.random() * 1000);
+    }
+    return payload[key] !== undefined ? payload[key] : "";
+  });
+  
+  if (targetRowIndex > 1 && targetRowIndex <= sheet.getLastRow()) {
+    sheet.getRange(targetRowIndex, 1, 1, rowValues.length).setValues([rowValues]);
+  } else {
+    sheet.appendRow(rowValues);
+  }
+}
+
+function deleteData(sheet, id, index) {
+  const dataRows = sheet.getDataRange().getValues();
+  let targetRowIndex = -1;
+  const searchId = id;
+  
+  if (searchId) {
+    for (let i = 1; i < dataRows.length; i++) {
+      if (dataRows[i][0].toString() === searchId.toString()) {
+        targetRowIndex = i + 1;
+        break;
+      }
+    }
+  } else if (index !== undefined && index !== null && index !== "" && index !== -1) {
+    targetRowIndex = parseInt(index);
+  }
+  
+  if (targetRowIndex > 1 && targetRowIndex <= sheet.getLastRow()) {
+    sheet.deleteRow(targetRowIndex);
+  }
+}
+
+function jsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeader("Access-Control-Allow-Origin", "*");
+}`;
         }
     </script>
 </body>
