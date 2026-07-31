@@ -9,11 +9,11 @@ const DEFAULT_SPREADSHEET_ID = "1zhRKPlJN60YgwqVvkzCrIGPBHW36U5t5B_dDgx6JCcI";
 
 const SHEET_NAMES = [
   "Sign Up",
-  "Smart@Home",
+  "Renew Smart@Home",
   "Fiber+",
-  "SME service",
-  "Pre-paid service",
-  "Terminated"
+  "SME Service",
+  "Pre-paid",
+  "Terminate"
 ];
 
 function doGet(e) {
@@ -153,7 +153,7 @@ function getDataAll(ss) {
       });
       item.sheetRowIndex = i + 1;
       item.sheetName = sheetName;
-      if (sheetName !== "Sign Up" && sheetName !== "Terminated") {
+      if (sheetName !== "Sign Up" && sheetName !== "Terminate" && sheetName !== "Terminated") {
         item.is_renewed = true;
       }
       allData.push(item);
@@ -192,16 +192,20 @@ function getPropertyKey(header) {
 }
 
 function getTargetSheetName(payload) {
-  if (payload.status === "Terminated") {
-    return "Terminated";
+  if (payload.status && (payload.status.toLowerCase() === "terminate" || payload.status.toLowerCase() === "terminated")) {
+    return "Terminate";
   }
   
   if (payload.is_renewed) {
     const serviceType = payload.service_type || "Smart@Home";
-    if (serviceType === "Smart@Home") return "Smart@Home";
-    if (serviceType === "Fiber+") return "Fiber+";
-    if (serviceType === "SME Service") return "SME service";
-    if (serviceType === "Prepaid Service") return "Pre-paid service";
+    const stLower = serviceType.toLowerCase();
+    if (stLower.includes("smart@home") || stLower.includes("home")) return "Renew Smart@Home";
+    if (stLower.includes("fiber")) return "Fiber+";
+    if (stLower.includes("sme")) return "SME Service";
+    if (stLower.includes("pre-paid") || stLower.includes("prepaid")) return "Pre-paid";
+    
+    // Default fallback if no match
+    return "Renew Smart@Home";
   }
   
   return "Sign Up";
@@ -212,7 +216,7 @@ function saveData(ss, payload, id) {
   const existing = findCustomerById(ss, searchId);
   
   // If editing an existing customer who is already in a renewed sheet, keep the renewed flag
-  if (existing && ["Smart@Home", "Fiber+", "SME service", "Pre-paid service"].indexOf(existing.sheetName) !== -1) {
+  if (existing && ["Renew Smart@Home", "Smart@Home", "Fiber+", "SME Service", "SME service", "Pre-paid", "Pre-paid service"].indexOf(existing.sheetName) !== -1) {
     payload.is_renewed = true;
   }
   
