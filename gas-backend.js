@@ -7,6 +7,15 @@
 
 const DEFAULT_SPREADSHEET_ID = "1zhRKPlJN60YgwqVvkzCrIGPBHW36U5t5B_dDgx6JCcI";
 
+const SHEET_NAMES = [
+  "Sign Up",
+  "Smart@Home",
+  "Fiber+",
+  "SME service",
+  "Pre-paid service",
+  "Terminated"
+];
+
 function doGet(e) {
   return handleRequest(e);
 }
@@ -22,16 +31,10 @@ function handleRequest(e) {
     const spreadsheetId = customSheetId || DEFAULT_SPREADSHEET_ID;
     
     const ss = SpreadsheetApp.openById(spreadsheetId);
-    let sheet = ss.getSheets()[0];
-    if (!sheet) {
-      sheet = ss.insertSheet();
-    }
-    
-    // Ensure sheet headers exist
-    ensureHeaders(sheet);
+    ensureAllSheets(ss);
     
     if (action === 'get') {
-      const data = getData(sheet);
+      const data = getDataAll(ss);
       return jsonResponse(data);
     }
     
@@ -54,8 +57,8 @@ function handleRequest(e) {
       if (!payload) {
         return jsonResponse({ error: "Missing payload data for save" });
       }
-      saveData(sheet, payload, id, index);
-      return jsonResponse(getData(sheet));
+      saveData(ss, payload, id);
+      return jsonResponse(getDataAll(ss));
     }
     
     if (action === 'save_renewal') {
@@ -66,18 +69,28 @@ function handleRequest(e) {
         return jsonResponse({ error: "Missing monthSheetName for renewal save" });
       }
       saveRenewalData(ss, monthSheetName, payload);
-      return jsonResponse({ success: true, data: getData(sheet) });
+      return jsonResponse({ success: true, data: getDataAll(ss) });
     }
     
     if (action === 'delete') {
-      deleteData(sheet, id, index);
-      return jsonResponse(getData(sheet));
+      deleteData(ss, id);
+      return jsonResponse(getDataAll(ss));
     }
     
     return jsonResponse({ error: "Invalid action. Supported: get, save, delete" });
   } catch (error) {
     return jsonResponse({ error: error.toString() });
   }
+}
+
+function ensureAllSheets(ss) {
+  SHEET_NAMES.forEach(name => {
+    let sheet = ss.getSheetByName(name);
+    if (!sheet) {
+      sheet = ss.insertSheet(name);
+    }
+    ensureHeaders(sheet);
+  });
 }
 
 function ensureHeaders(sheet) {
@@ -96,30 +109,57 @@ function ensureHeaders(sheet) {
   }
 }
 
-function getData(sheet) {
-  const rows = sheet.getDataRange().getValues();
-  if (rows.length <= 1) return [];
-  
-  const headers = rows[0];
-  const data = [];
-  
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    const item = {};
-    headers.forEach((header, colIdx) => {
-      const key = getPropertyKey(header);
-      let val = row[colIdx];
-      if (val instanceof Date) {
-        // Convert dates to standard YYYY-MM-DD format
-        val = Utilities.formatDate(val, Session.getScriptTimeZone(), "yyyy-MM-dd");
+function findCustomerById(ss, id) {
+  if (!id) return null;
+  for (let i = 0; i < SHEET_NAMES.length; i++) {
+    const sheetName = SHEET_NAMES[i];
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) continue;
+    
+    const rows = sheet.getDataRange().getValues();
+    for (let r = 1; r < rows.length; r++) {
+      if (rows[r][0] && rows[r][0].toString() === id.toString()) {
+        return {
+          sheet: sheet,
+          sheetName: sheetName,
+          rowIndex: r + 1,
+          rowData: rows[r]
+        };
       }
-      item[key] = val;
-    });
-    // Add spreadsheet row index (1-based, real sheet row index)
-    item.sheetRowIndex = i + 1;
-    data.push(item);
+    }
   }
-  return data;
+  return null;
+}
+
+function getDataAll(ss) {
+  const allData = [];
+  SHEET_NAMES.forEach(sheetName => {
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return;
+    const rows = sheet.getDataRange().getValues();
+    if (rows.length <= 1) return;
+    
+    const headers = rows[0];
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const item = {};
+      headers.forEach((header, colIdx) => {
+        const key = getPropertyKey(header);
+        let val = row[colIdx];
+        if (val instanceof Date) {
+          val = Utilities.formatDate(val, Session.getScriptTimeZone(), "yyyy-MM-dd");
+        }
+        item[key] = val;
+      });
+      item.sheetRowIndex = i + 1;
+      item.sheetName = sheetName;
+      if (sheetName !== "Sign Up" && sheetName !== "Terminated") {
+        item.is_renewed = true;
+      }
+      allData.push(item);
+    }
+  });
+  return allData;
 }
 
 function getPropertyKey(header) {
@@ -151,25 +191,37 @@ function getPropertyKey(header) {
   return map[header] || header.toLowerCase().replace(/[^a-z0-9]/g, "_");
 }
 
-function saveData(sheet, payload, id, index) {
-  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  const dataRows = sheet.getDataRange().getValues();
-  
-  let targetRowIndex = -1;
-  const searchId = id || payload.id;
-  
-  if (searchId) {
-    for (let i = 1; i < dataRows.length; i++) {
-      if (dataRows[i][0].toString() === searchId.toString()) {
-        targetRowIndex = i + 1;
-        break;
-      }
-    }
-  } else if (index !== undefined && index !== null && index !== "" && index !== -1) {
-    targetRowIndex = parseInt(index);
+function getTargetSheetName(payload) {
+  if (payload.status === "Terminated") {
+    return "Terminated";
   }
   
-  // Build standard row values matching headers
+  if (payload.is_renewed) {
+    const serviceType = payload.service_type || "Smart@Home";
+    if (serviceType === "Smart@Home") return "Smart@Home";
+    if (serviceType === "Fiber+") return "Fiber+";
+    if (serviceType === "SME Service") return "SME service";
+    if (serviceType === "Prepaid Service") return "Pre-paid service";
+  }
+  
+  return "Sign Up";
+}
+
+function saveData(ss, payload, id) {
+  const searchId = id || payload.id;
+  const existing = findCustomerById(ss, searchId);
+  
+  // If editing an existing customer who is already in a renewed sheet, keep the renewed flag
+  if (existing && ["Smart@Home", "Fiber+", "SME service", "Pre-paid service"].indexOf(existing.sheetName) !== -1) {
+    payload.is_renewed = true;
+  }
+  
+  const targetSheetName = getTargetSheetName(payload);
+  const targetSheet = ss.getSheetByName(targetSheetName);
+  
+  ensureHeaders(targetSheet);
+  const headers = targetSheet.getRange(1, 1, 1, targetSheet.getLastColumn()).getValues()[0];
+  
   const rowValues = headers.map(header => {
     const key = getPropertyKey(header);
     if (key === "id" && !payload.id) {
@@ -178,33 +230,26 @@ function saveData(sheet, payload, id, index) {
     return payload[key] !== undefined ? payload[key] : "";
   });
   
-  if (targetRowIndex > 1 && targetRowIndex <= sheet.getLastRow()) {
-    // Update existing row
-    sheet.getRange(targetRowIndex, 1, 1, rowValues.length).setValues([rowValues]);
+  if (existing) {
+    if (existing.sheetName === targetSheetName) {
+      // Update existing row
+      targetSheet.getRange(existing.rowIndex, 1, 1, rowValues.length).setValues([rowValues]);
+    } else {
+      // Delete from old sheet
+      existing.sheet.deleteRow(existing.rowIndex);
+      // Append to new sheet
+      targetSheet.appendRow(rowValues);
+    }
   } else {
-    // Append new row
-    sheet.appendRow(rowValues);
+    // Append to target sheet
+    targetSheet.appendRow(rowValues);
   }
 }
 
-function deleteData(sheet, id, index) {
-  const dataRows = sheet.getDataRange().getValues();
-  let targetRowIndex = -1;
-  const searchId = id;
-  
-  if (searchId) {
-    for (let i = 1; i < dataRows.length; i++) {
-      if (dataRows[i][0].toString() === searchId.toString()) {
-        targetRowIndex = i + 1;
-        break;
-      }
-    }
-  } else if (index !== undefined && index !== null && index !== "" && index !== -1) {
-    targetRowIndex = parseInt(index);
-  }
-  
-  if (targetRowIndex > 1 && targetRowIndex <= sheet.getLastRow()) {
-    sheet.deleteRow(targetRowIndex);
+function deleteData(ss, id) {
+  const existing = findCustomerById(ss, id);
+  if (existing) {
+    existing.sheet.deleteRow(existing.rowIndex);
   }
 }
 
