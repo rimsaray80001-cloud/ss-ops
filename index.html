@@ -178,9 +178,15 @@
         .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
         .chart-box { background: var(--white); padding: 22px; border-radius: 16px; box-shadow: var(--shadow); height: 320px; }
 
+        /* Sub Tabs Styling */
+        .sub-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #F0F0F0; padding-bottom: 10px; }
+        .sub-tab-btn { background: none; border: none; padding: 8px 16px; font-weight: 600; cursor: pointer; color: var(--text-gray); border-radius: 8px; transition: all 0.3s; font-family: inherit; font-size: 0.85rem; }
+        .sub-tab-btn.active { background: var(--primary-light); color: var(--primary); }
+        .sub-tab-btn:hover:not(.active) { background: #F5F5F5; color: var(--text-dark); }
+
         /* General Card Layout */
-        .card { background: var(--white); border-radius: 16px; box-shadow: var(--shadow); padding: 30px; margin-bottom: 30px; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #F0F0F0; }
+        .card { background: var(--white); border-radius: 16px; box-shadow: var(--shadow); padding: 20px; margin-bottom: 20px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #F0F0F0; }
         .card-title { font-size: 1.25rem; font-weight: 700; color: var(--text-dark); }
 
         /* Alert Banner */
@@ -267,8 +273,8 @@
             border: 1px solid #E5E5E5;
         }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { background: #FAFAFA; padding: 16px 20px; font-size: 0.75rem; color: var(--text-gray); text-transform: uppercase; font-weight: 700; border-bottom: 2px solid #F0F0F0; }
-        td { padding: 16px 20px; border-bottom: 1px solid #F0F0F0; font-size: 0.95rem; color: var(--text-dark); vertical-align: middle; }
+        th { background: #FAFAFA; padding: 10px 14px; font-size: 0.72rem; color: var(--text-gray); text-transform: uppercase; font-weight: 700; border-bottom: 2px solid #F0F0F0; }
+        td { padding: 10px 14px; border-bottom: 1px solid #F0F0F0; font-size: 0.88rem; color: var(--text-dark); vertical-align: middle; }
         tr:hover td { background-color: #FAFAFA; }
 
         /* Status Pills */
@@ -473,6 +479,7 @@
             <form id="entry-form" onsubmit="handleFormSubmit(event)">
                 <input type="hidden" id="f-id" value="">
                 <input type="hidden" id="f-row-index" value="-1">
+                <input type="hidden" id="f-service-type" value="Smart@Home">
                 
                 <div class="form-grid">
                     <div class="form-group">
@@ -512,6 +519,18 @@
                     <div class="form-group">
                         <label for="f-amt">Amount ($) *</label>
                         <input type="number" id="f-amt" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group" id="group-f-free-service">
+                        <label for="f-free-service">Free Service (Months)</label>
+                        <input type="number" id="f-free-service" placeholder="0" min="0" onchange="autoCalculateFields()">
+                    </div>
+                    <div class="form-group" id="group-f-invoice-num" style="display: none;">
+                        <label for="f-invoice-num">Invoice Number *</label>
+                        <input type="text" id="f-invoice-num" placeholder="Enter Invoice Number">
+                    </div>
+                    <div class="form-group" id="group-f-outstanding-amt" style="display: none;">
+                        <label for="f-outstanding-amt">Outstanding Amount *</label>
+                        <input type="number" id="f-outstanding-amt" step="0.01" placeholder="0.00">
                     </div>
                     <div class="form-group">
                         <label for="f-signup-date">Sign Up Date *</label>
@@ -599,6 +618,22 @@
                             <option value="6">6 Months</option>
                             <option value="12">12 Months</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="r-renewed-by">Renewed By *</label>
+                        <select id="r-renewed-by" required>
+                            <option value="Smart Shop" selected>Smart Shop</option>
+                            <option value="Sale">Sale</option>
+                            <option value="Customer">Customer</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="group-r-invoice-num" style="display: none;">
+                        <label for="r-invoice-num">Invoice Number *</label>
+                        <input type="text" id="r-invoice-num" placeholder="Enter Invoice Number">
+                    </div>
+                    <div class="form-group" id="group-r-outstanding-amt" style="display: none;">
+                        <label for="r-outstanding-amt">Outstanding Amount *</label>
+                        <input type="number" id="r-outstanding-amt" step="0.01" placeholder="0.00">
                     </div>
                     <div class="form-group">
                         <label for="r-status">Renewal Status *</label>
@@ -694,20 +729,27 @@
             </div>
 
             <!-- Charts Row -->
-            <div class="charts-container" id="charts-row">
-                <div class="chart-box"><canvas id="agentChart"></canvas></div>
-                <div class="chart-box"><canvas id="planChart"></canvas></div>
+            <div class="charts-container" id="charts-row" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                <div class="chart-box"><canvas id="signupChart"></canvas></div>
+                <div class="chart-box"><canvas id="renewChart"></canvas></div>
+                <div class="chart-box"><canvas id="renewCompareChart"></canvas></div>
             </div>
         </section>
 
         <!-- 1. SIGN UP TAB (Customer List & Search) -->
         <section id="view-signup" style="display:none">
             <div class="card">
+                <div class="sub-tabs" id="signup-sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchSignupSubTab('Smart@Home')">Smart@Home</button>
+                    <button class="sub-tab-btn" onclick="switchSignupSubTab('Fiber+')">Fiber+</button>
+                    <button class="sub-tab-btn" onclick="switchSignupSubTab('SME Service')">SME Service</button>
+                    <button class="sub-tab-btn" onclick="switchSignupSubTab('Prepaid Service')">Prepaid Service</button>
+                </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; flex-wrap: wrap;">
                     <div style="display: flex; gap: 10px; flex: 1; max-width: 500px;">
                         <input type="text" id="signup-search-box" class="search-input" placeholder="Search signed up customers by name, top up number, PIC..." onkeyup="renderSignupList()">
                     </div>
-                    <button class="btn-primary" onclick="openSignupModal()" style="display: flex; align-items: center; gap: 8px;">
+                    <button class="btn-primary" onclick="openSignupModal(null, activeSignupTab)" style="display: flex; align-items: center; gap: 8px;">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         New Sign Up
                     </button>
@@ -740,15 +782,8 @@
 
         <!-- 2. TOP UP TAB (Customer List & Analytics) -->
         <section id="view-topup" style="display:none">
-            <!-- Alert Banner for Expiring Customers -->
-            <div id="alert-banner-container" style="display: none;">
-                <div class="alert-banner">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:24px; height:24px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    <div>
-                        <strong>Attention!</strong> <span id="alert-banner-text">There are customer contracts expiring within 5 days!</span>
-                    </div>
-                </div>
-            </div>
+            <!-- Alert Banner for Expiring Customers - REMOVED AS REQUESTED -->
+            <div id="alert-banner-container" style="display: none;"></div>
 
             <!-- Stats KPI Cards -->
             <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
@@ -764,8 +799,11 @@
                     <div class="stat-label">Pending Payment (Month)</div>
                     <div class="stat-value" id="stat-pending-payment">0 <span class="stat-unit">cust</span></div>
                 </div>
-                <div class="stat-card danger">
-                    <div class="stat-label">Expired < 5 Day</div>
+                <div class="stat-card danger" onclick="toggleAlmostExpiredFilter()" style="cursor: pointer; transition: transform 0.2s; position: relative;" title="Click to filter almost expired customers">
+                    <div class="stat-label" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Expired &lt; 5 Day</span>
+                        <span style="font-size: 0.75rem; opacity: 0.8; text-decoration: underline;">Filter</span>
+                    </div>
                     <div class="stat-value" id="stat-expiring">0</div>
                 </div>
                 <div class="stat-card danger" style="border-left-color: #8C1D1D;">
@@ -776,6 +814,12 @@
 
             <!-- Customer Report Card -->
             <div class="card">
+                <div class="sub-tabs" id="topup-sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchTopupSubTab('Smart@Home')">Smart@Home</button>
+                    <button class="sub-tab-btn" onclick="switchTopupSubTab('Fiber+')">Fiber+</button>
+                    <button class="sub-tab-btn" onclick="switchTopupSubTab('SME Service')">SME Service</button>
+                    <button class="sub-tab-btn" onclick="switchTopupSubTab('Prepaid Service')">Prepaid Service</button>
+                </div>
                 <div class="card-header">
                     <h2 class="card-title">Customer Renewal & Top Up List</h2>
                     <div class="badge success" id="list-count-badge">0 Customers</div>
@@ -919,8 +963,13 @@
 
         let customers = [];
         let renewals = [];
-        let agentChart = null;
-        let planChart = null;
+        let activeSignupTab = 'Smart@Home';
+        let activeTopupSubTab = 'Smart@Home';
+        let filterAlmostExpiredOnly = false;
+        
+        let signupChart = null;
+        let renewChart = null;
+        let renewCompareChart = null;
 
         // Initialize Web Application
         window.onload = async () => {
