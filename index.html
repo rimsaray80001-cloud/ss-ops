@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        html { font-size: 14px; }
         :root {
             --primary: #1B8C3F; 
             --primary-dark: #14722c; 
@@ -227,6 +228,12 @@
         .sub-tab-btn:hover:not(.active) {
             background: #F3F4F6;
             color: var(--text-dark);
+            transform: translateY(-1px);
+        }
+        .sub-tab-btn:hover {
+            background: linear-gradient(135deg, #113c1c 0%, #1B8C3F 100%) !important;
+            color: var(--white) !important;
+            border-color: transparent !important;
             transform: translateY(-1px);
         }
         .sub-tab-btn.tab-smarthome.active {
@@ -766,7 +773,7 @@
                 <h1 id="page-title">Sign Up Customer</h1>
                 <p id="page-title-desc" class="page-title-desc">Add a new Wifi customer contract or renew their plan</p>
             </div>
-            <div id="connection-indicator">
+            <div id="connection-indicator" style="display: none;">
                 <span class="badge active" id="sync-mode-badge" style="cursor:pointer;" onclick="switchTab('setting')">Local Sync Mode</span>
             </div>
         </div>
@@ -814,10 +821,12 @@
             </div>
 
             <!-- Charts Row -->
+            <div class="charts-container" style="grid-template-columns: 1fr; margin-bottom: 20px;">
+                <div class="chart-box" style="height: 350px;"><canvas id="renewCompareChart"></canvas></div>
+            </div>
             <div class="charts-container" id="charts-row" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
                 <div class="chart-box"><canvas id="signupChart"></canvas></div>
                 <div class="chart-box"><canvas id="renewChart"></canvas></div>
-                <div class="chart-box"><canvas id="renewCompareChart"></canvas></div>
             </div>
         </section>
 
@@ -931,13 +940,13 @@
                     <button class="sub-tab-btn tab-prepaid" data-service="Prepaid Service" onclick="switchTopupSubTab('Prepaid Service')">📱 Prepaid Service</button>
                 </div>
                 <div class="card-header">
-                    <h2 class="card-title">Customer Renewal & Top Up List</h2>
+                    <h2 class="card-title">Renewal List</h2>
                     <div class="badge success" id="list-count-badge">0 Customers</div>
                 </div>
 
                 <!-- Search Control -->
                 <div class="search-container">
-                    <input type="text" id="search-box" class="search-input" placeholder="Search by customer name, top up number, PIC or contact..." onkeyup="renderCustomerList()">
+                    <input type="text" id="search-box" class="search-input" style="max-width: 400px;" placeholder="Search by customer name, top up number, PIC or contact..." onkeyup="renderCustomerList()">
                     <select id="filter-status" style="width: auto; margin-bottom: 0;" onchange="renderCustomerList()">
                         <option value="">All Statuses</option>
                         <option value="Active">Active</option>
@@ -1153,6 +1162,8 @@
             const isConnected = !!config.scriptUrl;
             const badgeMain = document.getElementById('sync-mode-badge');
             const badgeSetting = document.getElementById('sync-setting-indicator');
+
+            badgeMain.style.display = "none";
 
             if (isConnected) {
                 badgeMain.className = "badge active";
@@ -2596,23 +2607,35 @@
 
             // Chart 3: Show traffic renewal compare with last month
             renewCompareChart = new Chart(document.getElementById('renewCompareChart'), {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: ['Smart Shop', 'Sale', 'Customer'],
                     datasets: [
                         {
                             label: 'This Month',
                             data: [currentMonthRenew["Smart Shop"], currentMonthRenew["Sale"], currentMonthRenew["Customer"]],
-                            backgroundColor: '#1B8C3F',
-                            borderRadius: 6,
-                            barThickness: 15
+                            borderColor: '#1B8C3F',
+                            backgroundColor: 'rgba(27, 140, 63, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointStyle: 'circle',
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: '#1B8C3F'
                         },
                         {
                             label: 'Last Month',
                             data: [lastMonthRenew["Smart Shop"], lastMonthRenew["Sale"], lastMonthRenew["Customer"]],
-                            backgroundColor: '#90A4AE',
-                            borderRadius: 6,
-                            barThickness: 15
+                            borderColor: '#90A4AE',
+                            backgroundColor: 'rgba(144, 164, 174, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointStyle: 'circle',
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: '#90A4AE'
                         }
                     ]
                 },
