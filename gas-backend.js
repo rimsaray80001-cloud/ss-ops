@@ -85,7 +85,8 @@ function ensureHeaders(sheet) {
     const headers = [
       "ID", "Customer Name", "Top Up Number", "Contact", 
       "Source", "PIC", "Tariff / Service", "Amount", 
-      "Sign Up Date", "Period", "Expiry Date", "Status", "Overdue Days"
+      "Sign Up Date", "Period", "Expiry Date", "Status", "Overdue Days",
+      "Service Type", "Free Service", "Invoice Number", "Outstanding Amount"
     ];
     sheet.appendRow(headers);
     sheet.getRange(1, 1, 1, headers.length)
@@ -140,7 +141,12 @@ function getPropertyKey(header) {
     "Renewal Status": "renewal_status",
     "Overdue Days": "overdue_days",
     "Renewal ID": "renewal_id",
-    "Logged At": "logged_at"
+    "Logged At": "logged_at",
+    "Service Type": "service_type",
+    "Free Service": "free_service",
+    "Invoice Number": "invoice_number",
+    "Outstanding Amount": "outstanding_amount",
+    "Renewed By": "renewed_by"
   };
   return map[header] || header.toLowerCase().replace(/[^a-z0-9]/g, "_");
 }
@@ -213,7 +219,8 @@ function saveRenewalData(ss, monthSheetName, payload) {
     const headers = [
       "Renewal ID", "Customer Name", "Top Up Number", "Contact", 
       "Source", "PIC", "Tariff / Service", "Amount", 
-      "New Start Date", "Period", "New Expiry Date", "Renewal Status", "Logged At"
+      "New Start Date", "Period", "New Expiry Date", "Renewal Status", 
+      "Renewed By", "Invoice Number", "Outstanding Amount", "Logged At"
     ];
     renewalSheet.appendRow(headers);
     renewalSheet.getRange(1, 1, 1, headers.length)
