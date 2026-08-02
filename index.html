@@ -260,6 +260,12 @@
             border-color: rgba(219, 39, 119, 0.2);
             box-shadow: 0 4px 12px rgba(219, 39, 119, 0.1);
         }
+        .sub-tab-btn.tab-pendingbill.active {
+            background: rgba(250, 173, 20, 0.1);
+            color: #FAAD14;
+            border-color: rgba(250, 173, 20, 0.2);
+            box-shadow: 0 4px 12px rgba(250, 173, 20, 0.1);
+        }
 
         /* General Card Layout */
         .card { background: var(--white); border-radius: 16px; box-shadow: var(--shadow); padding: 20px; margin-bottom: 20px; }
@@ -367,6 +373,7 @@
         .badge.active { background-color: var(--success-bg); color: var(--success); }
         .badge.suspend { background-color: var(--warning-bg); color: var(--warning); }
         .badge.terminated { background-color: var(--danger-bg); color: var(--danger); }
+        .badge.pending-payment { background-color: var(--warning-bg); color: #B78103; }
         
         /* Alert Pills */
         .alert-pill {
@@ -626,6 +633,7 @@
                             <option value="Active" selected>Active</option>
                             <option value="Suspend">Suspend</option>
                             <option value="Terminated">Terminated</option>
+                            <option value="Pending Payment">Pending Payment</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -709,7 +717,7 @@
                     </div>
                     <div class="form-group">
                         <label for="r-status">Renewal Status *</label>
-                        <select id="r-status" required>
+                        <select id="r-status" onchange="handleRenewalStatusChange()" required>
                             <option value="Success" selected>Success (Renew & Activate)</option>
                             <option value="Pending Payment">Pending Payment</option>
                         </select>
@@ -828,6 +836,37 @@
                 <div class="chart-box"><canvas id="signupChart"></canvas></div>
                 <div class="chart-box"><canvas id="renewChart"></canvas></div>
             </div>
+
+            <!-- Almost Expired Alerts Box -->
+            <div class="card" id="dashboard-expired-alerts" style="margin-top: 20px;">
+                <div class="card-header" style="border-bottom: 1px solid #F0F0F0; padding-bottom: 10px; margin-bottom: 15px;">
+                    <h2 class="card-title" style="font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                        ⚠️ Almost Expired Alerts (&lt; 5 Days)
+                    </h2>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+                    <div class="alert-service-box" id="alert-box-smarthome" style="background: #FFF9E6; border: 1px solid #FFEBA3; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.2rem; margin-bottom: 5px; font-weight: 600;">🏠 Smart@Home</div>
+                        <div style="font-weight: 700; font-size: 1.8rem; color: #D48806;" id="alert-count-smarthome">0</div>
+                        <small style="color: #666;">Almost Expired</small>
+                    </div>
+                    <div class="alert-service-box" id="alert-box-fiber" style="background: #FFF9E6; border: 1px solid #FFEBA3; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.2rem; margin-bottom: 5px; font-weight: 600;">⚡ Fiber+</div>
+                        <div style="font-weight: 700; font-size: 1.8rem; color: #D48806;" id="alert-count-fiber">0</div>
+                        <small style="color: #666;">Almost Expired</small>
+                    </div>
+                    <div class="alert-service-box" id="alert-box-sme" style="background: #FFF9E6; border: 1px solid #FFEBA3; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.2rem; margin-bottom: 5px; font-weight: 600;">🏢 SME Service</div>
+                        <div style="font-weight: 700; font-size: 1.8rem; color: #D48806;" id="alert-count-sme">0</div>
+                        <small style="color: #666;">Almost Expired</small>
+                    </div>
+                    <div class="alert-service-box" id="alert-box-prepaid" style="background: #FFF9E6; border: 1px solid #FFEBA3; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.2rem; margin-bottom: 5px; font-weight: 600;">📱 Prepaid Service</div>
+                        <div style="font-weight: 700; font-size: 1.8rem; color: #D48806;" id="alert-count-prepaid">0</div>
+                        <small style="color: #666;">Almost Expired</small>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- 1. SIGN UP TAB (Customer List & Search) -->
@@ -841,7 +880,7 @@
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; flex-wrap: wrap;">
                     <div style="display: flex; gap: 10px; flex: 1; max-width: 500px;">
-                        <input type="text" id="signup-search-box" class="search-input" placeholder="Search signed up customers by name, top up number, PIC..." onkeyup="renderSignupList()">
+                        <input type="text" id="signup-search-box" class="search-input" placeholder="Search signed up customers by name, top up number, PIC..." onkeyup="signupPage = 1; renderSignupList()">
                     </div>
                     <button class="btn-primary" onclick="openSignupModal(null, activeSignupTab)" style="display: flex; align-items: center; gap: 8px;">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -870,6 +909,7 @@
                         <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <p>No customers found matching your criteria</p>
                     </div>
+                    <div class="pagination-controls" id="signup-pagination" style="display: none; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #E5E7EB;"></div>
                 </div>
             </div>
         </section>
@@ -938,6 +978,7 @@
                     <button class="sub-tab-btn tab-fiber" data-service="Fiber+" onclick="switchTopupSubTab('Fiber+')">⚡ Fiber+</button>
                     <button class="sub-tab-btn tab-sme" data-service="SME Service" onclick="switchTopupSubTab('SME Service')">🏢 SME Service</button>
                     <button class="sub-tab-btn tab-prepaid" data-service="Prepaid Service" onclick="switchTopupSubTab('Prepaid Service')">📱 Prepaid Service</button>
+                    <button class="sub-tab-btn tab-pendingbill" data-service="Pending Bill" onclick="switchTopupSubTab('Pending Bill')">💳 Pending Bill</button>
                 </div>
                 <div class="card-header">
                     <h2 class="card-title">Renewal List</h2>
@@ -946,12 +987,13 @@
 
                 <!-- Search Control -->
                 <div class="search-container">
-                    <input type="text" id="search-box" class="search-input" style="max-width: 400px;" placeholder="Search by customer name, top up number, PIC or contact..." onkeyup="renderCustomerList()">
-                    <select id="filter-status" style="width: auto; margin-bottom: 0;" onchange="renderCustomerList()">
+                    <input type="text" id="search-box" class="search-input" style="max-width: 400px;" placeholder="Search by customer name, top up number, PIC or contact..." onkeyup="customerPage = 1; renderCustomerList()">
+                    <select id="filter-status" style="width: auto; margin-bottom: 0;" onchange="customerPage = 1; renderCustomerList()">
                         <option value="">All Statuses</option>
                         <option value="Active">Active</option>
                         <option value="Suspend">Suspend</option>
                         <option value="Terminated">Terminated</option>
+                        <option value="Pending Payment">Pending Payment</option>
                     </select>
                 </div>
 
@@ -978,6 +1020,7 @@
                         <h3>No Customers Found</h3>
                         <p>Try clearing your search or add a new customer in the Sign Up tab.</p>
                     </div>
+                    <div class="pagination-controls" id="customer-pagination" style="display: none; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #E5E7EB;"></div>
                 </div>
             </div>
 
@@ -1126,6 +1169,8 @@
         let activeSignupTab = 'Smart@Home';
         let activeTopupSubTab = 'Smart@Home';
         let filterAlmostExpiredOnly = false;
+        let signupPage = 1;
+        let customerPage = 1;
         
         const PLAN_AMOUNTS = {
             "4G": 15.00,
@@ -1948,14 +1993,24 @@
             const lastDayOfCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
             lastDayOfCurrentMonth.setHours(23, 59, 59, 999);
 
-            let visibleCount = 0;
             let alertCount = 0;
 
-            displayList.forEach(c => {
+            const matchedList = displayList.filter(c => {
                 // Filter by Service Type Sub-Tab
                 const serviceType = c.service_type || 'Smart@Home';
-                if (serviceType !== activeTopupSubTab) {
-                    return;
+                const isPendingPayment = c.status === "Pending Payment";
+                
+                if (activeTopupSubTab === "Pending Bill") {
+                    if (!isPendingPayment) {
+                        return false;
+                    }
+                } else {
+                    if (isPendingPayment) {
+                        return false; // Moved to Pending Bill
+                    }
+                    if (serviceType !== activeTopupSubTab) {
+                        return false;
+                    }
                 }
 
                 // Calculate expiry alert days
@@ -1967,9 +2022,11 @@
                     diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 }
 
-                // Condition for Top Up Tab visibility: Active and expire date is in or before current month OR almost expired
+                // Condition for Top Up Tab visibility
                 let isTopupEligible = false;
-                if (c.status === 'Active' && c.expire_date) {
+                if (isPendingPayment) {
+                    isTopupEligible = true;
+                } else if (c.status === 'Active' && c.expire_date) {
                     const exp = new Date(c.expire_date);
                     if (exp <= lastDayOfCurrentMonth || diffDays <= 5) {
                         isTopupEligible = true;
@@ -1977,12 +2034,12 @@
                 }
 
                 if (!isTopupEligible) {
-                    return; // Skip rendering this customer in Top Up list
+                    return false;
                 }
 
                 // If Expired < 5 Day filter is toggled, filter to only those customers
                 if (filterAlmostExpiredOnly && diffDays > 5) {
-                    return;
+                    return false;
                 }
 
                 const matchesSearch = c.customer.toLowerCase().includes(search) || 
@@ -1992,67 +2049,125 @@
                                       
                 const matchesStatus = !filterStatus || c.status === filterStatus;
 
+                // We calculate alertCount for anything matching sub-tab and eligibility criteria
+                if (c.status === 'Active' && c.expire_date && diffDays >= 0 && diffDays <= 5) {
+                    alertCount++;
+                }
+
+                return matchesSearch && matchesStatus;
+            });
+
+            const totalItems = matchedList.length;
+            const itemsPerPage = 10;
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+            if (customerPage > totalPages) {
+                customerPage = totalPages;
+            }
+            if (customerPage < 1) {
+                customerPage = 1;
+            }
+
+            const startIndex = (customerPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageItems = matchedList.slice(startIndex, endIndex);
+
+            pageItems.forEach(c => {
+                // Calculate expiry alert days
+                let diffDays = 999;
+                if (c.expire_date) {
+                    const exp = new Date(c.expire_date);
+                    exp.setHours(0,0,0,0);
+                    const diffTime = exp - today;
+                    diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                }
+
                 // Calculate expiry alert
                 let alertBadgeHTML = '';
                 if (c.expire_date) {
-                    if (diffDays < 0) {
+                    if (c.status === 'Pending Payment') {
+                        alertBadgeHTML = `<span class="alert-pill" style="background:#ECECEC; color:#8C8C8C;">⚪ Pending Payment</span>`;
+                    } else if (diffDays < 0) {
                         alertBadgeHTML = `<span class="alert-pill danger">🔴 Overdue ${Math.abs(diffDays)}d</span>`;
                     } else if (diffDays <= 5) {
                         alertBadgeHTML = `<span class="alert-pill warning">⚠️ Expire ${diffDays}d</span>`;
-                        alertCount++;
                     } else {
                         alertBadgeHTML = `<span class="alert-pill success">🟢 Active (${diffDays}d)</span>`;
                     }
+                } else if (c.status === 'Pending Payment') {
+                    alertBadgeHTML = `<span class="alert-pill" style="background:#ECECEC; color:#8C8C8C;">⚪ Pending Payment</span>`;
                 }
 
-                if (matchesSearch && matchesStatus) {
-                    visibleCount++;
-                    const amountFormatted = parseFloat(c.amount).toFixed(2);
-                    
-                    body.innerHTML += `
-                        <tr>
-                            <td>
-                                <strong>${c.customer}</strong><br>
-                                <span style="font-size:0.8rem; color:var(--text-gray);">${c.contact}</span>
-                            </td>
-                            <td><strong style="color:var(--primary); font-family:monospace;">${c.number}</strong></td>
-                            <td>
-                                <span>${c.source}</span><br>
-                                <small style="color:var(--text-gray);">PIC: ${c.pic}</small>
-                            </td>
-                            <td>
-                                <span style="background:var(--primary-light); color:var(--primary); padding:4px 10px; border-radius:6px; font-weight:600; font-size:0.8rem;">
-                                    ${c.tariff}
-                                </span><br>
-                                <small style="font-weight:600; color:#333;">$${amountFormatted}</small>
-                            </td>
-                            <td>
-                                <span>${c.expire_date}</span><br>
-                                <small style="color:${c.overdue_days > 0 ? 'var(--danger)' : 'var(--text-gray)'}; font-weight:${c.overdue_days > 0 ? 'bold' : 'normal'};">
-                                    ${c.overdue_days > 0 ? 'Overdue ' + c.overdue_days + ' days' : 'Period: ' + c.period + 'm'}
-                                </small>
-                            </td>
-                            <td>
-                                <span class="badge ${c.status.toLowerCase()}" style="margin-bottom:6px;">${c.status}</span><br>
-                                ${alertBadgeHTML}
-                            </td>
-                            <td>
-                                <div class="action-btn-group">
-                                    <button class="btn-icon renew" onclick="openRenewalModal('${c.id}')" title="Process Renewal">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>`;
-                } else if (!matchesSearch && c.status === 'Active' && c.expire_date) {
-                    if (diffDays >= 0 && diffDays <= 5) {
-                        alertCount++;
-                    }
-                }
+                const amountFormatted = parseFloat(c.amount).toFixed(2);
+                const isPendingPayment = c.status === "Pending Payment";
+                
+                body.innerHTML += `
+                    <tr>
+                        <td>
+                            <strong>${c.customer}</strong><br>
+                            <span style="font-size:0.8rem; color:var(--text-gray);">${c.contact}</span>
+                        </td>
+                        <td><strong style="color:var(--primary); font-family:monospace;">${c.number}</strong></td>
+                        <td>
+                            <span>${c.source}</span><br>
+                            <small style="color:var(--text-gray);">PIC: ${c.pic}</small>
+                        </td>
+                        <td>
+                            <span style="background:var(--primary-light); color:var(--primary); padding:4px 10px; border-radius:6px; font-weight:600; font-size:0.8rem;">
+                                ${c.tariff}
+                            </span><br>
+                            <small style="font-weight:600; color:#333;">$${amountFormatted}</small>
+                        </td>
+                        <td>
+                            <span>${c.expire_date || "N/A"}</span><br>
+                            <small style="color:${c.overdue_days > 0 && !isPendingPayment ? 'var(--danger)' : 'var(--text-gray)'}; font-weight:${c.overdue_days > 0 && !isPendingPayment ? 'bold' : 'normal'};">
+                                ${isPendingPayment ? 'Pending Payment' : (c.overdue_days > 0 ? 'Overdue ' + c.overdue_days + ' days' : 'Period: ' + c.period + 'm')}
+                            </small>
+                        </td>
+                        <td>
+                            <span class="badge ${c.status.toLowerCase().replace(' ', '-')}" style="margin-bottom:6px;">${c.status}</span><br>
+                            ${alertBadgeHTML}
+                        </td>
+                        <td>
+                            <div class="action-btn-group">
+                                <button class="btn-icon renew" onclick="openRenewalModal('${c.id}')" title="Process Renewal">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
             });
 
-            document.getElementById('list-count-badge').innerText = `${visibleCount} Customers`;
-            emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+            emptyState.style.display = totalItems === 0 ? 'block' : 'none';
+
+            // Update List Count Badge
+            document.getElementById('list-count-badge').innerText = `${totalItems} Customers`;
+
+            // Render Pagination Controls for Customer Table
+            const paginationContainer = document.getElementById('customer-pagination');
+            if (paginationContainer) {
+                if (totalItems <= itemsPerPage) {
+                    paginationContainer.innerHTML = '';
+                    paginationContainer.style.display = 'none';
+                } else {
+                    paginationContainer.style.display = 'flex';
+                    paginationContainer.innerHTML = `
+                        <button class="${customerPage > 1 ? 'btn-primary' : 'btn-secondary'}" 
+                                style="padding: 6px 12px; font-size: 0.85rem; height: 32px; display: flex; align-items: center; ${customerPage > 1 ? '' : 'cursor: not-allowed; opacity: 0.5;'}"
+                                onclick="changeCustomerPage(-1)" ${customerPage > 1 ? '' : 'disabled'}>
+                            Previous
+                        </button>
+                        <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-dark);">
+                            Page ${customerPage} of ${totalPages}
+                        </span>
+                        <button class="${customerPage < totalPages ? 'btn-primary' : 'btn-secondary'}" 
+                                style="padding: 6px 12px; font-size: 0.85rem; height: 32px; display: flex; align-items: center; ${customerPage < totalPages ? '' : 'cursor: not-allowed; opacity: 0.5;'}"
+                                onclick="changeCustomerPage(1)" ${customerPage < totalPages ? '' : 'disabled'}>
+                            Next
+                        </button>
+                    `;
+                }
+            }
 
             // Expire alert banner - completely disabled per requirements
             const alertBanner = document.getElementById('alert-banner-container');
@@ -2061,98 +2176,155 @@
             }
         }
 
-        function renderSignupList() {
+        function changeCustomerPage(delta) {
+            customerPage += delta;
+            renderCustomerList();
+        }
+
+         function renderSignupList() {
             const body = document.getElementById('signup-table-body');
             const search = document.getElementById('signup-search-box').value.toLowerCase();
             const emptyState = document.getElementById('signup-table-empty-state');
             
             body.innerHTML = '';
             
-            let displayList = [...customers].sort((a, b) => {
+            let sortedList = [...customers].sort((a, b) => {
                 if (!a.expire_date) return 1;
                 if (!b.expire_date) return -1;
                 return new Date(a.expire_date) - new Date(b.expire_date);
             });
 
-            let visibleCount = 0;
-            const today = new Date();
-            today.setHours(0,0,0,0);
-
-            displayList.forEach(c => {
+            // Filter the customers first to get the matched list
+            const matchedList = sortedList.filter(c => {
                 const serviceType = c.service_type || 'Smart@Home';
-                if (serviceType !== activeSignupTab) return;
+                if (serviceType !== activeSignupTab) return false;
 
                 const matchesSearch = c.customer.toLowerCase().includes(search) || 
                                       c.number.includes(search) || 
                                       c.contact.includes(search) || 
                                       c.pic.toLowerCase().includes(search);
-
-                if (matchesSearch) {
-                    visibleCount++;
-                    const amountFormatted = parseFloat(c.amount).toFixed(2);
-                    
-                    let alertBadgeHTML = '';
-                    if (c.expire_date) {
-                        const exp = new Date(c.expire_date);
-                        exp.setHours(0,0,0,0);
-                        const diffTime = exp - today;
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                        if (c.status === 'Active') {
-                            if (diffDays < 0) {
-                                alertBadgeHTML = `<span class="alert-pill danger">🔴 Overdue ${Math.abs(diffDays)}d</span>`;
-                            } else if (diffDays <= 5) {
-                                alertBadgeHTML = `<span class="alert-pill warning">⚠️ Expire ${diffDays}d</span>`;
-                            } else {
-                                alertBadgeHTML = `<span class="alert-pill success">🟢 Active (${diffDays}d)</span>`;
-                            }
-                        } else {
-                            alertBadgeHTML = `<span class="alert-pill" style="background:#ECECEC; color:#8C8C8C;">⚪ Non-Active</span>`;
-                        }
-                    }
-
-                    body.innerHTML += `
-                        <tr>
-                            <td>
-                                <strong>${c.customer}</strong><br>
-                                <span style="font-size:0.8rem; color:var(--text-gray);">${c.contact}</span>
-                            </td>
-                            <td><strong style="color:var(--primary); font-family:monospace;">${c.number}</strong></td>
-                            <td>
-                                <span>${c.source}</span><br>
-                                <small style="color:var(--text-gray);">PIC: ${c.pic}</small>
-                            </td>
-                            <td>
-                                <span style="background:var(--primary-light); color:var(--primary); padding:4px 10px; border-radius:6px; font-weight:600; font-size:0.8rem;">
-                                    ${c.tariff}
-                                </span><br>
-                                <small style="font-weight:600; color:#333;">$${amountFormatted}</small>
-                            </td>
-                            <td>
-                                <span>${c.expire_date}</span><br>
-                                <small style="color:${c.overdue_days > 0 ? 'var(--danger)' : 'var(--text-gray)'}; font-weight:${c.overdue_days > 0 ? 'bold' : 'normal'};">
-                                    ${c.overdue_days > 0 ? 'Overdue ' + c.overdue_days + ' days' : 'Period: ' + c.period + 'm'}
-                                </small>
-                            </td>
-                            <td>
-                                <span class="badge ${c.status.toLowerCase()}" style="margin-bottom:6px;">${c.status}</span><br>
-                                ${alertBadgeHTML}
-                            </td>
-                            <td>
-                                <div class="action-btn-group">
-                                    <button class="btn-icon edit" onclick="editCustomer('${c.id}')" title="Edit Customer">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                    </button>
-                                    <button class="btn-icon delete" onclick="deleteCustomer('${c.id}', ${c.sheetRowIndex || -1})" title="Delete Customer">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>`;
-                }
+                return matchesSearch;
             });
 
-            emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+            const totalItems = matchedList.length;
+            const itemsPerPage = 10;
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            
+            // Adjust current page if it is out of bounds
+            if (signupPage > totalPages) {
+                signupPage = totalPages;
+            }
+            if (signupPage < 1) {
+                signupPage = 1;
+            }
+
+            const startIndex = (signupPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageItems = matchedList.slice(startIndex, endIndex);
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            pageItems.forEach(c => {
+                const amountFormatted = parseFloat(c.amount).toFixed(2);
+                const isPendingPayment = c.status === "Pending Payment";
+                
+                let alertBadgeHTML = '';
+                if (c.expire_date) {
+                    const exp = new Date(c.expire_date);
+                    exp.setHours(0,0,0,0);
+                    const diffTime = exp - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (c.status === 'Active') {
+                        if (diffDays < 0) {
+                            alertBadgeHTML = `<span class="alert-pill danger">🔴 Overdue ${Math.abs(diffDays)}d</span>`;
+                        } else if (diffDays <= 5) {
+                            alertBadgeHTML = `<span class="alert-pill warning">⚠️ Expire ${diffDays}d</span>`;
+                        } else {
+                            alertBadgeHTML = `<span class="alert-pill success">🟢 Active (${diffDays}d)</span>`;
+                        }
+                    } else if (c.status === 'Pending Payment') {
+                        alertBadgeHTML = `<span class="alert-pill" style="background:#ECECEC; color:#8C8C8C;">⚪ Pending Payment</span>`;
+                    } else {
+                        alertBadgeHTML = `<span class="alert-pill" style="background:#ECECEC; color:#8C8C8C;">⚪ Non-Active</span>`;
+                    }
+                } else if (c.status === 'Pending Payment') {
+                    alertBadgeHTML = `<span class="alert-pill" style="background:#ECECEC; color:#8C8C8C;">⚪ Pending Payment</span>`;
+                }
+
+                body.innerHTML += `
+                    <tr>
+                        <td>
+                            <strong>${c.customer}</strong><br>
+                            <span style="font-size:0.8rem; color:var(--text-gray);">${c.contact}</span>
+                        </td>
+                        <td><strong style="color:var(--primary); font-family:monospace;">${c.number}</strong></td>
+                        <td>
+                            <span>${c.source}</span><br>
+                            <small style="color:var(--text-gray);">PIC: ${c.pic}</small>
+                        </td>
+                        <td>
+                            <span style="background:var(--primary-light); color:var(--primary); padding:4px 10px; border-radius:6px; font-weight:600; font-size:0.8rem;">
+                                ${c.tariff}
+                            </span><br>
+                            <small style="font-weight:600; color:#333;">$${amountFormatted}</small>
+                        </td>
+                        <td>
+                            <span>${c.expire_date || "N/A"}</span><br>
+                            <small style="color:${c.overdue_days > 0 && !isPendingPayment ? 'var(--danger)' : 'var(--text-gray)'}; font-weight:${c.overdue_days > 0 && !isPendingPayment ? 'bold' : 'normal'};">
+                                ${isPendingPayment ? 'Pending Payment' : (c.overdue_days > 0 ? 'Overdue ' + c.overdue_days + ' days' : 'Period: ' + c.period + 'm')}
+                            </small>
+                        </td>
+                        <td>
+                            <span class="badge ${c.status.toLowerCase().replace(' ', '-')}" style="margin-bottom:6px;">${c.status}</span><br>
+                            ${alertBadgeHTML}
+                        </td>
+                        <td>
+                            <div class="action-btn-group">
+                                <button class="btn-icon edit" onclick="editCustomer('${c.id}')" title="Edit Customer">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                </button>
+                                <button class="btn-icon delete" onclick="deleteCustomer('${c.id}', ${c.sheetRowIndex || -1})" title="Delete Customer">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+            });
+
+            emptyState.style.display = totalItems === 0 ? 'block' : 'none';
+
+            // Render Pagination Controls
+            const paginationContainer = document.getElementById('signup-pagination');
+            if (paginationContainer) {
+                if (totalItems <= itemsPerPage) {
+                    paginationContainer.innerHTML = '';
+                    paginationContainer.style.display = 'none';
+                } else {
+                    paginationContainer.style.display = 'flex';
+                    paginationContainer.innerHTML = `
+                        <button class="${signupPage > 1 ? 'btn-primary' : 'btn-secondary'}" 
+                                style="padding: 6px 12px; font-size: 0.85rem; height: 32px; display: flex; align-items: center; ${signupPage > 1 ? '' : 'cursor: not-allowed; opacity: 0.5;'}"
+                                onclick="changeSignupPage(-1)" ${signupPage > 1 ? '' : 'disabled'}>
+                            Previous
+                        </button>
+                        <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-dark);">
+                            Page ${signupPage} of ${totalPages}
+                        </span>
+                        <button class="${signupPage < totalPages ? 'btn-primary' : 'btn-secondary'}" 
+                                style="padding: 6px 12px; font-size: 0.85rem; height: 32px; display: flex; align-items: center; ${signupPage < totalPages ? '' : 'cursor: not-allowed; opacity: 0.5;'}"
+                                onclick="changeSignupPage(1)" ${signupPage < totalPages ? '' : 'disabled'}>
+                            Next
+                        </button>
+                    `;
+                }
+            }
+        }
+
+        function changeSignupPage(delta) {
+            signupPage += delta;
+            renderSignupList();
         }
 
         function updateRenewalFormFieldsForServiceType(serviceType, selectedTariff = null, selectedAmt = null) {
@@ -2228,6 +2400,45 @@
             }
         }
 
+        function handleRenewalStatusChange() {
+            const rStatus = document.getElementById('r-status').value;
+            const rNewStart = document.getElementById('r-new-start');
+            const label = document.querySelector('label[for="r-new-start"]');
+            
+            if (rStatus === "Pending Payment") {
+                rNewStart.value = "";
+                rNewStart.required = false;
+                if (label) {
+                    label.innerHTML = 'New Start Date';
+                }
+            } else {
+                rNewStart.required = true;
+                if (label) {
+                    label.innerHTML = 'New Start Date *';
+                }
+                
+                // If it was blank, pre-fill it
+                if (!rNewStart.value) {
+                    const custId = document.getElementById('r-cust-id').value;
+                    const c = customers.find(item => item.id === custId);
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    let defaultStart = todayStr;
+                    if (c && c.expire_date) {
+                        const expDate = new Date(c.expire_date);
+                        const today = new Date();
+                        today.setHours(0,0,0,0);
+                        if (expDate >= today) {
+                            const nextDay = new Date(expDate);
+                            nextDay.setDate(nextDay.getDate() + 1);
+                            defaultStart = nextDay.toISOString().split('T')[0];
+                        }
+                    }
+                    rNewStart.value = defaultStart;
+                }
+            }
+            autoCalculateRenewalFields();
+        }
+
         function openRenewalModal(id) {
             const c = customers.find(item => item.id === id);
             if (!c) return;
@@ -2266,7 +2477,7 @@
                 document.getElementById('r-outstanding-amt').value = c.outstanding_amount || 0;
             }
             
-            autoCalculateRenewalFields();
+            handleRenewalStatusChange();
             
             document.getElementById('renewal-modal-overlay').classList.add('active');
         }
@@ -2313,10 +2524,19 @@
             
             const renewalId = "REN_" + new Date().getTime() + "_" + Math.floor(Math.random() * 1000);
             
-            const startD = new Date(newStartDate);
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const monthSheetName = "Sheet " + monthNames[startD.getMonth()];
-            const renewalMonthYear = startD.getFullYear() + "-" + String(startD.getMonth() + 1).padStart(2, '0');
+            let monthSheetName = "";
+            let renewalMonthYear = "";
+            if (newStartDate) {
+                const startD = new Date(newStartDate);
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                monthSheetName = "Sheet " + monthNames[startD.getMonth()];
+                renewalMonthYear = startD.getFullYear() + "-" + String(startD.getMonth() + 1).padStart(2, '0');
+            } else {
+                const startD = new Date();
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                monthSheetName = "Sheet " + monthNames[startD.getMonth()];
+                renewalMonthYear = startD.getFullYear() + "-" + String(startD.getMonth() + 1).padStart(2, '0');
+            }
             
             const renewalPayload = {
                 renewal_id: renewalId,
@@ -2347,7 +2567,23 @@
                 showSuccessModal("Local Renewal Saved", "Renewal action saved locally in the browser's local storage (Offline Mode).");
             }
             
-            if (renewalStatus === "Success") {
+            if (renewalStatus === "Pending Payment") {
+                customer.signup_date = "";
+                customer.expire_date = "";
+                customer.status = "Pending Payment";
+                customer.tariff = tariff;
+                customer.amount = amount;
+                customer.renewed_by = renewedBy;
+                customer.invoice_number = invoiceNum;
+                customer.outstanding_amount = outstandingAmt;
+                
+                if (config.scriptUrl) {
+                    syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1, true);
+                } else {
+                    saveLocalData();
+                    renderAll();
+                }
+            } else if (renewalStatus === "Success") {
                 customer.signup_date = newStartDate;
                 customer.period = period;
                 customer.expire_date = newExpireDate;
@@ -2442,12 +2678,14 @@
             activeSignupTab = serviceType;
             const buttons = document.querySelectorAll('#signup-sub-tabs .sub-tab-btn');
             buttons.forEach(btn => {
-                if (btn.innerText === serviceType) {
+                const service = btn.getAttribute('data-service');
+                if (service === serviceType) {
                     btn.classList.add('active');
                 } else {
                     btn.classList.remove('active');
                 }
             });
+            signupPage = 1;
             renderSignupList();
         }
 
@@ -2455,12 +2693,14 @@
             activeTopupSubTab = serviceType;
             const buttons = document.querySelectorAll('#topup-sub-tabs .sub-tab-btn');
             buttons.forEach(btn => {
-                if (btn.innerText === serviceType) {
+                const service = btn.getAttribute('data-service');
+                if (service === serviceType) {
                     btn.classList.add('active');
                 } else {
                     btn.classList.remove('active');
                 }
             });
+            customerPage = 1;
             renderCustomerList();
         }
 
@@ -2499,6 +2739,11 @@
             let overdue = 0;
             let newSignupsCount = 0;
             
+            let expiringSmartHome = 0;
+            let expiringFiber = 0;
+            let expiringSMEService = 0;
+            let expiringPrepaid = 0;
+
             customers.forEach(c => {
                 if (c.status === "Active") {
                     totalActive++;
@@ -2513,6 +2758,20 @@
                             overdue++;
                         } else if (diffDays <= 5) {
                             expiring++;
+                        }
+                        
+                        // Track counts separately for each service type for those who almost expire (< 5 days, including overdue)
+                        if (diffDays <= 5) {
+                            const serviceType = c.service_type || 'Smart@Home';
+                            if (serviceType === 'Smart@Home') {
+                                expiringSmartHome++;
+                            } else if (serviceType === 'Fiber+') {
+                                expiringFiber++;
+                            } else if (serviceType === 'SME Service') {
+                                expiringSMEService++;
+                            } else if (serviceType === 'Prepaid Service') {
+                                expiringPrepaid++;
+                            }
                         }
                     }
                 }
@@ -2546,6 +2805,16 @@
             document.getElementById('stat-pending-payment').innerText = pendingPaymentCount;
             document.getElementById('stat-expiring').innerText = expiring;
             document.getElementById('stat-overdue').innerText = overdue;
+
+            // Update Dashboard Almost Expired Alerts Box
+            const alertCountSmartHome = document.getElementById('alert-count-smarthome');
+            if (alertCountSmartHome) alertCountSmartHome.innerText = expiringSmartHome;
+            const alertCountFiber = document.getElementById('alert-count-fiber');
+            if (alertCountFiber) alertCountFiber.innerText = expiringFiber;
+            const alertCountSMEService = document.getElementById('alert-count-sme');
+            if (alertCountSMEService) alertCountSMEService.innerText = expiringSMEService;
+            const alertCountPrepaid = document.getElementById('alert-count-prepaid');
+            if (alertCountPrepaid) alertCountPrepaid.innerText = expiringPrepaid;
 
             // Update Dashboard KPIs
             const dbNewSignups = document.getElementById('db-new-signups');
