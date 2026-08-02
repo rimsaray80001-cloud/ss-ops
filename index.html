@@ -2524,10 +2524,19 @@
             
             const renewalId = "REN_" + new Date().getTime() + "_" + Math.floor(Math.random() * 1000);
             
-            const startD = new Date(newStartDate);
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const monthSheetName = "Sheet " + monthNames[startD.getMonth()];
-            const renewalMonthYear = startD.getFullYear() + "-" + String(startD.getMonth() + 1).padStart(2, '0');
+            let monthSheetName = "";
+            let renewalMonthYear = "";
+            if (newStartDate) {
+                const startD = new Date(newStartDate);
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                monthSheetName = "Sheet " + monthNames[startD.getMonth()];
+                renewalMonthYear = startD.getFullYear() + "-" + String(startD.getMonth() + 1).padStart(2, '0');
+            } else {
+                const startD = new Date();
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                monthSheetName = "Sheet " + monthNames[startD.getMonth()];
+                renewalMonthYear = startD.getFullYear() + "-" + String(startD.getMonth() + 1).padStart(2, '0');
+            }
             
             const renewalPayload = {
                 renewal_id: renewalId,
@@ -2558,7 +2567,23 @@
                 showSuccessModal("Local Renewal Saved", "Renewal action saved locally in the browser's local storage (Offline Mode).");
             }
             
-            if (renewalStatus === "Success") {
+            if (renewalStatus === "Pending Payment") {
+                customer.signup_date = "";
+                customer.expire_date = "";
+                customer.status = "Pending Payment";
+                customer.tariff = tariff;
+                customer.amount = amount;
+                customer.renewed_by = renewedBy;
+                customer.invoice_number = invoiceNum;
+                customer.outstanding_amount = outstandingAmt;
+                
+                if (config.scriptUrl) {
+                    syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1, true);
+                } else {
+                    saveLocalData();
+                    renderAll();
+                }
+            } else if (renewalStatus === "Success") {
                 customer.signup_date = newStartDate;
                 customer.period = period;
                 customer.expire_date = newExpireDate;
