@@ -642,7 +642,7 @@
             }
         }
 
-        function handleFormSubmit(e) {
+        async function handleFormSubmit(e) {
             e.preventDefault();
 
             const customerName = document.getElementById('f-cust').value.trim();
@@ -671,7 +671,7 @@
                 if (id && c.id === id) {
                     return false;
                 }
-                return c.number && c.number.trim().toLowerCase() === topUpNumber.toLowerCase();
+                return c.number && String(c.number).trim().toLowerCase() === String(topUpNumber).trim().toLowerCase();
             });
 
             if (isDuplicateNumber) {
@@ -702,10 +702,10 @@
             if (id) {
                 // Edit save
                 payload.id = id;
-                syncCloudAction('save', payload, id, rowIndex);
+                await syncCloudAction('save', payload, id, rowIndex);
             } else {
                 // New save
-                syncCloudAction('save', payload);
+                await syncCloudAction('save', payload);
             }
 
             closeSignupModal();
@@ -1356,7 +1356,7 @@
             document.getElementById('r-new-expire').value = newExpiryStr;
         }
 
-        function handleRenewalSubmit(e) {
+        async function handleRenewalSubmit(e) {
             e.preventDefault();
             
             const customerId = document.getElementById('r-cust-id').value;
@@ -1414,7 +1414,7 @@
             saveRenewals();
             
             if (config.scriptUrl) {
-                sendRenewalToCloud(renewalPayload, monthSheetName);
+                await sendRenewalToCloud(renewalPayload, monthSheetName);
             } else {
                 showSuccessModal("Local Renewal Saved", "Renewal action saved locally in the browser's local storage (Offline Mode).");
             }
@@ -1428,9 +1428,10 @@
                 customer.renewed_by = renewedBy;
                 customer.invoice_number = invoiceNum;
                 customer.outstanding_amount = outstandingAmt;
+                customer.is_renewed = true;
                 
                 if (config.scriptUrl) {
-                    syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1, true);
+                    await syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1, true);
                 } else {
                     saveLocalData();
                     renderAll();
@@ -1445,9 +1446,10 @@
                 customer.renewed_by = renewedBy;
                 customer.invoice_number = invoiceNum;
                 customer.outstanding_amount = outstandingAmt;
+                customer.is_renewed = true;
                 
                 if (config.scriptUrl) {
-                    syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1, true);
+                    await syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1, true);
                 } else {
                     saveLocalData();
                     renderAll();
@@ -1737,6 +1739,11 @@
         }
 
         function renderCharts() {
+            if (typeof Chart === 'undefined') {
+                console.warn("Chart.js is not loaded. Skipping chart rendering.");
+                return;
+            }
+
             if (document.getElementById('view-dashboard').style.display === 'none') {
                 return;
             }
