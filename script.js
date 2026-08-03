@@ -642,7 +642,7 @@
             }
         }
 
-        function handleFormSubmit(e) {
+        async function handleFormSubmit(e) {
             e.preventDefault();
 
             const customerName = document.getElementById('f-cust').value.trim();
@@ -671,7 +671,7 @@
                 if (id && c.id === id) {
                     return false;
                 }
-                return c.number && c.number.trim().toLowerCase() === topUpNumber.toLowerCase();
+                return c.number && String(c.number).trim().toLowerCase() === String(topUpNumber).trim().toLowerCase();
             });
 
             if (isDuplicateNumber) {
@@ -702,10 +702,10 @@
             if (id) {
                 // Edit save
                 payload.id = id;
-                syncCloudAction('save', payload, id, rowIndex);
+                await syncCloudAction('save', payload, id, rowIndex);
             } else {
                 // New save
-                syncCloudAction('save', payload);
+                await syncCloudAction('save', payload);
             }
 
             closeSignupModal();
@@ -1737,6 +1737,11 @@
         }
 
         function renderCharts() {
+            if (typeof Chart === 'undefined') {
+                console.warn("Chart.js is not loaded. Skipping chart rendering.");
+                return;
+            }
+
             if (document.getElementById('view-dashboard').style.display === 'none') {
                 return;
             }
