@@ -257,6 +257,24 @@
         <section id="view-dashboard">
             <!-- Dashboard Stats Grid -->
             <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 25px;">
+                <div class="stat-card info" style="border-left-color: #8E44AD; background: linear-gradient(135deg, rgba(142, 68, 173, 0.05) 0%, var(--white) 100%);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div class="stat-label">Renewal Success Rate (Month)</div>
+                            <div class="stat-value" id="db-renewal-rate">0% <span class="stat-unit">(0/0)</span></div>
+                        </div>
+                        <div style="font-size: 2rem; opacity: 0.85;">📈</div>
+                    </div>
+                </div>
+                <div class="stat-card warning" style="border-left-color: #E67E22; background: linear-gradient(135deg, rgba(230, 126, 34, 0.05) 0%, var(--white) 100%);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div class="stat-label">Renewal Collection (Month)</div>
+                            <div class="stat-value" id="db-renewal-collection">$0.00 <span class="stat-unit">/ $0.00</span></div>
+                        </div>
+                        <div style="font-size: 2rem; opacity: 0.85;">💰</div>
+                    </div>
+                </div>
                 <div class="stat-card primary">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>

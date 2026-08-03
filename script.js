@@ -1639,6 +1639,8 @@
             // Compute success and pending renewals for the current month
             let successRenewCount = 0;
             let pendingPaymentCount = 0;
+            let totalRenewalAmount = 0;
+            let actualCollection = 0;
             
             const currentMonthYearStr = currentYear + "-" + String(currentMonth + 1).padStart(2, '0'); // YYYY-MM
             
@@ -1649,8 +1651,53 @@
                     } else if (r.renewal_status === "Pending Payment") {
                         pendingPaymentCount++;
                     }
+                    
+                    let amt = parseFloat(r.amount);
+                    if (isNaN(amt)) {
+                        const cleaned = String(r.amount).replace(/[^0-9.-]/g, '');
+                        amt = parseFloat(cleaned) || 0;
+                    }
+                    let out = parseFloat(r.outstanding_amount);
+                    if (isNaN(out)) {
+                        const cleaned = String(r.outstanding_amount).replace(/[^0-9.-]/g, '');
+                        out = parseFloat(cleaned) || 0;
+                    }
+                    
+                    totalRenewalAmount += amt;
+                    if (r.renewal_status === "Success") {
+                        actualCollection += (amt - out);
+                    }
                 }
             });
+
+            // Calculate total Renewal List eligibility across the database
+            let totalRenewalListCount = 0;
+            const lastDayOfCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            lastDayOfCurrentMonth.setHours(23, 59, 59, 999);
+            
+            customers.forEach(c => {
+                const isPendingPayment = c.status === "Pending Payment";
+                let isTopupEligible = false;
+                
+                if (isPendingPayment) {
+                    isTopupEligible = true;
+                } else if (c.status === 'Active' && c.expire_date) {
+                    const exp = new Date(c.expire_date);
+                    exp.setHours(0,0,0,0);
+                    const diffTime = exp - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (exp <= lastDayOfCurrentMonth || diffDays <= 5) {
+                        isTopupEligible = true;
+                    }
+                }
+                
+                if (isTopupEligible) {
+                    totalRenewalListCount++;
+                }
+            });
+            
+            const totalExpectedRenewals = successRenewCount + totalRenewalListCount;
+            const renewalSuccessRate = totalExpectedRenewals > 0 ? Math.round((successRenewCount / totalExpectedRenewals) * 100) : 0;
             
             document.getElementById('stat-total-active').innerText = totalActive;
             document.getElementById('stat-success-renew').innerText = successRenewCount;
@@ -1677,6 +1724,16 @@
             if (dbPendingTopups) dbPendingTopups.innerHTML = `${pendingPaymentCount} <span class="stat-unit">cust</span>`;
             const dbTotalActive = document.getElementById('db-total-active');
             if (dbTotalActive) dbTotalActive.innerHTML = `${totalActive} <span class="stat-unit">cust</span>`;
+
+            // Update newly added headers
+            const dbRenewalRate = document.getElementById('db-renewal-rate');
+            if (dbRenewalRate) {
+                dbRenewalRate.innerHTML = `${renewalSuccessRate}% <span class="stat-unit">(${successRenewCount}/${totalExpectedRenewals})</span>`;
+            }
+            const dbRenewalCollection = document.getElementById('db-renewal-collection');
+            if (dbRenewalCollection) {
+                dbRenewalCollection.innerHTML = `$${actualCollection.toFixed(2)} <span class="stat-unit">/ $${totalRenewalAmount.toFixed(2)}</span>`;
+            }
         }
 
         function renderCharts() {
