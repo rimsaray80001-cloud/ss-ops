@@ -1356,7 +1356,7 @@
             document.getElementById('r-new-expire').value = newExpiryStr;
         }
 
-        function handleRenewalSubmit(e) {
+        async function handleRenewalSubmit(e) {
             e.preventDefault();
             
             const customerId = document.getElementById('r-cust-id').value;
@@ -1414,7 +1414,7 @@
             saveRenewals();
             
             if (config.scriptUrl) {
-                sendRenewalToCloud(renewalPayload, monthSheetName);
+                await sendRenewalToCloud(renewalPayload, monthSheetName);
             } else {
                 showSuccessModal("Local Renewal Saved", "Renewal action saved locally in the browser's local storage (Offline Mode).");
             }
@@ -1428,9 +1428,10 @@
                 customer.renewed_by = renewedBy;
                 customer.invoice_number = invoiceNum;
                 customer.outstanding_amount = outstandingAmt;
+                customer.is_renewed = true;
                 
                 if (config.scriptUrl) {
-                    syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1, true);
+                    await syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1, true);
                 } else {
                     saveLocalData();
                     renderAll();
@@ -1445,9 +1446,10 @@
                 customer.renewed_by = renewedBy;
                 customer.invoice_number = invoiceNum;
                 customer.outstanding_amount = outstandingAmt;
+                customer.is_renewed = true;
                 
                 if (config.scriptUrl) {
-                    syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1, true);
+                    await syncCloudAction('save', customer, customer.id, customer.sheetRowIndex || -1, true);
                 } else {
                     saveLocalData();
                     renderAll();
