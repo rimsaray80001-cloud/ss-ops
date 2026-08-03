@@ -350,16 +350,18 @@
                         pic: item.pic || "",
                         tariff: item.tariff || "",
                         amount: parseFloat(item.amount) || 0,
-                        signup_date: item.signup_date || "",
+                        signup_date: item.signup_date || item.new_start_date || "",
                         period: parseInt(item.period) || 1,
-                        expire_date: item.expire_date || "",
-                        status: item.status || "Active",
+                        expire_date: item.expire_date || item.new_expire_date || "",
+                        status: item.status || item.renewal_status || "Active",
                         overdue_days: parseInt(item.overdue_days) || 0,
                         sheetRowIndex: item.sheetRowIndex || -1,
                         service_type: item.service_type || "Smart@Home",
                         free_service: item.free_service || "",
                         invoice_number: item.invoice_number || "",
-                        outstanding_amount: item.outstanding_amount !== undefined ? parseFloat(item.outstanding_amount) || 0 : 0
+                        outstanding_amount: item.outstanding_amount !== undefined ? parseFloat(item.outstanding_amount) || 0 : 0,
+                        is_renewed: item.is_renewed || (item.sheetName && item.sheetName !== "Sign Up" && item.sheetName !== "Terminate" && item.sheetName !== "Terminated") || false,
+                        sheetName: item.sheetName || ""
                     }));
                     saveLocalData();
                     recalculateOverdueDaysLocally();
@@ -425,16 +427,18 @@
                         pic: item.pic || "",
                         tariff: item.tariff || "",
                         amount: parseFloat(item.amount) || 0,
-                        signup_date: item.signup_date || "",
+                        signup_date: item.signup_date || item.new_start_date || "",
                         period: parseInt(item.period) || 1,
-                        expire_date: item.expire_date || "",
-                        status: item.status || "Active",
+                        expire_date: item.expire_date || item.new_expire_date || "",
+                        status: item.status || item.renewal_status || "Active",
                         overdue_days: parseInt(item.overdue_days) || 0,
                         sheetRowIndex: item.sheetRowIndex || -1,
                         service_type: item.service_type || "Smart@Home",
                         free_service: item.free_service || "",
                         invoice_number: item.invoice_number || "",
-                        outstanding_amount: item.outstanding_amount !== undefined ? parseFloat(item.outstanding_amount) || 0 : 0
+                        outstanding_amount: item.outstanding_amount !== undefined ? parseFloat(item.outstanding_amount) || 0 : 0,
+                        is_renewed: item.is_renewed || (item.sheetName && item.sheetName !== "Sign Up" && item.sheetName !== "Terminate" && item.sheetName !== "Terminated") || false,
+                        sheetName: item.sheetName || ""
                     }));
                     saveLocalData();
                     recalculateOverdueDaysLocally();
@@ -1748,7 +1752,7 @@
                     }
                 }
                 
-                if (c.signup_date) {
+                if (c.signup_date && !c.is_renewed) {
                     const sd = new Date(c.signup_date);
                     if (!isNaN(sd.getTime()) && sd.getFullYear() === currentYear && sd.getMonth() === currentMonth) {
                         newSignupsCount++;
@@ -1756,7 +1760,7 @@
                 }
             });
             
-            // Compute success and pending renewals for the current month
+            // Compute success and pending renewals for the current month from both local/synced logs and customer states
             let successRenewCount = 0;
             let pendingPaymentCount = 0;
             let totalRenewalAmount = 0;
@@ -1764,14 +1768,13 @@
             
             const currentMonthYearStr = currentYear + "-" + String(currentMonth + 1).padStart(2, '0'); // YYYY-MM
             
+            // Map to deduplicate by customer ID
+            const currentMonthRenewals = new Map();
+            
+            // 1. Process from renewals log (local or historical)
             renewals.forEach(r => {
                 if (r.renewal_month === currentMonthYearStr) {
-                    if (r.renewal_status === "Success") {
-                        successRenewCount++;
-                    } else if (r.renewal_status === "Pending Payment") {
-                        pendingPaymentCount++;
-                    }
-                    
+                    const custId = r.customer_id;
                     let amt = parseFloat(r.amount);
                     if (isNaN(amt)) {
                         const cleaned = String(r.amount).replace(/[^0-9.-]/g, '');
@@ -1783,10 +1786,56 @@
                         out = parseFloat(cleaned) || 0;
                     }
                     
-                    totalRenewalAmount += amt;
-                    if (r.renewal_status === "Success") {
-                        actualCollection += (amt - out);
+                    currentMonthRenewals.set(custId, {
+                        id: custId,
+                        status: r.renewal_status,
+                        amount: amt,
+                        outstanding_amount: out
+                    });
+                }
+            });
+            
+            // 2. Process/supplement from customers array (synced from the cloud)
+            customers.forEach(c => {
+                if (c.is_renewed) {
+                    let isCurrentMonth = false;
+                    if (c.signup_date) {
+                        const sd = new Date(c.signup_date);
+                        if (!isNaN(sd.getTime()) && sd.getFullYear() === currentYear && sd.getMonth() === currentMonth) {
+                            isCurrentMonth = true;
+                        }
                     }
+                    
+                    // Fallback: if it has pending payment and is not in our map yet, treat it as current month's pending renewal
+                    if (c.status === "Pending Payment" && !currentMonthRenewals.has(c.id)) {
+                        isCurrentMonth = true;
+                    }
+                    
+                    if (isCurrentMonth) {
+                        let amt = parseFloat(c.amount) || 0;
+                        let out = parseFloat(c.outstanding_amount) || 0;
+                        
+                        currentMonthRenewals.set(c.id, {
+                            id: c.id,
+                            status: c.status === "Pending Payment" ? "Pending Payment" : "Success",
+                            amount: amt,
+                            outstanding_amount: out
+                        });
+                    }
+                }
+            });
+            
+            // 3. Compute the KPI stats from the deduplicated Map
+            currentMonthRenewals.forEach(item => {
+                if (item.status === "Success") {
+                    successRenewCount++;
+                } else if (item.status === "Pending Payment") {
+                    pendingPaymentCount++;
+                }
+                
+                totalRenewalAmount += item.amount;
+                if (item.status === "Success") {
+                    actualCollection += (item.amount - item.outstanding_amount);
                 }
             });
 
