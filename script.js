@@ -239,11 +239,83 @@
             localStorage.setItem('ss_ops_renewals', JSON.stringify(renewals));
         }
 
+        function getSMEServiceDetails(signupDateStr, amount, today = new Date()) {
+            if (!signupDateStr) return { outstanding_amount: 0, status: 'Active', monthsCount: 0 };
+            
+            const signupDate = new Date(signupDateStr);
+            if (isNaN(signupDate.getTime())) return { outstanding_amount: 0, status: 'Active', monthsCount: 0 };
+            
+            const startYear = signupDate.getFullYear();
+            const startMonth = signupDate.getMonth();
+            
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth();
+            const currentDay = today.getDate();
+            
+            const totalMonthsElapsed = (currentYear - startYear) * 12 + (currentMonth - startMonth);
+            
+            if (totalMonthsElapsed < 0) {
+                return { outstanding_amount: 0, status: 'Active', monthsCount: 0 };
+            }
+            
+            let outstandingMonths = 0;
+            let status = 'Active';
+            
+            if (totalMonthsElapsed === 0) {
+                outstandingMonths = 0;
+                status = 'Active';
+            } else if (totalMonthsElapsed === 1) {
+                if (currentDay <= 27) {
+                    outstandingMonths = 1;
+                } else {
+                    outstandingMonths = 2;
+                }
+                status = 'Active';
+            } else {
+                if (totalMonthsElapsed === 2) {
+                    if (currentDay <= 27) {
+                        outstandingMonths = 2;
+                        status = 'Active';
+                    } else {
+                        outstandingMonths = 3;
+                        status = 'Suspend';
+                    }
+                } else {
+                    outstandingMonths = totalMonthsElapsed + (currentDay > 27 ? 1 : 0);
+                    status = 'Suspend';
+                }
+            }
+            
+            return {
+                outstanding_amount: outstandingMonths * amount,
+                status: status,
+                monthsCount: outstandingMonths
+            };
+        }
+
+        function getSMEPaymentPeriodText(signupDateStr) {
+            if (!signupDateStr) return "N/A";
+            const d = new Date(signupDateStr);
+            if (isNaN(d.getTime())) return "N/A";
+            const nextMonthDate = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return `1st - 27th ${monthNames[nextMonthDate.getMonth()]} ${nextMonthDate.getFullYear()}`;
+        }
+
         function recalculateOverdueDaysLocally() {
             const today = new Date();
             today.setHours(0,0,0,0);
             
             customers.forEach(c => {
+                const serviceType = c.service_type || 'Smart@Home';
+                if (serviceType === 'SME Service') {
+                    if (c.signup_date && c.status !== 'Terminated' && c.status !== 'Terminate') {
+                        const sme = getSMEServiceDetails(c.signup_date, c.amount, today);
+                        c.outstanding_amount = sme.outstanding_amount;
+                        c.status = sme.status;
+                    }
+                }
+
                 if (c.expire_date && c.status === "Active") {
                     const exp = new Date(c.expire_date);
                     exp.setHours(0,0,0,0);
@@ -406,6 +478,27 @@
         function autoCalculateFields() {
             const signupDateStr = document.getElementById('f-signup-date').value;
             const periodStr = document.getElementById('f-period').value;
+            const serviceType = document.getElementById('f-service-type') ? document.getElementById('f-service-type').value : "";
+
+            if (serviceType === 'SME Service') {
+                if (!signupDateStr) {
+                    if (document.getElementById('f-outstanding-amt')) {
+                        document.getElementById('f-outstanding-amt').value = "0.00";
+                    }
+                    return;
+                }
+                const amount = parseFloat(document.getElementById('f-amt').value) || 0;
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const sme = getSMEServiceDetails(signupDateStr, amount, today);
+                if (document.getElementById('f-outstanding-amt')) {
+                    document.getElementById('f-outstanding-amt').value = sme.outstanding_amount.toFixed(2);
+                }
+                if (document.getElementById('f-status')) {
+                    document.getElementById('f-status').value = sme.status;
+                }
+                return;
+            }
             
             if (!signupDateStr || !periodStr) {
                 document.getElementById('f-expire-date').value = "";
@@ -457,6 +550,7 @@
             if (val && PLAN_AMOUNTS[val] !== undefined) {
                 document.getElementById(amountInputId).value = PLAN_AMOUNTS[val];
             }
+            autoCalculateFields();
         }
 
         function updateFormFieldsForServiceType(serviceType, selectedTariff = null, selectedAmt = null) {
@@ -880,12 +974,18 @@
 
                 // Condition for Top Up Tab visibility
                 let isTopupEligible = false;
-                if (isPendingPayment) {
-                    isTopupEligible = true;
-                } else if (c.status === 'Active' && c.expire_date) {
-                    const exp = new Date(c.expire_date);
-                    if (exp <= lastDayOfCurrentMonth || diffDays <= 5) {
+                if (serviceType === 'SME Service') {
+                    if (c.status === 'Active' || c.status === 'Suspend' || c.status === 'Pending Payment') {
                         isTopupEligible = true;
+                    }
+                } else {
+                    if (isPendingPayment) {
+                        isTopupEligible = true;
+                    } else if (c.status === 'Active' && c.expire_date) {
+                        const exp = new Date(c.expire_date);
+                        if (exp <= lastDayOfCurrentMonth || diffDays <= 5) {
+                            isTopupEligible = true;
+                        }
                     }
                 }
 
@@ -938,7 +1038,19 @@
 
                 // Calculate expiry alert
                 let alertBadgeHTML = '';
-                if (c.expire_date) {
+                const serviceType = c.service_type || 'Smart@Home';
+                if (serviceType === 'SME Service') {
+                    const sme = getSMEServiceDetails(c.signup_date, c.amount, today);
+                    if (sme.outstanding_amount === 0) {
+                        alertBadgeHTML = `<span class="alert-pill success">🟢 Cleared ($0.00)</span>`;
+                    } else if (sme.monthsCount === 1) {
+                        alertBadgeHTML = `<span class="alert-pill warning">⚠️ 1 Month Due ($${sme.outstanding_amount.toFixed(2)})</span>`;
+                    } else if (sme.monthsCount === 2) {
+                        alertBadgeHTML = `<span class="alert-pill danger">🔴 2 Months Overdue ($${sme.outstanding_amount.toFixed(2)})</span>`;
+                    } else {
+                        alertBadgeHTML = `<span class="alert-pill" style="background:#595959; color:white;">🚫 Suspended ($${sme.outstanding_amount.toFixed(2)})</span>`;
+                    }
+                } else if (c.expire_date) {
                     if (c.status === 'Pending Payment') {
                         alertBadgeHTML = `<span class="alert-pill" style="background:#ECECEC; color:#8C8C8C;">⚪ Pending Payment</span>`;
                     } else if (diffDays < 0) {
@@ -971,12 +1083,18 @@
                                 ${c.tariff}
                             </span><br>
                             <small style="font-weight:600; color:#333;">$${amountFormatted}</small>
+                            ${serviceType === 'SME Service' ? `<br><span style="margin-top:4px; display:inline-block; font-size:0.85rem; font-weight:bold; color:var(--danger);">Outstanding: $${(c.outstanding_amount || 0).toFixed(2)}</span>` : ''}
                         </td>
                         <td>
-                            <span>${c.expire_date || "N/A"}</span><br>
-                            <small style="color:${c.overdue_days > 0 && !isPendingPayment ? 'var(--danger)' : 'var(--text-gray)'}; font-weight:${c.overdue_days > 0 && !isPendingPayment ? 'bold' : 'normal'};">
-                                ${isPendingPayment ? 'Pending Payment' : (c.overdue_days > 0 ? 'Overdue ' + c.overdue_days + ' days' : 'Period: ' + c.period + 'm')}
-                            </small>
+                            ${serviceType === 'SME Service' ? `
+                                <span style="font-weight:600;">Renew Date: ${c.signup_date || "N/A"}</span><br>
+                                <small style="color:var(--text-gray); display:inline-block; margin-top:4px;">Payment Period:<br><strong style="color:#555;">${getSMEPaymentPeriodText(c.signup_date)}</strong></small>
+                            ` : `
+                                <span>${c.expire_date || "N/A"}</span><br>
+                                <small style="color:${c.overdue_days > 0 && !isPendingPayment ? 'var(--danger)' : 'var(--text-gray)'}; font-weight:${c.overdue_days > 0 && !isPendingPayment ? 'bold' : 'normal'};">
+                                    ${isPendingPayment ? 'Pending Payment' : (c.overdue_days > 0 ? 'Overdue ' + c.overdue_days + ' days' : 'Period: ' + c.period + 'm')}
+                                </small>
+                            `}
                         </td>
                         <td>
                             <span class="badge ${c.status.toLowerCase().replace(' ', '-')}" style="margin-bottom:6px;">${c.status}</span><br>
