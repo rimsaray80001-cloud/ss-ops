@@ -1087,7 +1087,10 @@
                                 ${c.tariff}
                             </span><br>
                             <small style="font-weight:600; color:#333;">$${amountFormatted}</small>
-                            ${serviceType === 'SME Service' ? `<br><span style="margin-top:4px; display:inline-block; font-size:0.85rem; font-weight:bold; color:var(--danger);">Outstanding: $${(c.outstanding_amount || 0).toFixed(2)}</span>` : ''}
+                            ${serviceType === 'SME Service' ? `
+                                <br><span style="margin-top:4px; display:inline-block; font-size:0.8rem; font-weight:bold; color:var(--text-gray);">Inv: ${c.invoice_number || "N/A"}</span>
+                                <br><span style="margin-top:4px; display:inline-block; font-size:0.85rem; font-weight:bold; color:var(--danger);">Outstanding: $${(c.outstanding_amount || 0).toFixed(2)}</span>
+                            ` : ''}
                         </td>
                         <td>
                             ${serviceType === 'SME Service' ? `
@@ -1202,6 +1205,7 @@
             pageItems.forEach(c => {
                 const amountFormatted = parseFloat(c.amount).toFixed(2);
                 const isPendingPayment = c.status === "Pending Payment";
+                const serviceType = c.service_type || 'Smart@Home';
                 
                 let alertBadgeHTML = '';
                 if (c.expire_date) {
@@ -1243,6 +1247,7 @@
                                 ${c.tariff}
                             </span><br>
                             <small style="font-weight:600; color:#333;">$${amountFormatted}</small>
+                            ${serviceType === 'SME Service' ? `<br><span style="margin-top:4px; display:inline-block; font-size:0.8rem; font-weight:bold; color:var(--text-gray);">Inv: ${c.invoice_number || "N/A"}</span>` : ''}
                         </td>
                         <td>
                             <span>${c.expire_date || "N/A"}</span><br>
